@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BDG · Horarios LIVE</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:#F8F8F7; --surface:#FFFFFF; --surface2:#F2F2F0; --surface3:#E8E8E5;
+  --line:#E0E0DC; --line2:#CBCBC6;
+  --carbon:#1C1C1A; --carbon2:#2E2E2B;
+  --text:#1C1C1A; --text2:#5A5A56; --muted:#9A9A94;
+  --oxide:#B8432A; --oxide2:#D4573E; --oxide-l:#FAEAE7; --oxide-ll:#F5D0C8;
+  --pos:#2D6A3F; --pos-l:#E8F5EC;
+  --neg:#8B2020; --neg-l:#F5EAEA;
+  --warn:#7A5C1E; --warn-l:#F5EDD6;
+  --neu:#4A5568; --neu-l:#EDF2F7;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--carbon);color:#fff;padding:0 24px;height:44px;display:flex;align-items:center;justify-content:space-between;font-size:11px;letter-spacing:.18em;text-transform:uppercase;}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#4ade80;animation:pulse 2s infinite;display:inline-block;margin-right:6px;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── LANDING ── */
+#landing{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 44px);padding:32px 16px;}
+.landing-logo{height:22px;width:auto;filter:brightness(0);margin-bottom:32px;}
+.landing-title{font-family:'EB Garamond',serif;font-size:28px;font-weight:500;letter-spacing:-.02em;margin-bottom:6px;text-align:center;}
+.landing-sub{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:48px;}
+.role-cards{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;max-width:720px;}
+.role-card{background:var(--surface);border:1px solid var(--line);padding:28px 32px;cursor:pointer;transition:border-color .15s,box-shadow .15s;text-align:center;width:200px;}
+.role-card:hover{border-color:var(--oxide);box-shadow:0 4px 16px rgba(184,67,42,.1);}
+.role-icon{font-size:28px;margin-bottom:12px;}
+.role-label{font-size:13px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+.role-desc{font-size:11px;color:var(--muted);}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(28,28,26,.5);z-index:100;display:flex;align-items:center;justify-content:center;}
+.modal{background:var(--surface);border:1px solid var(--line);padding:36px 32px;width:100%;max-width:380px;}
+.modal h2{font-family:'EB Garamond',serif;font-size:22px;font-weight:500;margin-bottom:4px;}
+.modal-sub{font-size:12px;color:var(--muted);margin-bottom:24px;letter-spacing:.05em;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px;}
+.field input,.field select{width:100%;padding:10px 12px;border:1px solid var(--line2);font-size:13px;font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);outline:none;transition:border-color .15s;}
+.field input:focus,.field select:focus{border-color:var(--carbon);}
+.field .hint{font-size:11px;color:var(--muted);margin-top:5px;}
+.modal-err{font-size:12px;color:var(--neg);background:var(--neg-l);padding:8px 12px;margin-top:10px;display:none;}
+.modal-actions{display:flex;gap:10px;margin-top:16px;}
+
+/* ── BUTTONS ── */
+.btn{padding:10px 20px;font-size:12px;font-family:'Jost',sans-serif;font-weight:500;letter-spacing:.12em;text-transform:uppercase;border:none;cursor:pointer;transition:background .15s;}
+.btn.primary{background:var(--carbon);color:#fff;}
+.btn.primary:hover{background:var(--carbon2);}
+.btn.accent{background:var(--oxide);color:#fff;}
+.btn.accent:hover{background:var(--oxide2);}
+.btn.ghost{background:none;border:1px solid var(--line2);color:var(--text2);}
+.btn.ghost:hover{border-color:var(--carbon);color:var(--carbon);}
+.btn.danger{background:none;border:1px solid var(--neg-l);color:var(--neg);font-size:11px;padding:6px 12px;}
+.btn.danger:hover{background:var(--neg-l);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ── APP SHELL ── */
+#app{display:none;}
+.app-header{background:var(--surface);border-bottom:1px solid var(--line);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;}
+.app-header-left{display:flex;align-items:center;gap:16px;}
+.app-logo{height:18px;filter:brightness(0);}
+.app-view-label{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);border-left:1px solid var(--line2);padding-left:16px;}
+.user-chip{font-size:12px;background:var(--surface2);border:1px solid var(--line);padding:5px 12px;color:var(--text2);letter-spacing:.06em;display:flex;align-items:center;gap:8px;}
+.app-body{padding:28px;max-width:1100px;margin:0 auto;}
+
+/* ── TABS ── */
+.tabs{display:flex;border-bottom:1px solid var(--line);margin-bottom:28px;}
+.tab{padding:10px 20px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;color:var(--muted);transition:color .15s;}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--oxide);border-bottom-color:var(--oxide);font-weight:600;}
+
+/* ── SECTION ── */
+.section-title{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead{background:var(--carbon);}
+thead th{color:#fff;font-size:10px;letter-spacing:.22em;text-transform:uppercase;padding:10px 14px;font-weight:500;text-align:left;}
+tbody tr{border-bottom:1px solid var(--line);}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--surface2);}
+td{padding:10px 14px;vertical-align:middle;}
+.code-badge{font-family:'EB Garamond',serif;font-size:14px;background:var(--surface2);border:1px solid var(--line2);padding:2px 10px;letter-spacing:.08em;}
+.role-pill{font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:3px 10px;font-weight:500;}
+.role-pill.anfitriona{background:var(--oxide-ll);color:var(--oxide);}
+.role-pill.backend{background:var(--neu-l);color:var(--neu);}
+.empty-state{text-align:center;padding:56px;color:var(--muted);font-size:13px;line-height:1.7;}
+.empty-icon{font-size:32px;margin-bottom:12px;opacity:.4;}
+
+/* ── AVATAR ── */
+.avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;border:1px solid var(--line2);flex-shrink:0;background:var(--surface2);}
+.avatar-sm{width:24px;height:24px;border-radius:50%;object-fit:cover;border:1px solid var(--line2);flex-shrink:0;}
+.avatar-placeholder{width:32px;height:32px;border-radius:50%;background:var(--surface3);border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);flex-shrink:0;}
+.avatar-upload-wrap{position:relative;cursor:pointer;display:inline-flex;align-items:center;gap:8px;}
+.avatar-upload-wrap input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.avatar-upload-btn{font-size:11px;color:var(--oxide);letter-spacing:.08em;text-decoration:underline;cursor:pointer;background:none;border:none;padding:0;font-family:'Jost',sans-serif;}
+.avatar-lg{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid var(--line2);display:block;margin-bottom:8px;}
+.avatar-lg-placeholder{width:56px;height:56px;border-radius:50%;background:var(--surface3);border:2px solid var(--line2);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:8px;}
+
+/* ── ADD MEMBER FORM ── */
+.add-form{background:var(--surface);border:1px solid var(--line);padding:20px 24px;margin-bottom:24px;}
+.add-form-title{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.form-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;}
+.form-row .field{margin-bottom:0;flex:1;min-width:140px;}
+.form-err{font-size:11px;color:var(--neg);margin-top:8px;display:none;}
+
+/* ── WEEK NAV ── */
+.week-nav{display:flex;align-items:center;gap:14px;margin-bottom:22px;}
+.week-label{font-family:'EB Garamond',serif;font-size:20px;font-weight:500;}
+.week-btn{width:32px;height:32px;border:1px solid var(--line2);background:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:border-color .15s;}
+.week-btn:hover{border-color:var(--carbon);}
+
+/* ── SESSION CARDS ── */
+.slots-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-bottom:24px;}
+.slot-card{background:var(--surface);border:1px solid var(--line);padding:18px 20px;position:relative;transition:border-color .15s;}
+.slot-card.mine{border-color:var(--oxide);background:var(--oxide-l);}
+.slot-day{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.slot-time{font-family:'EB Garamond',serif;font-size:24px;font-weight:500;margin-bottom:12px;}
+.slot-spots{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.spot-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);font-size:12px;}
+.spot-row.filled-mine{background:var(--oxide-l);border-color:var(--oxide-ll);}
+.spot-row.filled{background:var(--surface2);}
+.spot-row.open{background:var(--surface);}
+.spot-icon{font-size:14px;width:20px;text-align:center;flex-shrink:0;}
+.spot-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);width:70px;flex-shrink:0;}
+.spot-name{flex:1;font-weight:500;}
+.spot-note{font-size:10px;color:var(--muted);font-style:italic;}
+.spot-status{font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;flex-shrink:0;}
+.spot-status.confirmed{background:var(--pos-l);color:var(--pos);}
+.spot-status.pending{background:var(--warn-l);color:var(--warn);}
+.spot-status.open{background:var(--surface3);color:var(--muted);}
+.slot-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.slot-select-btn{font-size:11px;padding:7px 16px;font-family:'Jost',sans-serif;font-weight:500;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--oxide);background:none;color:var(--oxide);cursor:pointer;transition:all .15s;}
+.slot-select-btn:hover{background:var(--oxide);color:#fff;}
+.slot-select-btn.active{background:var(--oxide);color:#fff;}
+.slot-select-btn:disabled{opacity:.4;cursor:not-allowed;border-color:var(--line2);color:var(--muted);}
+.slot-delete-btn{position:absolute;top:10px;right:12px;background:var(--surface2);border:1px solid var(--line2);cursor:pointer;color:var(--muted);font-size:13px;line-height:1;transition:all .15s;z-index:10;width:24px;height:24px;display:flex;align-items:center;justify-content:center;}
+.slot-delete-btn:hover{background:var(--neg-l);border-color:var(--neg);color:var(--neg);}
+.add-slot-card{background:none;border:1px dashed var(--line2);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:160px;cursor:pointer;transition:border-color .15s;}
+.add-slot-card:hover{border-color:var(--oxide);}
+.add-slot-icon{font-size:24px;opacity:.4;margin-bottom:8px;}
+.add-slot-text{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);}
+
+/* ── LIMIT BAR ── */
+.limit-bar{background:var(--surface);border:1px solid var(--line);padding:14px 18px;margin-bottom:22px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.limit-item{display:flex;align-items:center;gap:10px;}
+.limit-label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+.limit-pips{display:flex;gap:5px;}
+.pip{width:28px;height:8px;}
+.pip.used{background:var(--oxide);}
+.pip.free{background:var(--line2);}
+.limit-count{font-family:'EB Garamond',serif;font-size:16px;font-weight:500;}
+
+/* ── MY SESSIONS ── */
+.my-slots{display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+.my-slot-row{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--line2);padding:14px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;transition:border-color .15s;}
+.my-slot-row.confirmed{border-left-color:var(--pos);}
+.my-slot-row.pending{border-left-color:var(--warn);}
+.my-slot-info{flex:1;min-width:150px;}
+.my-slot-day{font-size:10px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:2px;}
+.my-slot-time{font-family:'EB Garamond',serif;font-size:19px;font-weight:500;}
+.my-slot-note{font-size:11px;color:var(--muted);margin-top:2px;font-style:italic;}
+.my-slot-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.confirm-btn{font-size:11px;padding:7px 14px;font-family:'Jost',sans-serif;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border:1px solid transparent;transition:all .15s;}
+.confirm-btn.confirm{background:var(--pos-l);color:var(--pos);border-color:#b2d8bc;}
+.confirm-btn.confirm:hover,.confirm-btn.confirm.active{background:var(--pos);color:#fff;border-color:var(--pos);}
+.confirm-btn.cancel-btn{background:none;border:1px solid var(--line2);color:var(--muted);}
+.confirm-btn.cancel-btn:hover{background:var(--neg-l);border-color:var(--neg);color:var(--neg);}
+.notes-input{font-size:12px;border:1px solid var(--line2);padding:7px 10px;font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);outline:none;width:160px;}
+.notes-input:focus{border-color:var(--carbon);}
+
+/* ── ADMIN SPOT BUTTONS ── */
+.adm-spot-btn{border:none;cursor:pointer;font-size:10px;padding:3px 8px;font-family:'Jost',sans-serif;font-weight:500;letter-spacing:.06em;text-transform:uppercase;transition:all .15s;flex-shrink:0;}
+.adm-spot-btn.conf{background:var(--pos-l);color:var(--pos);border:1px solid #b2d8bc;}
+.adm-spot-btn.conf:hover{background:var(--pos);color:#fff;}
+.adm-spot-btn.conf.active{background:var(--pos);color:#fff;}
+.adm-spot-btn.rm{background:none;border:1px solid var(--line2);color:var(--muted);margin-left:2px;}
+.adm-spot-btn.rm:hover{background:var(--neg-l);color:var(--neg);border-color:var(--neg);}
+.adm-spot-btn.assign{background:var(--oxide);color:#fff;border:1px solid var(--oxide);}
+.adm-spot-btn.assign:hover{background:var(--oxide2);}
+.adm-select{flex:1;min-width:0;padding:3px 6px;border:1px solid var(--line2);font-size:12px;font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);outline:none;}
+.adm-select:focus{border-color:var(--carbon);}
+.adm-tag{font-size:9px;letter-spacing:.12em;text-transform:uppercase;background:var(--neu-l);color:var(--neu);padding:2px 6px;vertical-align:middle;font-family:'Jost',sans-serif;font-weight:500;}
+
+/* ── SUMMARY ── */
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;}
+.summary-card{background:var(--surface);border:1px solid var(--line);overflow:hidden;}
+.sum-head{background:var(--carbon);color:#fff;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;}
+.sum-head-title{font-size:11px;letter-spacing:.16em;text-transform:uppercase;}
+.sum-head-date{font-size:11px;opacity:.55;}
+.sum-body{padding:0;}
+.sum-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line);font-size:12px;}
+.sum-row:last-child{border-bottom:none;}
+.sum-role-icon{font-size:14px;width:20px;text-align:center;flex-shrink:0;}
+.sum-name{flex:1;}
+.sum-code{font-size:11px;color:var(--muted);font-family:'EB Garamond',serif;}
+.sum-status{font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;flex-shrink:0;}
+.sum-status.confirmed{background:var(--pos-l);color:var(--pos);}
+.sum-status.pending{background:var(--warn-l);color:var(--warn);}
+.sum-status.open{background:var(--surface2);color:var(--muted);}
+
+/* ── LANDING HEADER ── */
+.landing-header{background:var(--surface);border-bottom:1px solid var(--line);padding:14px 28px;display:flex;align-items:flex-start;justify-content:flex-start;gap:16px;}
+.landing-header-left{display:flex;align-items:center;gap:14px;padding-top:2px;flex-shrink:0;}
+.landing-title-block{display:flex;flex-direction:column;gap:8px;border-left:1px solid var(--line2);padding-left:16px;}
+.landing-title-small{font-family:'EB Garamond',serif;font-size:17px;font-weight:500;letter-spacing:-.01em;line-height:1;}
+.landing-access-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.access-btn{padding:6px 14px;font-size:11px;font-family:'Jost',sans-serif;font-weight:500;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--line2);background:none;color:var(--text2);cursor:pointer;transition:all .15s;}
+.access-btn:hover{border-color:var(--carbon);color:var(--carbon);}
+.access-btn.admin-btn{background:var(--carbon);color:#fff;border-color:var(--carbon);}
+.access-btn.admin-btn:hover{background:var(--carbon2);}
+
+/* ── CALENDARIO PÚBLICO ── */
+.pub-cal{width:100%;max-width:1060px;padding:28px 28px 48px;}
+.pub-cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+.pub-cal-title{font-family:'EB Garamond',serif;font-size:22px;font-weight:500;letter-spacing:-.02em;}
+.pub-week-nav{display:flex;align-items:center;gap:10px;}
+.pub-week-label{font-size:13px;color:var(--text2);letter-spacing:.05em;}
+.pub-week-btn{width:32px;height:32px;border:1px solid var(--line2);background:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+.pub-week-btn:hover{border-color:var(--carbon);}
+.pub-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;}
+/* ── WEEKLY CAL GRID ── */
+.cwg-wrap{width:100%;overflow-x:auto;}
+.cwg{width:100%;border:1px solid var(--line);border-collapse:collapse;min-width:580px;}
+.cwg-row{display:grid;grid-template-columns:54px repeat(7,1fr);border-bottom:1px solid var(--line);}
+.cwg-row:last-child{border-bottom:none;}
+.cwg-head-row{display:grid;grid-template-columns:54px repeat(7,1fr);background:var(--carbon);}
+.cwg-time{padding:7px 6px;font-size:11px;color:var(--muted);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--line);font-family:'EB Garamond',serif;font-size:13px;letter-spacing:.02em;}
+.cwg-head-row .cwg-time{border-right-color:rgba(255,255,255,.12);}
+.cwg-dh{padding:10px 6px;border-left:1px solid rgba(255,255,255,.12);text-align:center;color:#fff;}
+.cwg-dh.cwg-today{background:var(--oxide);}
+.cwg-dh-name{font-size:9px;letter-spacing:.2em;text-transform:uppercase;opacity:.6;margin-bottom:2px;}
+.cwg-dh-date{font-family:'EB Garamond',serif;font-size:14px;font-weight:500;}
+.cwg-cell{padding:5px 7px;border-left:1px solid var(--line);min-height:50px;}
+.cwg-cell.full{background:var(--pos-l);}
+.cwg-cell.part{background:var(--warn-l);}
+.cwg-cell.open{background:var(--surface);}
+.cwg-cell.none{background:var(--bg);}
+.cwg-spot{display:flex;align-items:center;gap:4px;font-size:11px;padding:2px 0;line-height:1.3;}
+.cwg-sname{font-weight:500;color:var(--text);}
+.cwg-libre{color:var(--muted);font-size:10px;}
+.pub-empty{text-align:center;padding:32px;color:var(--muted);font-size:12px;letter-spacing:.1em;}
+
+@media(max-width:600px){
+  .role-cards{flex-direction:column;align-items:center;}
+  .role-card{width:100%;max-width:320px;}
+  .form-row{flex-direction:column;}
+  .app-body{padding:16px;}
+  .limit-bar{flex-direction:column;align-items:flex-start;gap:12px;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span>BDG · Horarios LIVE</span>
+  <span><span class="live-dot"></span>En línea</span>
+</div>
+
+<!-- ── LANDING ── -->
+<div id="landing">
+  <!-- Header con acceso -->
+  <div class="landing-header">
+    <div class="landing-header-left">
+      <img src="https://baladigala.com/cdn/shop/files/TIPOGRAFIA_0eeef2c9-8447-407e-940f-5d63c2a8467c.webp?v=1737764437&width=610" alt="BDG" style="height:17px;filter:brightness(0);"/>
+    </div>
+    <div class="landing-title-block">
+      <span class="landing-title-small">Horarios LIVE</span>
+      <div class="landing-access-btns">
+        <button class="access-btn" onclick="openAccess('anfitriona')">🎙️ Anfitriona</button>
+        <button class="access-btn" onclick="openAccess('backend')">💻 Backend</button>
+        <button class="access-btn admin-btn" onclick="openAccess('admin')">⚙️ Admin</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendario público -->
+  <div style="display:flex;justify-content:center;background:var(--bg);min-height:calc(100vh - 100px);">
+    <div class="pub-cal">
+      <div class="pub-cal-header">
+        <span class="pub-cal-title">Calendario de sesiones</span>
+        <div class="pub-week-nav">
+          <button class="pub-week-btn" id="pubBackBtn" onclick="pubChangeWeek(-1)" style="visibility:hidden">‹</button>
+          <span class="pub-week-label" id="pubWeekLabel">—</span>
+          <button class="pub-week-btn" onclick="pubChangeWeek(1)">›</button>
+        </div>
+      </div>
+      <div id="pubGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ACCESS MODAL ── -->
+<div class="modal-overlay" id="accessModal" style="display:none;">
+  <div class="modal">
+    <h2 id="modalTitle">Acceso</h2>
+    <p class="modal-sub" id="modalSub"></p>
+    <div class="field" id="adminPassField" style="display:none;">
+      <label>Contraseña</label>
+      <input type="password" id="adminPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')submitAccess()"/>
+    </div>
+    <div class="field" id="codeField" style="display:none;">
+      <label>Tu código</label>
+      <input type="text" id="memberCode" placeholder="ej. ANA01" style="text-transform:uppercase;" onkeydown="if(event.key==='Enter')submitAccess()"/>
+    </div>
+    <div class="modal-err" id="accessErr"></div>
+    <div class="modal-actions">
+      <button class="btn primary" onclick="submitAccess()">Entrar</button>
+      <button class="btn ghost" onclick="closeModal('accessModal')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SLOT MODAL ── -->
+<div class="modal-overlay" id="slotModal" style="display:none;">
+  <div class="modal">
+    <h2>Nueva sesión</h2>
+    <p class="modal-sub">Sesiones de 1.5 hrs · 1 anfitriona + 1 backend</p>
+    <div class="form-row" style="margin-bottom:12px;">
+      <div class="field">
+        <label>Día</label>
+        <select id="slotDay">
+          <option>Lunes</option><option>Martes</option><option>Miércoles</option>
+          <option>Jueves</option><option>Viernes</option><option>Sábado</option><option>Domingo</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Fecha</label>
+        <input type="date" id="slotDate"/>
+      </div>
+    </div>
+    <div class="field">
+      <label>Hora de inicio</label>
+      <input type="time" id="slotStart" value="19:00" oninput="updateEndPreview()"/>
+      <div class="hint" id="endPreview">Termina a las 20:30</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn accent" onclick="saveSlot()">Crear sesión</button>
+      <button class="btn ghost" onclick="closeModal('slotModal')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── NOTES MODAL ── -->
+<div class="modal-overlay" id="notesModal" style="display:none;">
+  <div class="modal">
+    <h2>Nota del turno</h2>
+    <p class="modal-sub" id="notesModalSub"></p>
+    <div class="field">
+      <label>Comentario (opcional)</label>
+      <input type="text" id="notesInput" placeholder="ej. Llego 10 min antes" maxlength="80" onkeydown="if(event.key==='Enter')saveNotes()"/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn accent" onclick="saveNotes()">Guardar</button>
+      <button class="btn ghost" onclick="closeModal('notesModal')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app">
+  <div class="app-header">
+    <div class="app-header-left">
+      <img class="app-logo" src="https://baladigala.com/cdn/shop/files/TIPOGRAFIA_0eeef2c9-8447-407e-940f-5d63c2a8467c.webp?v=1737764437&width=610" alt="BDG"/>
+      <span class="app-view-label" id="appViewLabel">—</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="user-chip" id="userChip">—</span>
+      <button class="btn ghost" onclick="doLogout()" style="font-size:11px;padding:7px 14px;">Salir</button>
+    </div>
+  </div>
+  <div class="app-body" id="appBody"></div>
+</div>
+
+<script>
+// ── CONSTANTES ────────────────────────────────────────────────────────────────
+const ADMIN_PASS   = "bdgadmin2026";
+const MAX_ANFI     = 2;   // sesiones máx por DÍA para anfitrionas
+const DEFAULT_TIMES = ["08:30","10:00","11:30","13:00","14:30","16:00","17:30","19:00"]; // 8 sesiones × 1.5h = 8:30am–8:30pm
+const MAX_BACKEND  = 3;   // sesiones máx por DÍA para backend
+const SESSION_MINS = 90;  // duración fija en minutos
+
+// ── ESTADO ────────────────────────────────────────────────────────────────────
+let STATE = {
+  members: [],  // { code, name, role }
+  slots:   [],  // { id, day, date, timeStart, timeEnd }
+  picks:   [],  // { slotId, memberCode, status, notes }  status: pending|confirmed|cancelled
+};
+let SESSION = { role: null, code: null, name: null };
+let pendingAccessRole = null;
+let pendingNotesSlotId = null;
+let currentWeekOffset = 0;
+
+// ── PERSISTENCIA ──────────────────────────────────────────────────────────────
+let _saveTimer = null;
+
+function save(){
+  localStorage.setItem("bdg_horarios_v2", JSON.stringify(STATE));
+  // Debounce para no saturar el API
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(()=>{
+    fetch("/api/state", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(STATE)
+    }).catch(()=>{});
+  }, 600);
+}
+
+async function load(){
+  // 1. Carga local primero (instantáneo)
+  const raw = localStorage.getItem("bdg_horarios_v2");
+  if(raw){ try{ STATE = JSON.parse(raw); }catch(e){} }
+  // 2. Trae el estado del servidor (fuente de verdad compartida)
+  try{
+    const res  = await fetch("/api/state");
+    const data = await res.json();
+    if(data && data.members){
+      STATE = data;
+      localStorage.setItem("bdg_horarios_v2", JSON.stringify(STATE));
+    }
+  }catch(e){}
+}
+
+// ── FOTOS DE PERFIL ───────────────────────────────────────────────────────────
+function getPhoto(code){ return localStorage.getItem("bdg_photo_" + code) || null; }
+function setPhoto(code, dataUrl){ localStorage.setItem("bdg_photo_" + code, dataUrl); }
+
+function uploadPhoto(code, afterFn){
+  const inp = document.createElement("input");
+  inp.type = "file"; inp.accept = "image/*";
+  inp.onchange = e => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => { setPhoto(code, ev.target.result); if(afterFn) afterFn(); };
+    reader.readAsDataURL(file);
+  };
+  inp.click();
+}
+
+function avatarHtml(code, size="sm"){
+  const photo = getPhoto(code);
+  const cls   = size === "lg" ? "avatar-lg" : size === "md" ? "avatar" : "avatar-sm";
+  const phCls = size === "lg" ? "avatar-lg-placeholder" : "avatar-placeholder";
+  if(photo) return `<img src="${photo}" class="${cls}" alt=""/>`;
+  const m = STATE.members.find(mb=>mb.code===code);
+  const ini = m ? m.name.trim()[0].toUpperCase() : "?";
+  return `<div class="${phCls}">${ini}</div>`;
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function uid(){ return "s" + Date.now() + Math.random().toString(36).slice(2,5); }
+
+function fmtDate(d){
+  if(!d) return "—";
+  const [,m,day] = d.split("-");
+  const ms = ["","Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+  return `${parseInt(day)} ${ms[parseInt(m)]}`;
+}
+
+function addMins(time, mins){
+  const [h,mi] = time.split(":").map(Number);
+  const total = h*60 + mi + mins;
+  return `${String(Math.floor(total/60)%24).padStart(2,"0")}:${String(total%60).padStart(2,"0")}`;
+}
+
+function getWeekDates(offset=0){
+  const now = new Date();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (now.getDay()||7) + 1 + offset*7);
+  return Array.from({length:7},(_,i)=>{
+    const d = new Date(monday); d.setDate(monday.getDate()+i);
+    return d.toISOString().slice(0,10);
+  });
+}
+
+function weekLabel(offset){
+  const [d0,d6] = [getWeekDates(offset)[0], getWeekDates(offset)[6]];
+  return `${fmtDate(d0)} – ${fmtDate(d6)}`;
+}
+
+// ── AUTO-CÓDIGO (difícil de adivinar) ─────────────────────────────────────────
+function generateCode(name){
+  const base  = name.trim().split(/\s+/)[0].toUpperCase().replace(/[^A-Z]/g,"").slice(0,3).padEnd(3,"X");
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sin I,O,0,1 para evitar confusión
+  let code;
+  do {
+    code = base + Array.from({length:4}, ()=> chars[Math.floor(Math.random()*chars.length)]).join("");
+  } while(STATE.members.find(m => m.code === code));
+  return code;
+}
+
+// ── LÍMITES SEMANALES ─────────────────────────────────────────────────────────
+function dayPickCount(memberCode, date){
+  return STATE.picks.filter(p => {
+    if(p.memberCode !== memberCode || p.status === "cancelled") return false;
+    const slot = STATE.slots.find(s => s.id === p.slotId);
+    return slot && slot.date === date;
+  }).length;
+}
+
+function memberLimit(role){ return role === "anfitriona" ? MAX_ANFI : MAX_BACKEND; }
+
+// ── MODALES ───────────────────────────────────────────────────────────────────
+function closeModal(id){ document.getElementById(id).style.display="none"; }
+
+function openAccess(role){
+  pendingAccessRole = role;
+  document.getElementById("accessErr").style.display="none";
+  document.getElementById("adminPass").value="";
+  document.getElementById("memberCode").value="";
+  if(role === "admin"){
+    document.getElementById("modalTitle").textContent = "Acceso Admin";
+    document.getElementById("modalSub").textContent   = "Ingresa la contraseña de administradora";
+    document.getElementById("adminPassField").style.display = "block";
+    document.getElementById("codeField").style.display      = "none";
+    setTimeout(()=>document.getElementById("adminPass").focus(),100);
+  } else {
+    document.getElementById("modalTitle").textContent = role === "anfitriona" ? "Anfitriona" : "Staff Backend";
+    document.getElementById("modalSub").textContent   = "Ingresa tu código personal";
+    document.getElementById("adminPassField").style.display = "none";
+    document.getElementById("codeField").style.display      = "block";
+    setTimeout(()=>document.getElementById("memberCode").focus(),100);
+  }
+  document.getElementById("accessModal").style.display="flex";
+}
+
+function submitAccess(){
+  const err = document.getElementById("accessErr");
+  err.style.display="none";
+  if(pendingAccessRole === "admin"){
+    if(document.getElementById("adminPass").value !== ADMIN_PASS){
+      err.style.display="block"; err.textContent="Contraseña incorrecta."; return;
+    }
+    SESSION = { role:"admin", code:"ADMIN", name:"Administradora" };
+  } else {
+    const raw    = document.getElementById("memberCode").value.trim().toUpperCase();
+    const member = STATE.members.find(m => m.code===raw && m.role===pendingAccessRole);
+    if(!member){
+      err.style.display="block";
+      err.textContent="Código no encontrado. Verifica con tu administradora."; return;
+    }
+    SESSION = { role: pendingAccessRole, code: member.code, name: member.name };
+  }
+  closeModal("accessModal");
+  renderApp();
+}
+
+function doLogout(){
+  SESSION = { role:null, code:null, name:null };
+  document.getElementById("app").style.display    = "none";
+  document.getElementById("landing").style.display = "block";
+}
+
+// ── APP SHELL ─────────────────────────────────────────────────────────────────
+function renderApp(){
+  document.getElementById("landing").style.display = "none";
+  document.getElementById("app").style.display     = "block";
+  const labels = { admin:"Administradora", anfitriona:"Anfitriona", backend:"Staff Backend" };
+  document.getElementById("appViewLabel").textContent = labels[SESSION.role];
+  const chipPhoto = SESSION.role!=="admin" ? avatarHtml(SESSION.code,"sm") : "";
+  document.getElementById("userChip").innerHTML = SESSION.role==="admin"
+    ? "⚙️ Admin"
+    : `${chipPhoto}<span>${SESSION.name} · ${SESSION.code}</span>`;
+  SESSION.role === "admin" ? renderAdmin() : renderMember();
+}
+
+// ── ADMIN ─────────────────────────────────────────────────────────────────────
+function renderAdmin(tab="equipo"){
+  document.getElementById("appBody").innerHTML = `
+    <div class="tabs">
+      <div class="tab ${tab==="equipo"?"active":""}"  onclick="renderAdmin('equipo')">Equipo</div>
+      <div class="tab ${tab==="sesiones"?"active":""}" onclick="renderAdmin('sesiones')">Sesiones</div>
+      <div class="tab ${tab==="resumen"?"active":""}"  onclick="renderAdmin('resumen')">Resumen</div>
+    </div>
+    <div id="tabContent"></div>`;
+  if(tab==="equipo")   renderAdminEquipo();
+  if(tab==="sesiones") renderAdminSesiones();
+  if(tab==="resumen")  renderAdminResumen();
+}
+
+// TAB: EQUIPO
+function renderAdminEquipo(){
+  const anfiTotal = STATE.members.filter(m=>m.role==="anfitriona").length;
+  const backTotal = STATE.members.filter(m=>m.role==="backend").length;
+  document.getElementById("tabContent").innerHTML = `
+    <div class="add-form">
+      <div class="add-form-title">Agregar persona al equipo</div>
+      <div class="form-row">
+        <div class="field"><label>Nombre completo</label>
+          <input id="newName" type="text" placeholder="ej. Ana García" maxlength="40"
+            oninput="previewCode()" onkeydown="if(event.key==='Enter')addMember()"/></div>
+        <div class="field"><label>Rol</label>
+          <select id="newRole" onchange="previewCode()">
+            <option value="anfitriona">Anfitriona (máx ${MAX_ANFI} ses/día)</option>
+            <option value="backend">Staff Backend (máx ${MAX_BACKEND} ses/día)</option>
+          </select></div>
+        <div class="field" style="min-width:120px;">
+          <label>Código asignado</label>
+          <input id="codePreview" type="text" readonly style="background:var(--surface3);color:var(--muted);font-family:'EB Garamond',serif;font-size:15px;" placeholder="—"/></div>
+        <div class="field" style="min-width:auto;display:flex;align-items:flex-end;">
+          <button class="btn accent" onclick="addMember()">+ Agregar</button></div>
+      </div>
+      <div class="form-err" id="memberErr"></div>
+    </div>
+    <div class="section-title">${STATE.members.length} persona${STATE.members.length!==1?"s":""} registradas · ${anfiTotal} anfitriona${anfiTotal!==1?"s":""} · ${backTotal} backend</div>
+    ${STATE.members.length === 0
+      ? `<div class="empty-state"><div class="empty-icon">👥</div>Aún no hay personas registradas.<br>Agrega a tu equipo arriba.</div>`
+      : `<div class="table-wrap"><table>
+          <thead><tr><th>Nombre</th><th>Código</th><th>Rol</th><th>Límite diario</th><th></th></tr></thead>
+          <tbody>${STATE.members.map(m=>{
+            const lim = memberLimit(m.role);
+            return `<tr>
+              <td style="display:flex;align-items:center;gap:10px;">${avatarHtml(m.code,"md")}<strong>${m.name}</strong></td>
+              <td><span class="code-badge">${m.code}</span></td>
+              <td><span class="role-pill ${m.role}">${m.role==="anfitriona"?"Anfitriona":"Backend"}</span></td>
+              <td style="color:var(--text2);">${lim} ses/día</td>
+              <td style="display:flex;gap:6px;align-items:center;">
+                <button class="avatar-upload-btn" onclick="uploadPhoto('${m.code}',()=>renderAdmin('equipo'))">📷 Foto</button>
+                <button class="btn danger" onclick="removeMember('${m.code}')">Eliminar</button>
+              </td>
+            </tr>`;
+          }).join("")}</tbody>
+        </table></div>`}`;
+}
+
+function previewCode(){
+  const name = document.getElementById("newName").value;
+  document.getElementById("codePreview").value = name.trim().length >= 2
+    ? generateCode(name) : "—";
+}
+
+function addMember(){
+  const name = document.getElementById("newName").value.trim();
+  const role = document.getElementById("newRole").value;
+  const err  = document.getElementById("memberErr");
+  if(name.length < 2){ err.style.display="block"; err.textContent="Escribe un nombre válido."; return; }
+  const code = generateCode(name);
+  STATE.members.push({ code, name, role });
+  save(); renderAdminEquipo();
+}
+
+function removeMember(code){
+  if(!confirm("¿Eliminar a esta persona? También se eliminarán sus selecciones.")) return;
+  STATE.members = STATE.members.filter(m=>m.code!==code);
+  STATE.picks   = STATE.picks.filter(p=>p.memberCode!==code);
+  save(); renderAdminEquipo();
+}
+
+// TAB: SESIONES
+// Genera 8 sesiones × 7 días para la semana indicada (si no existen ya)
+function generateDefaultWeek(offset){
+  const weekDates = getWeekDates(offset);
+  const DAYS = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+  let added = 0;
+  weekDates.forEach((date, di) => {
+    DEFAULT_TIMES.forEach(start => {
+      const exists = STATE.slots.find(s => s.date === date && s.timeStart === start);
+      if(!exists){
+        STATE.slots.push({ id: uid(), day: DAYS[di], date, timeStart: start, timeEnd: addMins(start, SESSION_MINS) });
+        added++;
+      }
+    });
+  });
+  if(added > 0){ save(); renderAdmin("sesiones"); renderPublicCal(); }
+}
+
+function clearWeek(offset){
+  if(!confirm("¿Limpiar todas las sesiones de esta semana? Las selecciones también se borrarán.")) return;
+  const weekDates = getWeekDates(offset);
+  const weekSlotIds = STATE.slots.filter(s => weekDates.includes(s.date)).map(s => s.id);
+  STATE.slots = STATE.slots.filter(s => !weekDates.includes(s.date));
+  STATE.picks = STATE.picks.filter(p => !weekSlotIds.includes(p.slotId));
+  save(); renderAdmin("sesiones"); renderPublicCal();
+}
+
+function renderAdminSesiones(){
+  const weekDates = getWeekDates(currentWeekOffset);
+  const weekSlots = STATE.slots
+    .filter(s=>weekDates.includes(s.date))
+    .sort((a,b)=>a.date.localeCompare(b.date)||a.timeStart.localeCompare(b.timeStart));
+
+  // Auto-generar si la semana está vacía
+  if(weekSlots.length === 0){
+    generateDefaultWeek(currentWeekOffset);
+    return; // renderAdminSesiones se vuelve a llamar desde generateDefaultWeek
+  }
+
+  const totalSlots = weekDates.reduce((n, date) => n + DEFAULT_TIMES.length, 0); // 56
+  const missing = totalSlots - weekSlots.length;
+
+  document.getElementById("tabContent").innerHTML = `
+    <div class="week-nav">
+      <button class="week-btn" onclick="changeWeek(-1)">‹</button>
+      <div class="week-label">${weekLabel(currentWeekOffset)}</div>
+      <button class="week-btn" onclick="changeWeek(1)">›</button>
+      <span style="margin-left:8px;font-size:11px;color:var(--muted);">${weekSlots.length} sesion${weekSlots.length!==1?"es":""}</span>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+      ${missing > 0 ? `<button class="btn ghost" style="font-size:11px;" onclick="generateDefaultWeek(${currentWeekOffset})">↺ Restaurar default (${missing} sesion${missing!==1?"es":""})</button>` : ""}
+      <button class="btn danger" style="padding:8px 14px;" onclick="clearWeek(${currentWeekOffset})">Limpiar semana</button>
+    </div>
+    <div class="slots-grid" id="slotsGrid"></div>`;
+
+  const grid = document.getElementById("slotsGrid");
+
+  const anfiMembers = STATE.members.filter(m=>m.role==="anfitriona");
+  const backMembers = STATE.members.filter(m=>m.role==="backend");
+
+  weekSlots.forEach(slot=>{
+    const anfiPick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)==="anfitriona");
+    const backPick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)==="backend");
+    const anfiName = anfiPick ? memberName(anfiPick.memberCode) : null;
+    const backName = backPick ? memberName(backPick.memberCode) : null;
+
+    const spotHtml = (icon, label, pick, name, role) => {
+      const members = role==="anfitriona" ? anfiMembers : backMembers;
+      const selId   = `sel_${role}_${slot.id}`;
+      if(pick && name){
+        const isConf = pick.status==="confirmed";
+        const byAdmin = pick.by === "admin";
+        return `<div class="spot-row filled">
+          <span class="spot-icon">${icon}</span>
+          <span class="spot-label">${label}</span>
+          <span class="spot-name">${name}${byAdmin?' <span class="adm-tag">Admin</span>':""}</span>
+          <span class="spot-status ${pick.status}">${isConf?"✓ Conf.":"Pend."}</span>
+          <button class="adm-spot-btn conf${isConf?" active":""}" onclick="adminConfirmPick('${slot.id}','${pick.memberCode}')" title="${isConf?"Marcar pendiente":"Confirmar"}">✓ Conf</button>
+          <button class="adm-spot-btn rm" onclick="adminRemovePick('${slot.id}','${pick.memberCode}')" title="Quitar asignación">×</button>
+        </div>`;
+      } else {
+        const opts = members.length
+          ? members.map(m=>`<option value="${m.code}">${m.name}</option>`).join("")
+          : `<option value="" disabled>Sin miembros</option>`;
+        return `<div class="spot-row open">
+          <span class="spot-icon">${icon}</span>
+          <span class="spot-label">${label}</span>
+          <select id="${selId}" class="adm-select"><option value="">— libre —</option>${opts}</select>
+          <button class="adm-spot-btn assign" onclick="adminAssign('${slot.id}','${role}')">Asignar</button>
+        </div>`;
+      }
+    };
+
+    const div = document.createElement("div");
+    div.className = "slot-card";
+    div.innerHTML = `
+      <button class="slot-delete-btn" onclick="deleteSlot('${slot.id}')" title="Eliminar sesión">🗑</button>
+      <div class="slot-day">${slot.day} · ${fmtDate(slot.date)}</div>
+      <div class="slot-time">${slot.timeStart} – ${slot.timeEnd}</div>
+      <div class="slot-spots">
+        ${spotHtml("🎙️","Anfitriona",anfiPick,anfiName,"anfitriona")}
+        ${spotHtml("💻","Backend",backPick,backName,"backend")}
+      </div>`;
+    grid.appendChild(div);
+  });
+
+  const addCard = document.createElement("div");
+  addCard.className = "add-slot-card";
+  addCard.onclick = openSlotModal;
+  addCard.innerHTML = `<div class="add-slot-icon">＋</div><div class="add-slot-text">Nueva sesión</div>`;
+  grid.appendChild(addCard);
+}
+
+function changeWeek(d){ currentWeekOffset+=d; renderAdmin("sesiones"); }
+
+function openSlotModal(){
+  const dates = getWeekDates(currentWeekOffset);
+  document.getElementById("slotDate").value   = dates[0];
+  document.getElementById("slotDay").value    = "Lunes";
+  document.getElementById("slotStart").value  = "19:00";
+  updateEndPreview();
+  document.getElementById("slotModal").style.display = "flex";
+}
+
+function updateEndPreview(){
+  const start = document.getElementById("slotStart").value;
+  if(start) document.getElementById("endPreview").textContent = "Termina a las " + addMins(start, SESSION_MINS);
+}
+
+function saveSlot(){
+  const date  = document.getElementById("slotDate").value;
+  const start = document.getElementById("slotStart").value;
+  if(!date || !start){ alert("Completa la fecha y hora."); return; }
+  STATE.slots.push({
+    id: uid(),
+    day: document.getElementById("slotDay").value,
+    date, timeStart: start, timeEnd: addMins(start, SESSION_MINS)
+  });
+  save(); closeModal("slotModal"); renderAdmin("sesiones"); renderPublicCal();
+}
+
+function deleteSlot(id){
+  STATE.slots = STATE.slots.filter(s=>s.id!==id);
+  STATE.picks = STATE.picks.filter(p=>p.slotId!==id);
+  save(); renderAdmin("sesiones"); renderPublicCal();
+}
+
+// TAB: RESUMEN
+function renderAdminResumen(){
+  const sorted = [...STATE.slots].sort((a,b)=>a.date.localeCompare(b.date)||a.timeStart.localeCompare(b.timeStart));
+  if(!sorted.length){
+    document.getElementById("tabContent").innerHTML = `<div class="empty-state"><div class="empty-icon">📅</div>No hay sesiones creadas aún.<br>Ve a la pestaña Sesiones para agregar.</div>`;
+    return;
+  }
+  const cards = sorted.map(slot=>{
+    const anfiPick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)==="anfitriona");
+    const backPick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)==="backend");
+    const rows = [
+      { icon:"🎙️", label:"Anfitriona", pick:anfiPick },
+      { icon:"💻",  label:"Backend",    pick:backPick },
+    ].map(({icon,label,pick})=>{
+      if(!pick) return `<div class="sum-row"><span class="sum-role-icon">${icon}</span><span class="sum-name" style="color:var(--muted)">${label} — libre</span><span class="sum-status open">Libre</span></div>`;
+      const m = STATE.members.find(mb=>mb.code===pick.memberCode);
+      const note = pick.notes ? ` <span style="color:var(--muted);font-size:11px;font-style:italic;">· ${pick.notes}</span>` : "";
+      return `<div class="sum-row">
+        <span class="sum-role-icon">${icon}</span>
+        <span class="sum-name"><strong>${m?m.name:pick.memberCode}</strong>${note}</span>
+        <span class="sum-code">${pick.memberCode}</span>
+        <span class="sum-status ${pick.status}">${pick.status==="confirmed"?"✓ Conf.":"Pendiente"}</span>
+      </div>`;
+    }).join("");
+    return `<div class="summary-card">
+      <div class="sum-head">
+        <span class="sum-head-title">${slot.day} · ${slot.timeStart}–${slot.timeEnd}</span>
+        <span class="sum-head-date">${fmtDate(slot.date)}</span>
+      </div>
+      <div class="sum-body">${rows}</div>
+    </div>`;
+  }).join("");
+  document.getElementById("tabContent").innerHTML = `
+    <div class="section-title">${sorted.length} sesion${sorted.length!==1?"es":""} · ${sorted.filter(s=>{const wp=STATE.picks.filter(p=>p.slotId===s.id&&p.status!=="cancelled");return wp.length===2;}).length} completas</div>
+    <div class="summary-grid">${cards}</div>`;
+}
+
+// ── MEMBER VIEW ───────────────────────────────────────────────────────────────
+function renderMember(){
+  const body         = document.getElementById("appBody");
+  const member       = STATE.members.find(m=>m.code===SESSION.code);
+  const limit        = memberLimit(SESSION.role);
+  const myActivePicks= STATE.picks.filter(p=>p.memberCode===SESSION.code&&p.status!=="cancelled");
+
+  // All available slots for this role
+  const available = STATE.slots
+    .filter(s=>{
+      const alreadyMine = myActivePicks.find(p=>p.slotId===s.id);
+      if(alreadyMine) return true;
+      const spotTaken = STATE.picks.find(p=>p.slotId===s.id&&p.status!=="cancelled"&&memberRole(p.memberCode)===SESSION.role);
+      return !spotTaken;
+    })
+    .sort((a,b)=>a.date.localeCompare(b.date)||a.timeStart.localeCompare(b.timeStart));
+
+  const overallCount= myActivePicks.length;
+  const roleLabel   = SESSION.role==="anfitriona" ? "Anfitriona" : "Staff Backend";
+  const emoji       = SESSION.role==="anfitriona" ? "🎙️" : "💻";
+
+  // Limit bar — muestra el total de sesiones seleccionadas
+  const pips = Array.from({length:limit},(_,i)=>`<div class="pip ${i<overallCount?"used":"free"}"></div>`).join("");
+
+  const memberPhoto = avatarHtml(SESSION.code, "lg");
+  body.innerHTML = `
+    <div style="margin-bottom:24px;display:flex;align-items:flex-start;gap:18px;">
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        ${memberPhoto}
+        <button class="avatar-upload-btn" onclick="uploadPhoto('${SESSION.code}', ()=>renderMember())">Cambiar foto</button>
+      </div>
+      <div>
+        <div style="font-family:'EB Garamond',serif;font-size:26px;font-weight:500;margin-bottom:4px;">
+          Hola, ${SESSION.name.split(" ")[0]} ${emoji}
+        </div>
+        <div style="font-size:11px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;">${roleLabel} · ${SESSION.code}</div>
+      </div>
+    </div>
+
+    <div class="limit-bar">
+      <div class="limit-item">
+        <span class="limit-label">Tus sesiones</span>
+        <div class="limit-pips">${pips}</div>
+        <span class="limit-count">${overallCount} / ${limit}</span>
+      </div>
+      <span style="font-size:12px;color:var(--muted);">Máx ${limit} sesiones por día</span>
+    </div>
+
+    ${myActivePicks.length > 0 ? `
+      <div class="section-title" style="margin-bottom:12px;">Mis sesiones (${myActivePicks.length})</div>
+      <div class="my-slots">${myActivePicks.map(p=>{
+        const slot = STATE.slots.find(s=>s.id===p.slotId);
+        if(!slot) return "";
+        // other person in same slot
+        const otherRole  = SESSION.role==="anfitriona"?"backend":"anfitriona";
+        const otherPick  = STATE.picks.find(op=>op.slotId===slot.id&&op.status!=="cancelled"&&memberRole(op.memberCode)===otherRole);
+        const otherName  = otherPick ? memberName(otherPick.memberCode) : null;
+        const otherIcon  = SESSION.role==="anfitriona"?"💻":"🎙️";
+        return `<div class="my-slot-row ${p.status}">
+          <div class="my-slot-info">
+            <div class="my-slot-day">${slot.day} · ${fmtDate(slot.date)}${p.by==="admin"?' <span class="adm-tag">Asignado por Admin</span>':""}</div>
+            <div class="my-slot-time">${slot.timeStart} – ${slot.timeEnd}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px;">
+              ${otherIcon} ${otherName ? `Con ${otherName}` : "Sin pareja asignada aún"}
+            </div>
+            ${p.notes?`<div class="my-slot-note">📝 ${p.notes}</div>`:""}
+          </div>
+          <div class="my-slot-actions">
+            <button class="confirm-btn confirm ${p.status==="confirmed"?"active":""}" onclick="setPickStatus('${slot.id}','confirmed')">✓ Confirmar</button>
+            <button class="confirm-btn cancel-btn" onclick="cancelPick('${slot.id}')">Quitar</button>
+            <button class="btn ghost" style="font-size:11px;padding:6px 12px;" onclick="openNotes('${slot.id}')">📝</button>
+          </div>
+        </div>`;
+      }).join("")}</div>` : ""}
+
+    <div class="section-title" style="margin-top:${myActivePicks.length>0?"8px":"0"};">
+      Sesiones disponibles — ${available.filter(s=>!myActivePicks.find(p=>p.slotId===s.id)).length} abiertas
+    </div>
+    ${available.length===0
+      ? `<div class="empty-state"><div class="empty-icon">📅</div>No hay sesiones disponibles por el momento.<br>Tu administradora las publicará pronto.</div>`
+      : `<div class="slots-grid">${available.map(slot=>{
+          const mine      = myActivePicks.find(p=>p.slotId===slot.id);
+          const otherRole = SESSION.role==="anfitriona"?"backend":"anfitriona";
+          const otherPick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)===otherRole);
+          const otherName = otherPick ? memberName(otherPick.memberCode) : null;
+          const otherIcon = SESSION.role==="anfitriona"?"💻":"🎙️";
+          // límite por DÍA: cuántas sesiones ya tiene en esa misma fecha
+          const dayCount  = dayPickCount(SESSION.code, slot.date);
+          const atLimit   = !mine && dayCount >= limit;
+          return `<div class="slot-card ${mine?"mine":""}">
+            <div class="slot-day">${slot.day} · ${fmtDate(slot.date)}</div>
+            <div class="slot-time">${slot.timeStart} – ${slot.timeEnd}</div>
+            <div class="slot-spots">
+              <div class="spot-row ${mine?"filled-mine":"open"}">
+                <span class="spot-icon">${SESSION.role==="anfitriona"?"🎙️":"💻"}</span>
+                <span class="spot-label">${SESSION.role==="anfitriona"?"Anfitriona":"Backend"}</span>
+                <span class="spot-name">${mine ? SESSION.name : "Libre"}</span>
+                ${mine?`<span class="spot-status ${mine.status}">${mine.status==="confirmed"?"✓ Conf.":"Pendiente"}</span>`:`<span class="spot-status open">Libre</span>`}
+              </div>
+              <div class="spot-row ${otherName?"filled":"open"}">
+                <span class="spot-icon">${otherIcon}</span>
+                <span class="spot-label">${SESSION.role==="anfitriona"?"Backend":"Anfitriona"}</span>
+                <span class="spot-name">${otherName||"Libre"}</span>
+                ${otherName?`<span class="spot-status ${otherPick.status}">${otherPick.status==="confirmed"?"✓ Conf.":"Pendiente"}</span>`:`<span class="spot-status open">Libre</span>`}
+              </div>
+            </div>
+            <div class="slot-actions">
+              ${mine
+                ? `<button class="slot-select-btn active" onclick="cancelPick('${slot.id}')">✓ Seleccionada · Quitar</button>`
+                : `<button class="slot-select-btn" onclick="selectSlot('${slot.id}')" ${atLimit?"disabled title='Límite del día alcanzado'":""}>
+                    ${atLimit?"Límite del día":"Seleccionar"}
+                  </button>`}
+            </div>
+          </div>`;
+        }).join("")}</div>`}`;
+}
+
+function memberRole(code){ const m=STATE.members.find(mb=>mb.code===code); return m?m.role:null; }
+function memberName(code){ const m=STATE.members.find(mb=>mb.code===code); return m?m.name:code; }
+
+function selectSlot(slotId){
+  if(STATE.picks.find(p=>p.slotId===slotId&&p.memberCode===SESSION.code&&p.status!=="cancelled")) return;
+  const slot  = STATE.slots.find(s=>s.id===slotId);
+  const limit = memberLimit(SESSION.role);
+  const count = dayPickCount(SESSION.code, slot.date);
+  if(count >= limit){ alert(`Ya tienes ${limit} sesion${limit!==1?"es":""} ese día (límite diario).`); return; }
+  STATE.picks.push({ slotId, memberCode:SESSION.code, status:"pending", notes:"" });
+  save(); renderMember(); renderPublicCal();
+}
+
+function cancelPick(slotId){
+  STATE.picks = STATE.picks.filter(p=>!(p.slotId===slotId&&p.memberCode===SESSION.code));
+  save(); renderMember(); renderPublicCal();
+}
+
+function setPickStatus(slotId, status){
+  const idx = STATE.picks.findIndex(pk => pk.slotId===slotId && pk.memberCode===SESSION.code);
+  if(idx >= 0){ STATE.picks[idx].status = status; save(); renderMember(); renderPublicCal(); }
+}
+
+// ── ADMIN ASIGNAR / CONFIRMAR ─────────────────────────────────────────────────
+function adminAssign(slotId, role){
+  const selId = `sel_${role}_${slotId}`;
+  const el = document.getElementById(selId);
+  if(!el || !el.value) return;
+  const memberCode = el.value;
+  const slot  = STATE.slots.find(s=>s.id===slotId);
+  const limit = memberLimit(role);
+  const count = dayPickCount(memberCode, slot.date);
+  if(count >= limit){ alert(`Esta persona ya tiene ${limit} sesión${limit!==1?"es":""} ese día (límite diario).`); return; }
+  if(STATE.picks.find(p=>p.slotId===slotId&&p.memberCode===memberCode&&p.status!=="cancelled")) return;
+  STATE.picks.push({ slotId, memberCode, status:"pending", notes:"", by:"admin" });
+  save(); renderAdmin("sesiones"); renderPublicCal();
+}
+
+function adminConfirmPick(slotId, memberCode){
+  const p = STATE.picks.find(p=>p.slotId===slotId&&p.memberCode===memberCode&&p.status!=="cancelled");
+  if(p){ p.status = p.status==="confirmed" ? "pending" : "confirmed"; save(); renderAdmin("sesiones"); renderPublicCal(); }
+}
+
+function adminRemovePick(slotId, memberCode){
+  if(!confirm("¿Quitar la asignación de esta persona?")) return;
+  STATE.picks = STATE.picks.filter(p=>!(p.slotId===slotId&&p.memberCode===memberCode));
+  save(); renderAdmin("sesiones"); renderPublicCal();
+}
+
+// ── NOTES ─────────────────────────────────────────────────────────────────────
+function openNotes(slotId){
+  const slot = STATE.slots.find(s=>s.id===slotId);
+  const pick = STATE.picks.find(p=>p.slotId===slotId&&p.memberCode===SESSION.code);
+  pendingNotesSlotId = slotId;
+  document.getElementById("notesModalSub").textContent = slot ? `${slot.day} · ${slot.timeStart}–${slot.timeEnd}` : "";
+  document.getElementById("notesInput").value = pick?.notes || "";
+  document.getElementById("notesModal").style.display = "flex";
+  setTimeout(()=>document.getElementById("notesInput").focus(),100);
+}
+function saveNotes(){
+  if(!pendingNotesSlotId) return;
+  const p = STATE.picks.find(p=>p.slotId===pendingNotesSlotId&&p.memberCode===SESSION.code);
+  if(p){ p.notes=document.getElementById("notesInput").value.trim(); save(); }
+  closeModal("notesModal"); pendingNotesSlotId=null; renderMember();
+}
+
+// ── CALENDARIO PÚBLICO ───────────────────────────────────────────────────────
+let pubWeekOffset = 0;
+const DAYS_SHORT = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
+
+function renderPublicCal(){
+  const weekDates = getWeekDates(pubWeekOffset);
+  const today     = new Date().toISOString().slice(0,10);
+
+  document.getElementById("pubWeekLabel").textContent = weekLabel(pubWeekOffset);
+
+  // Solo hacia adelante
+  const backBtn = document.getElementById("pubBackBtn");
+  if(backBtn) backBtn.style.visibility = pubWeekOffset <= 0 ? "hidden" : "visible";
+
+  const grid = document.getElementById("pubGrid");
+
+  // Cabecera de días
+  let headCols = `<div class="cwg-time"></div>`;
+  weekDates.forEach((date, i) => {
+    const isTod = date === today;
+    headCols += `<div class="cwg-dh${isTod?" cwg-today":""}">
+      <div class="cwg-dh-name">${DAYS_SHORT[i]}</div>
+      <div class="cwg-dh-date">${fmtDate(date)}</div>
+    </div>`;
+  });
+
+  // Filas por horario
+  let rows = "";
+  DEFAULT_TIMES.forEach(time => {
+    let cells = `<div class="cwg-time">${time}</div>`;
+    weekDates.forEach(date => {
+      const slot = STATE.slots.find(s => s.date === date && s.timeStart === time);
+      if(!slot){ cells += `<div class="cwg-cell none"></div>`; return; }
+      const anfiPick = STATE.picks.find(p => p.slotId===slot.id && p.status!=="cancelled" && memberRole(p.memberCode)==="anfitriona");
+      const backPick = STATE.picks.find(p => p.slotId===slot.id && p.status!=="cancelled" && memberRole(p.memberCode)==="backend");
+      const cls = (anfiPick && backPick) ? "full" : (anfiPick || backPick) ? "part" : "open";
+      const anfiTxt = anfiPick
+        ? avatarHtml(anfiPick.memberCode,"sm") + '<span class="cwg-sname">' + memberName(anfiPick.memberCode).split(" ")[0] + "</span>"
+        : '<span class="cwg-libre">Libre</span>';
+      const backTxt = backPick
+        ? avatarHtml(backPick.memberCode,"sm") + '<span class="cwg-sname">' + memberName(backPick.memberCode).split(" ")[0] + "</span>"
+        : '<span class="cwg-libre">Libre</span>';
+      cells += '<div class="cwg-cell ' + cls + '">'
+        + '<div class="cwg-spot">🎙 ' + anfiTxt + '</div>'
+        + '<div class="cwg-spot">💻 ' + backTxt + '</div>'
+        + '</div>';
+    });
+    rows += `<div class="cwg-row">${cells}</div>`;
+  });
+
+  grid.innerHTML = `<div class="cwg-wrap"><div class="cwg-head-row">${headCols}</div>${rows}</div>`;
+}
+
+function pubChangeWeek(d){
+  const next = pubWeekOffset + d;
+  if(next < 0) return;
+  pubWeekOffset = next;
+  renderPublicCal();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+(async ()=>{ await load();
+
+// Usuarios de prueba
+(function seedTest(){
+  // Miembros
+  const existing = STATE.members.map(m=>m.code);
+  if(!existing.includes("ANAT3S1"))
+    STATE.members.push({ code:"ANAT3S1", name:"Ana Prueba", role:"anfitriona" });
+  if(!existing.includes("LUIT3S2"))
+    STATE.members.push({ code:"LUIT3S2", name:"Luis Prueba", role:"backend" });
+
+  // Generar slots de la semana actual si no existen
+  const weekDates = getWeekDates(0);
+  const DAYS_NAMES = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+  const hasSlots   = STATE.slots.some(s => weekDates.includes(s.date));
+  if(!hasSlots){
+    weekDates.forEach((date, di) => {
+      DEFAULT_TIMES.forEach(start => {
+        STATE.slots.push({ id:uid(), day:DAYS_NAMES[di], date, timeStart:start, timeEnd:addMins(start, SESSION_MINS) });
+      });
+    });
+  }
+
+  // Asignar horarios de prueba (si no existen ya)
+  const weekSlots = STATE.slots
+    .filter(s => weekDates.includes(s.date))
+    .sort((a,b) => a.date.localeCompare(b.date) || a.timeStart.localeCompare(b.timeStart));
+
+  // [ slotIndex, anaStatus, luisStatus ] — mezcla para ver todos los estados
+  const assignments = [
+    [0, "confirmed", "confirmed"],
+    [1, "confirmed", "pending"],
+    [2, "pending",   "pending"],
+    [8, "confirmed", "confirmed"],   // martes
+    [9, "pending",   null],          // solo anfi
+    [10, null,       "pending"],     // solo backend
+  ];
+  assignments.forEach(([idx, anaStatus, luisStatus]) => {
+    const slot = weekSlots[idx];
+    if(!slot) return;
+    if(anaStatus && !STATE.picks.find(p=>p.slotId===slot.id&&p.memberCode==="ANAT3S1"))
+      STATE.picks.push({ slotId:slot.id, memberCode:"ANAT3S1", status:anaStatus, notes:"", by:"admin" });
+    if(luisStatus && !STATE.picks.find(p=>p.slotId===slot.id&&p.memberCode==="LUIT3S2"))
+      STATE.picks.push({ slotId:slot.id, memberCode:"LUIT3S2", status:luisStatus, notes:"", by:"admin" });
+  });
+
+  save();
+
+  // Fotos (avatares SVG)
+  if(!getPhoto("ANAT3S1"))
+    setPhoto("ANAT3S1","data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23B8432A'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23fff' opacity='.9'/%3E%3Cellipse cx='40' cy='68' rx='22' ry='18' fill='%23fff' opacity='.9'/%3E%3C/svg%3E");
+  if(!getPhoto("LUIT3S2"))
+    setPhoto("LUIT3S2","data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%234A5568'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23fff' opacity='.9'/%3E%3Cellipse cx='40' cy='68' rx='22' ry='18' fill='%23fff' opacity='.9'/%3E%3C/svg%3E");
+})();
+
+renderPublicCal();
+})();
+</script>
+</body>
+</html>
