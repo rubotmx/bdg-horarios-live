@@ -1,5 +1,8 @@
 {
   "name": "bdg-horarios",
   "version": "1.0.0",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "vercel": "^50.41.0"
+  }
 }

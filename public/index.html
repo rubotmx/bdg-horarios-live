@@ -251,12 +251,79 @@ td{padding:10px 14px;vertical-align:middle;}
 .cwg-libre{color:var(--muted);font-size:10px;}
 .pub-empty{text-align:center;padding:32px;color:var(--muted);font-size:12px;letter-spacing:.1em;}
 
+/* ── GMV / REPORTE ── */
+.slot-report{border-top:1px solid var(--line);margin-top:14px;padding-top:14px;}
+.slot-report-title{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.gmv-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.gmv-prefix{font-size:13px;color:var(--muted);flex-shrink:0;font-family:'EB Garamond',serif;}
+.gmv-input{flex:1;padding:7px 10px;border:1px solid var(--line2);font-size:15px;font-family:'EB Garamond',serif;background:var(--bg);color:var(--text);outline:none;min-width:0;}
+.gmv-input:focus{border-color:var(--carbon);}
+.gmv-display{font-family:'EB Garamond',serif;font-size:22px;font-weight:500;color:var(--pos);}
+.gmv-display.zero{color:var(--muted);font-size:14px;}
+.report-input{width:100%;padding:7px 10px;border:1px solid var(--line2);font-size:12px;font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);outline:none;resize:none;height:48px;display:block;box-sizing:border-box;}
+.report-input:focus{border-color:var(--carbon);}
+.report-save-btn{font-size:10px;padding:6px 14px;font-family:'Jost',sans-serif;font-weight:500;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--carbon);background:var(--carbon);color:#fff;cursor:pointer;transition:background .15s;margin-top:8px;}
+.report-save-btn:hover{background:var(--carbon2);}
+
+/* ── HISTORIAL ── */
+.hist-kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:24px;}
+.hist-kpi{background:var(--surface);border:1px solid var(--line);padding:16px 18px;}
+.hist-kpi-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.hist-kpi-val{font-family:'EB Garamond',serif;font-size:28px;font-weight:500;}
+.hist-kpi-val.accent{color:var(--pos);}
+.hist-week-group{margin-bottom:24px;}
+.hist-week-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--carbon);color:#fff;margin-bottom:8px;}
+.hist-week-label{font-size:11px;letter-spacing:.18em;text-transform:uppercase;}
+.hist-week-gmv{font-family:'EB Garamond',serif;font-size:16px;opacity:.85;}
+.hist-row{background:var(--surface);border:1px solid var(--line);border-bottom:none;padding:12px 16px;display:grid;grid-template-columns:90px 1fr 1fr 120px;gap:12px;align-items:start;font-size:12px;}
+.hist-row:last-child{border-bottom:1px solid var(--line);}
+.hist-row:hover{background:var(--surface2);}
+.hist-time{font-family:'EB Garamond',serif;font-size:15px;font-weight:500;}
+.hist-team{display:flex;flex-direction:column;gap:3px;}
+.hist-person{display:flex;align-items:center;gap:6px;font-size:12px;}
+.hist-reporte{font-size:11px;color:var(--muted);font-style:italic;padding-top:2px;}
+.hist-gmv{font-family:'EB Garamond',serif;font-size:18px;font-weight:500;color:var(--pos);text-align:right;}
+.hist-gmv.none{color:var(--muted);font-family:'Jost',sans-serif;font-size:11px;letter-spacing:.1em;}
+.hist-edit-btn{font-size:10px;color:var(--oxide);letter-spacing:.08em;text-decoration:underline;cursor:pointer;background:none;border:none;padding:0;font-family:'Jost',sans-serif;margin-top:4px;display:block;}
+.hist-filter{display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap;}
+.hist-filter select{padding:7px 10px;border:1px solid var(--line2);font-size:12px;font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);outline:none;}
+.hist-filter select:focus{border-color:var(--carbon);}
+/* ── HISTORIAL SUBTABS ── */
+.hist-subtabs{display:flex;gap:0;margin-bottom:22px;border:1px solid var(--line2);overflow:hidden;}
+.hist-subtab{padding:9px 18px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;background:none;border:none;border-right:1px solid var(--line2);font-family:'Jost',sans-serif;color:var(--muted);transition:all .15s;flex:1;text-align:center;}
+.hist-subtab:last-child{border-right:none;}
+.hist-subtab:hover{background:var(--surface2);color:var(--text);}
+.hist-subtab.active{background:var(--carbon);color:#fff;}
+/* ── DUPLAS / PERSONAS ── */
+.person-card{background:var(--surface);border:1px solid var(--line);margin-bottom:10px;overflow:hidden;}
+.person-head{display:flex;align-items:center;gap:14px;padding:16px 18px;border-bottom:1px solid var(--line);}
+.person-rank{font-size:24px;width:32px;text-align:center;flex-shrink:0;}
+.person-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:0;border-top:none;}
+.person-stat{padding:12px 18px;border-right:1px solid var(--line);border-top:1px solid var(--line);}
+.person-stat:last-child{border-right:none;}
+.person-stat-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.person-stat-val{font-family:'EB Garamond',serif;font-size:20px;font-weight:500;}
+.person-stat-val.accent{color:var(--pos);}
+.duo-card{background:var(--surface);border:1px solid var(--line);padding:16px 18px;margin-bottom:8px;display:grid;grid-template-columns:32px 1fr 1fr 1fr 1fr;gap:12px;align-items:center;}
+.duo-card:hover{background:var(--surface2);}
+.duo-pair{display:flex;flex-direction:column;gap:4px;}
+.duo-person{display:flex;align-items:center;gap:8px;font-size:12px;}
+.duo-stat{text-align:right;}
+.duo-stat-val{font-family:'EB Garamond',serif;font-size:18px;font-weight:500;color:var(--pos);}
+.duo-stat-sub{font-size:10px;color:var(--muted);}
+.duo-bar-wrap{height:4px;background:var(--line2);border-radius:2px;margin-top:8px;}
+.duo-bar{height:4px;background:var(--oxide);border-radius:2px;}
+
+/* ── MODAL REPORTE ── */
+.modal-field-group{display:flex;flex-direction:column;gap:12px;margin-bottom:4px;}
+
 @media(max-width:600px){
   .role-cards{flex-direction:column;align-items:center;}
   .role-card{width:100%;max-width:320px;}
   .form-row{flex-direction:column;}
   .app-body{padding:16px;}
   .limit-bar{flex-direction:column;align-items:flex-start;gap:12px;}
+  .hist-row{grid-template-columns:1fr 1fr;}
 }
 </style>
 </head>
@@ -300,6 +367,18 @@ td{padding:10px 14px;vertical-align:middle;}
   </div>
 </div>
 
+<!-- ── CONFIRM MODAL ── -->
+<div class="modal-overlay" id="confirmModal" style="display:none;">
+  <div class="modal" style="max-width:340px;">
+    <h2 id="confirmTitle">¿Confirmar?</h2>
+    <p class="modal-sub" id="confirmMsg"></p>
+    <div class="modal-actions">
+      <button class="btn danger" id="confirmOkBtn" style="padding:10px 20px;font-size:12px;letter-spacing:.12em;">Eliminar</button>
+      <button class="btn ghost" onclick="closeModal('confirmModal')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── ACCESS MODAL ── -->
 <div class="modal-overlay" id="accessModal" style="display:none;">
   <div class="modal">
@@ -328,15 +407,12 @@ td{padding:10px 14px;vertical-align:middle;}
     <p class="modal-sub">Sesiones de 1.5 hrs · 1 anfitriona + 1 backend</p>
     <div class="form-row" style="margin-bottom:12px;">
       <div class="field">
-        <label>Día</label>
-        <select id="slotDay">
-          <option>Lunes</option><option>Martes</option><option>Miércoles</option>
-          <option>Jueves</option><option>Viernes</option><option>Sábado</option><option>Domingo</option>
-        </select>
+        <label>Fecha</label>
+        <input type="date" id="slotDate" onchange="syncDayFromDate()"/>
       </div>
       <div class="field">
-        <label>Fecha</label>
-        <input type="date" id="slotDate"/>
+        <label>Día (auto)</label>
+        <input type="text" id="slotDay" readonly style="background:var(--surface3);color:var(--muted);"/>
       </div>
     </div>
     <div class="field">
@@ -344,9 +420,35 @@ td{padding:10px 14px;vertical-align:middle;}
       <input type="time" id="slotStart" value="19:00" oninput="updateEndPreview()"/>
       <div class="hint" id="endPreview">Termina a las 20:30</div>
     </div>
+    <div class="modal-err" id="slotErr"></div>
     <div class="modal-actions">
       <button class="btn accent" onclick="saveSlot()">Crear sesión</button>
       <button class="btn ghost" onclick="closeModal('slotModal')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── REPORTE MODAL ── -->
+<div class="modal-overlay" id="reporteModal" style="display:none;">
+  <div class="modal">
+    <h2>Reporte de sesión</h2>
+    <p class="modal-sub" id="reporteModalSub"></p>
+    <div class="modal-field-group">
+      <div class="field">
+        <label>GMV (Ventas brutas) — MXN</label>
+        <div class="gmv-row">
+          <span class="gmv-prefix">$</span>
+          <input type="number" id="reporteGmv" placeholder="0.00" min="0" step="0.01" class="gmv-input" onkeydown="if(event.key==='Enter')saveReporte()"/>
+        </div>
+      </div>
+      <div class="field">
+        <label>Notas del reporte (opcional)</label>
+        <textarea id="reporteNotas" class="report-input" placeholder="ej. Sesión con alta interacción, problema técnico al inicio..." maxlength="300"></textarea>
+      </div>
+    </div>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn accent" onclick="saveReporte()">Guardar reporte</button>
+      <button class="btn ghost" onclick="closeModal('reporteModal')">Cancelar</button>
     </div>
   </div>
 </div>
@@ -400,36 +502,15 @@ let SESSION = { role: null, code: null, name: null };
 let pendingAccessRole = null;
 let pendingNotesSlotId = null;
 let currentWeekOffset = 0;
+let memberWeekOffset  = 0;
+let previewedCode     = null;
+let pendingReporteSlotId = null;
 
 // ── PERSISTENCIA ──────────────────────────────────────────────────────────────
-let _saveTimer = null;
-
-function save(){
-  localStorage.setItem("bdg_horarios_v2", JSON.stringify(STATE));
-  // Debounce para no saturar el API
-  clearTimeout(_saveTimer);
-  _saveTimer = setTimeout(()=>{
-    fetch("/api/state", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify(STATE)
-    }).catch(()=>{});
-  }, 600);
-}
-
-async function load(){
-  // 1. Carga local primero (instantáneo)
+function save(){ localStorage.setItem("bdg_horarios_v2", JSON.stringify(STATE)); }
+function load(){
   const raw = localStorage.getItem("bdg_horarios_v2");
   if(raw){ try{ STATE = JSON.parse(raw); }catch(e){} }
-  // 2. Trae el estado del servidor (fuente de verdad compartida)
-  try{
-    const res  = await fetch("/api/state");
-    const data = await res.json();
-    if(data && data.members){
-      STATE = data;
-      localStorage.setItem("bdg_horarios_v2", JSON.stringify(STATE));
-    }
-  }catch(e){}
 }
 
 // ── FOTOS DE PERFIL ───────────────────────────────────────────────────────────
@@ -515,6 +596,24 @@ function memberLimit(role){ return role === "anfitriona" ? MAX_ANFI : MAX_BACKEN
 // ── MODALES ───────────────────────────────────────────────────────────────────
 function closeModal(id){ document.getElementById(id).style.display="none"; }
 
+function showConfirm(msg, onOk, okLabel="Eliminar"){
+  const cancelBtn = document.getElementById("confirmModal").querySelector(".btn.ghost");
+  cancelBtn.style.display = "";
+  document.getElementById("confirmMsg").textContent = msg;
+  document.getElementById("confirmOkBtn").textContent = okLabel;
+  document.getElementById("confirmOkBtn").onclick = () => { closeModal("confirmModal"); onOk(); };
+  document.getElementById("confirmModal").style.display = "flex";
+}
+
+function showAlert(msg){
+  const cancelBtn = document.getElementById("confirmModal").querySelector(".btn.ghost");
+  cancelBtn.style.display = "none";
+  document.getElementById("confirmMsg").textContent = msg;
+  document.getElementById("confirmOkBtn").textContent = "Entendido";
+  document.getElementById("confirmOkBtn").onclick = () => closeModal("confirmModal");
+  document.getElementById("confirmModal").style.display = "flex";
+}
+
 function openAccess(role){
   pendingAccessRole = role;
   document.getElementById("accessErr").style.display="none";
@@ -578,16 +677,21 @@ function renderApp(){
 
 // ── ADMIN ─────────────────────────────────────────────────────────────────────
 function renderAdmin(tab="equipo"){
+  const today = new Date().toISOString().slice(0,10);
+  const pastWithGmv = STATE.slots.filter(s=>s.date < today && s.gmv > 0).length;
   document.getElementById("appBody").innerHTML = `
     <div class="tabs">
       <div class="tab ${tab==="equipo"?"active":""}"  onclick="renderAdmin('equipo')">Equipo</div>
       <div class="tab ${tab==="sesiones"?"active":""}" onclick="renderAdmin('sesiones')">Sesiones</div>
       <div class="tab ${tab==="resumen"?"active":""}"  onclick="renderAdmin('resumen')">Resumen</div>
+      <div class="tab ${tab==="historial"?"active":""}" onclick="renderAdmin('historial')">Historial${pastWithGmv>0?` <span style="font-size:9px;background:var(--pos-l);color:var(--pos);padding:1px 5px;vertical-align:middle;">${pastWithGmv}</span>`:""}
+      </div>
     </div>
     <div id="tabContent"></div>`;
   if(tab==="equipo")   renderAdminEquipo();
   if(tab==="sesiones") renderAdminSesiones();
   if(tab==="resumen")  renderAdminResumen();
+  if(tab==="historial") renderAdminHistorial();
 }
 
 // TAB: EQUIPO
@@ -637,8 +741,13 @@ function renderAdminEquipo(){
 
 function previewCode(){
   const name = document.getElementById("newName").value;
-  document.getElementById("codePreview").value = name.trim().length >= 2
-    ? generateCode(name) : "—";
+  if(name.trim().length >= 2){
+    previewedCode = generateCode(name);
+    document.getElementById("codePreview").value = previewedCode;
+  } else {
+    previewedCode = null;
+    document.getElementById("codePreview").value = "—";
+  }
 }
 
 function addMember(){
@@ -646,16 +755,19 @@ function addMember(){
   const role = document.getElementById("newRole").value;
   const err  = document.getElementById("memberErr");
   if(name.length < 2){ err.style.display="block"; err.textContent="Escribe un nombre válido."; return; }
-  const code = generateCode(name);
+  const code = previewedCode || generateCode(name);
+  previewedCode = null;
   STATE.members.push({ code, name, role });
   save(); renderAdminEquipo();
 }
 
 function removeMember(code){
-  if(!confirm("¿Eliminar a esta persona? También se eliminarán sus selecciones.")) return;
-  STATE.members = STATE.members.filter(m=>m.code!==code);
-  STATE.picks   = STATE.picks.filter(p=>p.memberCode!==code);
-  save(); renderAdminEquipo();
+  const m = STATE.members.find(mb=>mb.code===code);
+  showConfirm(`¿Eliminar a ${m?m.name:"esta persona"}? También se borrarán sus selecciones.`, ()=>{
+    STATE.members = STATE.members.filter(mb=>mb.code!==code);
+    STATE.picks   = STATE.picks.filter(p=>p.memberCode!==code);
+    save(); renderAdminEquipo();
+  });
 }
 
 // TAB: SESIONES
@@ -677,12 +789,20 @@ function generateDefaultWeek(offset){
 }
 
 function clearWeek(offset){
-  if(!confirm("¿Limpiar todas las sesiones de esta semana? Las selecciones también se borrarán.")) return;
-  const weekDates = getWeekDates(offset);
-  const weekSlotIds = STATE.slots.filter(s => weekDates.includes(s.date)).map(s => s.id);
-  STATE.slots = STATE.slots.filter(s => !weekDates.includes(s.date));
-  STATE.picks = STATE.picks.filter(p => !weekSlotIds.includes(p.slotId));
-  save(); renderAdmin("sesiones"); renderPublicCal();
+  const weekDates   = getWeekDates(offset);
+  const today       = new Date().toISOString().slice(0,10);
+  const protected_  = STATE.slots.filter(s => weekDates.includes(s.date) && s.date < today && s.gmv > 0);
+  const msg = protected_.length > 0
+    ? `Esta semana tiene ${protected_.length} sesión${protected_.length!==1?"es":""} pasadas con GMV registrado. Solo se limpiarán las sesiones futuras.`
+    : "¿Limpiar todas las sesiones futuras de esta semana? Las selecciones también se borrarán.";
+  showConfirm(msg, ()=>{
+    const toRemove = STATE.slots
+      .filter(s => weekDates.includes(s.date) && s.date >= today)
+      .map(s => s.id);
+    STATE.slots = STATE.slots.filter(s => !toRemove.includes(s.id));
+    STATE.picks = STATE.picks.filter(p => !toRemove.includes(p.slotId));
+    save(); renderAdmin("sesiones"); renderPublicCal();
+  }, "Limpiar");
 }
 
 function renderAdminSesiones(){
@@ -701,11 +821,16 @@ function renderAdminSesiones(){
   const missing = totalSlots - weekSlots.length;
 
   document.getElementById("tabContent").innerHTML = `
-    <div class="week-nav">
+    <div class="week-nav" style="flex-wrap:wrap;gap:10px;">
       <button class="week-btn" onclick="changeWeek(-1)">‹</button>
       <div class="week-label">${weekLabel(currentWeekOffset)}</div>
       <button class="week-btn" onclick="changeWeek(1)">›</button>
-      <span style="margin-left:8px;font-size:11px;color:var(--muted);">${weekSlots.length} sesion${weekSlots.length!==1?"es":""}</span>
+      ${currentWeekOffset!==0?`<button class="btn ghost" style="font-size:11px;padding:6px 12px;" onclick="currentWeekOffset=0;renderAdmin('sesiones')">Semana actual</button>`:""}
+      <span style="font-size:11px;color:var(--muted);">${weekSlots.length} sesion${weekSlots.length!==1?"es":""}</span>
+      <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+        <label style="font-size:11px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;">Ir a fecha</label>
+        <input type="date" id="jumpToDate" style="padding:5px 8px;border:1px solid var(--line2);font-size:12px;font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);outline:none;" onchange="jumpToWeek(this.value)"/>
+      </div>
     </div>
     <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
       ${missing > 0 ? `<button class="btn ghost" style="font-size:11px;" onclick="generateDefaultWeek(${currentWeekOffset})">↺ Restaurar default (${missing} sesion${missing!==1?"es":""})</button>` : ""}
@@ -751,15 +876,27 @@ function renderAdminSesiones(){
       }
     };
 
+    const isPast = slot.date < new Date().toISOString().slice(0,10);
+    const gmvFmt = slot.gmv > 0 ? fmtGMV(slot.gmv) : null;
+
     const div = document.createElement("div");
     div.className = "slot-card";
     div.innerHTML = `
       <button class="slot-delete-btn" onclick="deleteSlot('${slot.id}')" title="Eliminar sesión">🗑</button>
-      <div class="slot-day">${slot.day} · ${fmtDate(slot.date)}</div>
+      <div class="slot-day">${slot.day} · ${fmtDate(slot.date)}${isPast?` <span style="font-size:9px;background:var(--surface3);color:var(--muted);padding:1px 5px;vertical-align:middle;letter-spacing:.1em;">PASADO</span>`:""}</div>
       <div class="slot-time">${slot.timeStart} – ${slot.timeEnd}</div>
       <div class="slot-spots">
         ${spotHtml("🎙️","Anfitriona",anfiPick,anfiName,"anfitriona")}
         ${spotHtml("💻","Backend",backPick,backName,"backend")}
+      </div>
+      <div class="slot-report">
+        <div class="slot-report-title">Reporte · GMV</div>
+        ${gmvFmt
+          ? `<div class="gmv-display">${gmvFmt}</div>${slot.reporte?`<div style="font-size:11px;color:var(--muted);margin-top:4px;font-style:italic;">📝 ${slot.reporte}</div>`:""}`
+          : `<div style="font-size:11px;color:var(--muted);">Sin reporte registrado</div>`}
+        <button class="report-save-btn" style="margin-top:10px;" onclick="openReporte('${slot.id}')">
+          ${gmvFmt ? "✏️ Editar reporte" : "+ Agregar reporte"}
+        </button>
       </div>`;
     grid.appendChild(div);
   });
@@ -773,13 +910,26 @@ function renderAdminSesiones(){
 
 function changeWeek(d){ currentWeekOffset+=d; renderAdmin("sesiones"); }
 
+function jumpToWeek(dateStr){
+  if(!dateStr) return;
+  const target = new Date(dateStr + "T12:00:00");
+  const now    = new Date();
+  const monday = new Date(now); monday.setDate(now.getDate() - (now.getDay()||7) + 1);
+  monday.setHours(0,0,0,0);
+  const diff = Math.floor((target - monday) / (7 * 24 * 60 * 60 * 1000));
+  currentWeekOffset = diff;
+  renderAdmin("sesiones");
+}
+
 function openSlotModal(){
   const dates = getWeekDates(currentWeekOffset);
-  document.getElementById("slotDate").value   = dates[0];
-  document.getElementById("slotDay").value    = "Lunes";
-  document.getElementById("slotStart").value  = "19:00";
+  document.getElementById("slotDate").value  = dates[0];
+  document.getElementById("slotStart").value = "19:00";
+  document.getElementById("slotErr").style.display = "none";
+  syncDayFromDate();
   updateEndPreview();
   document.getElementById("slotModal").style.display = "flex";
+  setTimeout(()=>document.getElementById("slotDate").focus(),100);
 }
 
 function updateEndPreview(){
@@ -787,10 +937,21 @@ function updateEndPreview(){
   if(start) document.getElementById("endPreview").textContent = "Termina a las " + addMins(start, SESSION_MINS);
 }
 
+function syncDayFromDate(){
+  const dateVal = document.getElementById("slotDate").value;
+  if(!dateVal) return;
+  const d = new Date(dateVal + "T12:00:00");
+  const DAYS = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+  document.getElementById("slotDay").value = DAYS[d.getDay()];
+}
+
 function saveSlot(){
   const date  = document.getElementById("slotDate").value;
   const start = document.getElementById("slotStart").value;
-  if(!date || !start){ alert("Completa la fecha y hora."); return; }
+  const err   = document.getElementById("slotErr");
+  if(!date || !start){ err.style.display="block"; err.textContent="Completa la fecha y hora."; return; }
+  err.style.display="none";
+  syncDayFromDate();
   STATE.slots.push({
     id: uid(),
     day: document.getElementById("slotDay").value,
@@ -837,8 +998,12 @@ function renderAdminResumen(){
       <div class="sum-body">${rows}</div>
     </div>`;
   }).join("");
+  const totalGmv = sorted.reduce((s,sl)=>s+(sl.gmv||0),0);
   document.getElementById("tabContent").innerHTML = `
-    <div class="section-title">${sorted.length} sesion${sorted.length!==1?"es":""} · ${sorted.filter(s=>{const wp=STATE.picks.filter(p=>p.slotId===s.id&&p.status!=="cancelled");return wp.length===2;}).length} completas</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+      <div class="section-title" style="margin-bottom:0;">${sorted.length} sesion${sorted.length!==1?"es":""} · ${sorted.filter(s=>{const wp=STATE.picks.filter(p=>p.slotId===s.id&&p.status!=="cancelled");return wp.length===2;}).length} completas</div>
+      ${totalGmv>0?`<div style="font-family:'EB Garamond',serif;font-size:22px;font-weight:500;color:var(--pos);">GMV total: ${fmtGMV(totalGmv)}</div>`:""}
+    </div>
     <div class="summary-grid">${cards}</div>`;
 }
 
@@ -849,9 +1014,11 @@ function renderMember(){
   const limit        = memberLimit(SESSION.role);
   const myActivePicks= STATE.picks.filter(p=>p.memberCode===SESSION.code&&p.status!=="cancelled");
 
-  // All available slots for this role
+  // Filter available slots by the current member week
+  const memberWeekDates = getWeekDates(memberWeekOffset);
   const available = STATE.slots
     .filter(s=>{
+      if(!memberWeekDates.includes(s.date)) return false;
       const alreadyMine = myActivePicks.find(p=>p.slotId===s.id);
       if(alreadyMine) return true;
       const spotTaken = STATE.picks.find(p=>p.slotId===s.id&&p.status!=="cancelled"&&memberRole(p.memberCode)===SESSION.role);
@@ -863,8 +1030,10 @@ function renderMember(){
   const roleLabel   = SESSION.role==="anfitriona" ? "Anfitriona" : "Staff Backend";
   const emoji       = SESSION.role==="anfitriona" ? "🎙️" : "💻";
 
-  // Limit bar — muestra el total de sesiones seleccionadas
-  const pips = Array.from({length:limit},(_,i)=>`<div class="pip ${i<overallCount?"used":"free"}"></div>`).join("");
+  // Limit bar — muestra sesiones de hoy vs límite diario
+  const today = new Date().toISOString().slice(0,10);
+  const todayCount = dayPickCount(SESSION.code, today);
+  const pips = Array.from({length:limit},(_,i)=>`<div class="pip ${i<todayCount?"used":"free"}"></div>`).join("");
 
   const memberPhoto = avatarHtml(SESSION.code, "lg");
   body.innerHTML = `
@@ -883,11 +1052,14 @@ function renderMember(){
 
     <div class="limit-bar">
       <div class="limit-item">
-        <span class="limit-label">Tus sesiones</span>
+        <span class="limit-label">Hoy</span>
         <div class="limit-pips">${pips}</div>
-        <span class="limit-count">${overallCount} / ${limit}</span>
+        <span class="limit-count">${todayCount} / ${limit}</span>
       </div>
-      <span style="font-size:12px;color:var(--muted);">Máx ${limit} sesiones por día</span>
+      <div style="display:flex;flex-direction:column;gap:3px;">
+        <span style="font-size:12px;color:var(--muted);">Máx ${limit} sesiones por día</span>
+        <span style="font-size:11px;color:var(--muted);">${overallCount} sesion${overallCount!==1?"es":""} seleccionada${overallCount!==1?"s":""} en total</span>
+      </div>
     </div>
 
     ${myActivePicks.length > 0 ? `
@@ -917,8 +1089,14 @@ function renderMember(){
         </div>`;
       }).join("")}</div>` : ""}
 
-    <div class="section-title" style="margin-top:${myActivePicks.length>0?"8px":"0"};">
-      Sesiones disponibles — ${available.filter(s=>!myActivePicks.find(p=>p.slotId===s.id)).length} abiertas
+    <div class="week-nav" style="margin-top:${myActivePicks.length>0?"16px":"0"};">
+      <button class="week-btn" onclick="memberChangeWeek(-1)" ${memberWeekOffset<=0?"disabled style='opacity:.3;cursor:not-allowed;'":""}>‹</button>
+      <div class="week-label">${weekLabel(memberWeekOffset)}</div>
+      <button class="week-btn" onclick="memberChangeWeek(1)">›</button>
+      ${memberWeekOffset!==0?`<button class="btn ghost" style="font-size:11px;padding:6px 12px;" onclick="memberChangeWeek(0,true)">Semana actual</button>`:""}
+    </div>
+    <div class="section-title" style="margin-bottom:14px;">
+      Sesiones disponibles — ${available.filter(s=>!myActivePicks.find(p=>p.slotId===s.id)).length} abiertas esta semana
     </div>
     ${available.length===0
       ? `<div class="empty-state"><div class="empty-icon">📅</div>No hay sesiones disponibles por el momento.<br>Tu administradora las publicará pronto.</div>`
@@ -956,7 +1134,44 @@ function renderMember(){
                   </button>`}
             </div>
           </div>`;
-        }).join("")}</div>`}`;
+        }).join("")}</div>`}
+
+    ${buildMemberLeaderboard()}`;
+}
+
+function buildMemberLeaderboard(){
+  const board = buildLeaderboard().filter(b => b.role === SESSION.role);
+  if(board.length === 0 || board.every(b=>b.gmvTotal===0)) return "";
+  const myRank = board.findIndex(b=>b.code===SESSION.code);
+  const medals = ["🥇","🥈","🥉"];
+  const roleLabel = SESSION.role==="anfitriona" ? "Anfitrionas" : "Staff Backend";
+  const rows = board.map((b,i)=>{
+    const isMe = b.code === SESSION.code;
+    const pct  = board[0].gmvTotal > 0 ? (b.gmvTotal/board[0].gmvTotal)*100 : 0;
+    return `<div style="background:${isMe?"var(--oxide-l)":"var(--surface)"};border:1px solid ${isMe?"var(--oxide)":"var(--line)"};padding:12px 16px;margin-bottom:6px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+        <span style="font-size:18px;width:24px;text-align:center;">${medals[i]||i+1}</span>
+        ${avatarHtml(b.code,"md")}
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:500;font-size:13px;">${isMe?"✨ Tú":""}${b.name.split(" ")[0]}</div>
+          <div style="font-size:10px;color:var(--muted);">${b.sesiones} sesión${b.sesiones!==1?"es":""}</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="gmv-display" style="font-size:16px;">${b.gmvTotal>0?fmtGMV(b.gmvTotal):"—"}</div>
+          ${b.gmvPorHora>0?`<div style="font-size:10px;color:var(--muted);">${fmtGMV(b.gmvPorHora)}/hr</div>`:""}
+        </div>
+      </div>
+      <div style="background:var(--line2);height:3px;border-radius:2px;">
+        <div style="background:${isMe?"var(--oxide)":"var(--carbon)"};height:3px;border-radius:2px;width:${pct.toFixed(0)}%;"></div>
+      </div>
+    </div>`;
+  }).join("");
+  return `<div style="margin-top:32px;border-top:1px solid var(--line);padding-top:24px;">
+    <div class="section-title" style="margin-bottom:14px;">🏆 Ranking ${roleLabel} · GMV acumulado</div>
+    ${myRank>=0?`<div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Tu posición: <strong>#${myRank+1}</strong> de ${board.length}</div>`:""}
+    ${rows}
+    <div style="font-size:10px;color:var(--muted);margin-top:8px;letter-spacing:.1em;">GMV de sesiones donde participaste · ${SESSION_MINS/60}h por sesión</div>
+  </div>`;
 }
 
 function memberRole(code){ const m=STATE.members.find(mb=>mb.code===code); return m?m.role:null; }
@@ -967,7 +1182,7 @@ function selectSlot(slotId){
   const slot  = STATE.slots.find(s=>s.id===slotId);
   const limit = memberLimit(SESSION.role);
   const count = dayPickCount(SESSION.code, slot.date);
-  if(count >= limit){ alert(`Ya tienes ${limit} sesion${limit!==1?"es":""} ese día (límite diario).`); return; }
+  if(count >= limit){ showAlert(`Ya tienes ${limit} sesion${limit!==1?"es":""} ese día (límite diario).`); return; }
   STATE.picks.push({ slotId, memberCode:SESSION.code, status:"pending", notes:"" });
   save(); renderMember(); renderPublicCal();
 }
@@ -975,6 +1190,16 @@ function selectSlot(slotId){
 function cancelPick(slotId){
   STATE.picks = STATE.picks.filter(p=>!(p.slotId===slotId&&p.memberCode===SESSION.code));
   save(); renderMember(); renderPublicCal();
+}
+
+function memberChangeWeek(d, reset=false){
+  if(reset){ memberWeekOffset = 0; }
+  else {
+    const next = memberWeekOffset + d;
+    if(next < 0) return;
+    memberWeekOffset = next;
+  }
+  renderMember();
 }
 
 function setPickStatus(slotId, status){
@@ -991,7 +1216,7 @@ function adminAssign(slotId, role){
   const slot  = STATE.slots.find(s=>s.id===slotId);
   const limit = memberLimit(role);
   const count = dayPickCount(memberCode, slot.date);
-  if(count >= limit){ alert(`Esta persona ya tiene ${limit} sesión${limit!==1?"es":""} ese día (límite diario).`); return; }
+  if(count >= limit){ showAlert(`${memberName(memberCode)} ya tiene ${limit} sesión${limit!==1?"es":""} ese día (límite diario).`); return; }
   if(STATE.picks.find(p=>p.slotId===slotId&&p.memberCode===memberCode&&p.status!=="cancelled")) return;
   STATE.picks.push({ slotId, memberCode, status:"pending", notes:"", by:"admin" });
   save(); renderAdmin("sesiones"); renderPublicCal();
@@ -1003,9 +1228,11 @@ function adminConfirmPick(slotId, memberCode){
 }
 
 function adminRemovePick(slotId, memberCode){
-  if(!confirm("¿Quitar la asignación de esta persona?")) return;
-  STATE.picks = STATE.picks.filter(p=>!(p.slotId===slotId&&p.memberCode===memberCode));
-  save(); renderAdmin("sesiones"); renderPublicCal();
+  const name = memberName(memberCode);
+  showConfirm(`¿Quitar la asignación de ${name}?`, ()=>{
+    STATE.picks = STATE.picks.filter(p=>!(p.slotId===slotId&&p.memberCode===memberCode));
+    save(); renderAdmin("sesiones"); renderPublicCal();
+  }, "Quitar");
 }
 
 // ── NOTES ─────────────────────────────────────────────────────────────────────
@@ -1085,8 +1312,333 @@ function pubChangeWeek(d){
   renderPublicCal();
 }
 
+// ── FORMAT GMV ────────────────────────────────────────────────────────────────
+function fmtGMV(n){
+  if(!n || n <= 0) return "—";
+  return "$" + Number(n).toLocaleString("es-MX", {minimumFractionDigits:0, maximumFractionDigits:0});
+}
+
+// ── REPORTE DE SESIÓN ─────────────────────────────────────────────────────────
+function openReporte(slotId){
+  const slot = STATE.slots.find(s=>s.id===slotId);
+  if(!slot) return;
+  pendingReporteSlotId = slotId;
+  document.getElementById("reporteModalSub").textContent = `${slot.day} · ${fmtDate(slot.date)} · ${slot.timeStart}–${slot.timeEnd}`;
+  document.getElementById("reporteGmv").value    = slot.gmv   || "";
+  document.getElementById("reporteNotas").value  = slot.reporte || "";
+  document.getElementById("reporteModal").style.display = "flex";
+  setTimeout(()=>document.getElementById("reporteGmv").focus(),100);
+}
+
+function saveReporte(){
+  if(!pendingReporteSlotId) return;
+  const slot = STATE.slots.find(s=>s.id===pendingReporteSlotId);
+  if(slot){
+    const raw = parseFloat(document.getElementById("reporteGmv").value);
+    slot.gmv    = isNaN(raw) ? 0 : raw;
+    slot.reporte = document.getElementById("reporteNotas").value.trim();
+  }
+  closeModal("reporteModal");
+  pendingReporteSlotId = null;
+  save();
+  renderAdmin("sesiones");
+}
+
+// ── LEADERBOARD (GMV por persona) ─────────────────────────────────────────────
+function buildLeaderboard(){
+  const SESSION_H = SESSION_MINS / 60;
+  const board = {};
+  STATE.members.forEach(m => { board[m.code] = { code:m.code, name:m.name, role:m.role, gmvTotal:0, sesiones:0 }; });
+  STATE.slots.forEach(slot => {
+    if(!slot.gmv || slot.gmv <= 0) return;
+    const share = slot.gmv; // GMV completo va a cada persona que trabajó esa sesión
+    ["anfitriona","backend"].forEach(role => {
+      const pick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)===role);
+      if(pick && board[pick.memberCode]){
+        board[pick.memberCode].gmvTotal  += share;
+        board[pick.memberCode].sesiones  += 1;
+      }
+    });
+  });
+  return Object.values(board)
+    .filter(b => b.sesiones > 0 || STATE.picks.some(p=>p.memberCode===b.code&&p.status!=="cancelled"))
+    .map(b => ({ ...b, gmvPorHora: b.sesiones > 0 ? b.gmvTotal / (b.sesiones * SESSION_H) : 0 }))
+    .sort((a,b) => b.gmvTotal - a.gmvTotal);
+}
+
+function leaderboardHtml(role){
+  const today = new Date().toISOString().slice(0,10);
+  const all   = buildLeaderboard().filter(b=>b.role===role);
+  if(!all.length) return `<div style="color:var(--muted);font-size:12px;padding:16px 0;">Sin datos aún</div>`;
+  const medals = ["🥇","🥈","🥉"];
+  return all.map((b,i)=>{
+    const pct = all[0].gmvTotal > 0 ? (b.gmvTotal / all[0].gmvTotal) * 100 : 0;
+    return `<div style="background:var(--surface);border:1px solid var(--line);padding:14px 16px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <span style="font-size:20px;">${medals[i]||"·"}</span>
+        ${avatarHtml(b.code,"md")}
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:500;font-size:13px;">${b.name}</div>
+          <div style="font-size:10px;color:var(--muted);letter-spacing:.1em;">${b.sesiones} sesión${b.sesiones!==1?"es":""}</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="gmv-display" style="font-size:18px;">${b.gmvTotal>0?fmtGMV(b.gmvTotal):"—"}</div>
+          ${b.gmvPorHora>0?`<div style="font-size:10px;color:var(--muted);">${fmtGMV(b.gmvPorHora)}/hr</div>`:""}
+        </div>
+      </div>
+      <div style="background:var(--line2);height:4px;border-radius:2px;">
+        <div style="background:var(--oxide);height:4px;border-radius:2px;width:${pct.toFixed(0)}%;transition:width .4s;"></div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+// ── HISTORIAL ─────────────────────────────────────────────────────────────────
+let historialWeekFilter = "todas";
+let historialView       = "semanas";  // semanas | anfitrionas | backend | duplas
+let historialAnfiFilter = "todas";   // para filtrar por anfitriona en vista semanas
+
+function getPastSlots(){
+  const today = new Date().toISOString().slice(0,10);
+  return STATE.slots
+    .filter(s => s.date < today)
+    .sort((a,b) => b.date.localeCompare(a.date) || b.timeStart.localeCompare(a.timeStart));
+}
+
+function histKpisHtml(past){
+  const totalGmv = past.reduce((s,sl)=>s+(sl.gmv||0),0);
+  const withGmv  = past.filter(sl=>sl.gmv>0);
+  const avgGmv   = withGmv.length ? totalGmv / withGmv.length : 0;
+  return `<div class="hist-kpis">
+    <div class="hist-kpi"><div class="hist-kpi-label">GMV Total</div><div class="hist-kpi-val accent">${totalGmv>0?fmtGMV(totalGmv):"—"}</div></div>
+    <div class="hist-kpi"><div class="hist-kpi-label">Promedio / sesión</div><div class="hist-kpi-val">${avgGmv>0?fmtGMV(avgGmv):"—"}</div></div>
+    <div class="hist-kpi"><div class="hist-kpi-label">Sesiones</div><div class="hist-kpi-val">${past.length}</div></div>
+    <div class="hist-kpi"><div class="hist-kpi-label">Con GMV</div><div class="hist-kpi-val">${withGmv.length} <span style="font-size:14px;color:var(--muted);">/ ${past.length}</span></div></div>
+  </div>`;
+}
+
+function subtabsHtml(){
+  const views = [
+    {id:"semanas",     label:"Por semana"},
+    {id:"anfitrionas", label:"🎙️ Anfitrionas"},
+    {id:"backend",     label:"💻 Backend"},
+    {id:"duplas",      label:"🤝 Mejores Duplas"},
+  ];
+  return `<div class="hist-subtabs">${views.map(v=>
+    `<button class="hist-subtab${historialView===v.id?" active":""}" onclick="historialView='${v.id}';renderAdminHistorial()">${v.label}</button>`
+  ).join("")}</div>`;
+}
+
+function renderAdminHistorial(){
+  const past = getPastSlots();
+
+  if(!past.length){
+    document.getElementById("tabContent").innerHTML = `
+      <div class="empty-state"><div class="empty-icon">📊</div>Aún no hay sesiones pasadas.<br>Navega a una semana anterior en "Sesiones" para agregar data retroactiva.</div>`;
+    return;
+  }
+
+  const kpis    = histKpisHtml(past);
+  const subtabs = subtabsHtml();
+
+  let body = "";
+  if(historialView === "semanas")     body = renderHistSemanas(past);
+  if(historialView === "anfitrionas") body = renderHistPersonas("anfitriona", past);
+  if(historialView === "backend")     body = renderHistPersonas("backend", past);
+  if(historialView === "duplas")      body = renderHistDuplas(past);
+
+  document.getElementById("tabContent").innerHTML = kpis + subtabs + body;
+}
+
+// ── VISTA: SEMANAS ────────────────────────────────────────────────────────────
+function renderHistSemanas(past){
+  // Filtros
+  const anfiMembers = STATE.members.filter(m=>m.role==="anfitriona");
+  const anfiOptions = anfiMembers.map(m=>`<option value="${m.code}"${historialAnfiFilter===m.code?"selected":""}>${m.name.split(" ")[0]}</option>`).join("");
+
+  const weekKeys = [...new Set(past.map(s=>slotWeekMon(s.date)))].sort((a,b)=>b.localeCompare(a));
+  const weekOptions = weekKeys.map(k=>`<option value="${k}"${historialWeekFilter===k?"selected":""}>${weekLabel_from(k)}</option>`).join("");
+
+  let filtered = past;
+  if(historialWeekFilter !== "todas") filtered = filtered.filter(s=>slotWeekMon(s.date)===historialWeekFilter);
+  if(historialAnfiFilter !== "todas") filtered = filtered.filter(s=>{
+    const ap = STATE.picks.find(p=>p.slotId===s.id&&p.status!=="cancelled"&&memberRole(p.memberCode)==="anfitriona");
+    return ap && ap.memberCode === historialAnfiFilter;
+  });
+
+  const byWeek = {};
+  filtered.forEach(s=>{ const k=slotWeekMon(s.date); if(!byWeek[k]) byWeek[k]=[]; byWeek[k].push(s); });
+
+  const weekGroups = Object.entries(byWeek).sort(([a],[b])=>b.localeCompare(a)).map(([weekMon,slots])=>{
+    const weekGmv = slots.reduce((s,sl)=>s+(sl.gmv||0),0);
+    const rows = slots.map(slot=>{
+      const anfiPick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)==="anfitriona");
+      const backPick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)==="backend");
+      return `<div class="hist-row">
+        <div><div style="font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;">${slot.day} ${fmtDate(slot.date)}</div>
+          <div class="hist-time">${slot.timeStart}–${slot.timeEnd}</div></div>
+        <div class="hist-team">
+          <div class="hist-person">🎙️ ${anfiPick?`${avatarHtml(anfiPick.memberCode,"sm")}<span>${memberName(anfiPick.memberCode).split(" ")[0]}</span>`:`<span style="color:var(--muted);">—</span>`}</div>
+          <div class="hist-person">💻 ${backPick?`${avatarHtml(backPick.memberCode,"sm")}<span>${memberName(backPick.memberCode).split(" ")[0]}</span>`:`<span style="color:var(--muted);">—</span>`}</div>
+        </div>
+        <div class="hist-reporte">${slot.reporte||""}</div>
+        <div style="text-align:right;">
+          ${slot.gmv>0?`<div class="hist-gmv">${fmtGMV(slot.gmv)}</div><div style="font-size:10px;color:var(--muted);">${fmtGMV(slot.gmv/1.5)}/hr</div>`:`<div class="hist-gmv none">Sin GMV</div>`}
+          <button class="hist-edit-btn" onclick="openReporte('${slot.id}')">✏️ Editar</button>
+        </div>
+      </div>`;
+    }).join("");
+    return `<div class="hist-week-group">
+      <div class="hist-week-head"><span class="hist-week-label">${weekLabel_from(weekMon)}</span><span class="hist-week-gmv">${weekGmv>0?fmtGMV(weekGmv):"—"}</span></div>
+      ${rows}
+    </div>`;
+  }).join("");
+
+  return `<div class="hist-filter">
+    <span style="font-size:11px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;">Semana</span>
+    <select onchange="historialWeekFilter=this.value;renderAdminHistorial()">
+      <option value="todas">Todas las semanas</option>${weekOptions}
+    </select>
+    ${anfiMembers.length?`
+    <span style="font-size:11px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-left:8px;">Anfitriona</span>
+    <select onchange="historialAnfiFilter=this.value;renderAdminHistorial()">
+      <option value="todas">Todas</option>${anfiOptions}
+    </select>`:""}
+  </div>
+  ${weekGroups||`<div class="empty-state" style="padding:32px;"><div class="empty-icon">🔍</div>Sin sesiones con esos filtros.</div>`}`;
+}
+
+// ── VISTA: POR PERSONA ────────────────────────────────────────────────────────
+function renderHistPersonas(role, past){
+  const SESSION_H = SESSION_MINS / 60;
+  const members   = STATE.members.filter(m=>m.role===role);
+  if(!members.length) return `<div class="empty-state">No hay ${role==="anfitriona"?"anfitrionas":"staff backend"} registradas.</div>`;
+
+  const medals = ["🥇","🥈","🥉"];
+
+  const stats = members.map(m=>{
+    const mySessions = past.filter(s=>{
+      const p = STATE.picks.find(pk=>pk.slotId===s.id&&pk.memberCode===m.code&&pk.status!=="cancelled");
+      return !!p;
+    });
+    const withGmv   = mySessions.filter(s=>s.gmv>0);
+    const totalGmv  = withGmv.reduce((s,sl)=>s+(sl.gmv||0),0);
+    const gmvPorHr  = withGmv.length ? totalGmv / (withGmv.length * SESSION_H) : 0;
+    const avgGmv    = withGmv.length ? totalGmv / withGmv.length : 0;
+    const best      = withGmv.sort((a,b)=>b.gmv-a.gmv)[0];
+    return { m, mySessions, withGmv, totalGmv, gmvPorHr, avgGmv, best };
+  }).sort((a,b)=>b.totalGmv-a.totalGmv);
+
+  const maxGmv = stats[0]?.totalGmv || 0;
+
+  const cards = stats.map((s,i)=>{
+    const pct = maxGmv>0 ? (s.totalGmv/maxGmv*100).toFixed(0) : 0;
+    const bestSlot = s.best ? STATE.slots.find(sl=>sl.id===s.best.id) : null;
+    return `<div class="person-card">
+      <div class="person-head">
+        <span class="person-rank">${medals[i]||i+1}</span>
+        ${avatarHtml(s.m.code,"md")}
+        <div style="flex:1;">
+          <div style="font-weight:500;font-size:14px;">${s.m.name}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px;">${s.m.code}</div>
+          <div style="background:var(--line2);height:4px;border-radius:2px;margin-top:8px;width:100%;">
+            <div style="background:var(--oxide);height:4px;border-radius:2px;width:${pct}%;"></div>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div class="gmv-display" style="font-size:24px;">${s.totalGmv>0?fmtGMV(s.totalGmv):"—"}</div>
+          ${s.gmvPorHr>0?`<div style="font-size:11px;color:var(--muted);">${fmtGMV(s.gmvPorHr)}/hr</div>`:""}
+        </div>
+      </div>
+      <div class="person-stats">
+        <div class="person-stat"><div class="person-stat-label">Sesiones totales</div><div class="person-stat-val">${s.mySessions.length}</div></div>
+        <div class="person-stat"><div class="person-stat-label">Con GMV</div><div class="person-stat-val">${s.withGmv.length}</div></div>
+        <div class="person-stat"><div class="person-stat-label">Promedio / sesión</div><div class="person-stat-val">${s.avgGmv>0?fmtGMV(s.avgGmv):"—"}</div></div>
+        <div class="person-stat"><div class="person-stat-label">Mejor sesión</div><div class="person-stat-val accent">${s.best?fmtGMV(s.best.gmv):"—"}${bestSlot?`<span style="font-size:11px;color:var(--muted);font-family:'Jost',sans-serif;font-weight:400;"> · ${fmtDate(bestSlot.date)}</span>`:""}</div></div>
+      </div>
+    </div>`;
+  }).join("");
+
+  return cards;
+}
+
+// ── VISTA: MEJORES DUPLAS ─────────────────────────────────────────────────────
+function renderHistDuplas(past){
+  const SESSION_H = SESSION_MINS / 60;
+  const duos = {};
+
+  past.filter(s=>s.gmv>0).forEach(slot=>{
+    const anfiPick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)==="anfitriona");
+    const backPick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)==="backend");
+    if(!anfiPick || !backPick) return;
+    const key = `${anfiPick.memberCode}__${backPick.memberCode}`;
+    if(!duos[key]) duos[key] = { anfiCode:anfiPick.memberCode, backCode:backPick.memberCode, sessions:0, totalGmv:0 };
+    duos[key].sessions++;
+    duos[key].totalGmv += slot.gmv;
+  });
+
+  const sorted = Object.values(duos)
+    .map(d=>({...d, gmvPorHr: d.totalGmv/(d.sessions*SESSION_H), avgGmv: d.totalGmv/d.sessions}))
+    .sort((a,b)=>b.totalGmv-a.totalGmv);
+
+  if(!sorted.length) return `<div class="empty-state" style="padding:32px;"><div class="empty-icon">🤝</div>Registra GMV en sesiones donde ambos roles estén asignados para ver las duplas.</div>`;
+
+  const maxGmv = sorted[0].totalGmv;
+  const medals = ["🥇","🥈","🥉"];
+
+  // Header table
+  const rows = sorted.map((d,i)=>{
+    const pct = (d.totalGmv/maxGmv*100).toFixed(0);
+    return `<div class="duo-card">
+      <div style="font-size:20px;text-align:center;">${medals[i]||i+1}</div>
+      <div class="duo-pair">
+        <div class="duo-person">${avatarHtml(d.anfiCode,"sm")} 🎙️ <strong>${memberName(d.anfiCode).split(" ")[0]}</strong></div>
+        <div class="duo-person">${avatarHtml(d.backCode,"sm")} 💻 <strong>${memberName(d.backCode).split(" ")[0]}</strong></div>
+        <div class="duo-bar-wrap"><div class="duo-bar" style="width:${pct}%;"></div></div>
+      </div>
+      <div class="duo-stat" style="text-align:center;">
+        <div class="duo-stat-val" style="font-size:14px;">${d.sessions}</div>
+        <div class="duo-stat-sub">sesiones</div>
+      </div>
+      <div class="duo-stat">
+        <div class="duo-stat-val">${fmtGMV(d.totalGmv)}</div>
+        <div class="duo-stat-sub">GMV total</div>
+      </div>
+      <div class="duo-stat">
+        <div class="duo-stat-val" style="color:var(--oxide);">${fmtGMV(d.gmvPorHr)}</div>
+        <div class="duo-stat-sub">por hora</div>
+      </div>
+    </div>`;
+  }).join("");
+
+  return `<div style="display:grid;grid-template-columns:32px 1fr 80px 120px 120px;gap:12px;padding:8px 18px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);">
+    <div></div><div>Dupla</div><div style="text-align:center;">Ses.</div><div>GMV Total</div><div>GMV/Hr</div>
+  </div>${rows}`;
+}
+
+function slotWeekMon(dateStr){
+  const d = new Date(dateStr+"T12:00:00");
+  const mon = new Date(d); mon.setDate(d.getDate() - (d.getDay()||7) + 1);
+  return mon.toISOString().slice(0,10);
+}
+
+function weekLabel_from(mondayIso){
+  const d0 = mondayIso;
+  const d6 = new Date(new Date(mondayIso+"T12:00:00").setDate(new Date(mondayIso+"T12:00:00").getDate()+6)).toISOString().slice(0,10);
+  return `${fmtDate(d0)} – ${fmtDate(d6)}`;
+}
+
+// ── ESCAPE PARA CERRAR MODALES ────────────────────────────────────────────────
+document.addEventListener("keydown", e => {
+  if(e.key !== "Escape") return;
+  ["accessModal","slotModal","notesModal","confirmModal","reporteModal"].forEach(id => {
+    const el = document.getElementById(id);
+    if(el && el.style.display !== "none") closeModal(id);
+  });
+});
+
 // ── INIT ──────────────────────────────────────────────────────────────────────
-(async ()=>{ await load();
+load();
 
 // Usuarios de prueba
 (function seedTest(){
@@ -1142,7 +1694,6 @@ function pubChangeWeek(d){
 })();
 
 renderPublicCal();
-})();
 </script>
 </body>
 </html>
