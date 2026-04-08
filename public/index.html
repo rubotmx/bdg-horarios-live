@@ -1407,12 +1407,18 @@ function adminAssign(slotId, role){
   const slot  = STATE.slots.find(s=>s.id===slotId);
   const limit = memberLimit(role);
   const count = dayPickCount(memberCode, slot.date);
-  if(count >= limit){ showAlert(`${memberName(memberCode)} ya tiene ${limit} sesión${limit!==1?"es":""} ese día (límite diario).`); return; }
   if(STATE.picks.find(p=>p.slotId===slotId&&p.memberCode===memberCode&&p.status!=="cancelled")) return;
   const slot2 = STATE.slots.find(s=>s.id===slotId);
-  STATE.picks.push({ slotId, memberCode, status:"confirmed", notes:"", by:SESSION.code });
-  logChange("Asignar", `${memberName(memberCode)} → ${slot2?slot2.day+" "+slot2.date+" "+slot2.timeStart:slotId}`);
-  renderAdmin("sesiones"); renderPublicCal();
+  const doAssign = () => {
+    STATE.picks.push({ slotId, memberCode, status:"confirmed", notes:"", by:SESSION.code });
+    logChange("Asignar", `${memberName(memberCode)} → ${slot2?slot2.day+" "+slot2.date+" "+slot2.timeStart:slotId}`);
+    renderAdmin("sesiones"); renderPublicCal();
+  };
+  if(count >= limit){
+    showConfirm(`⚠️ ${memberName(memberCode)} ya tiene ${count} sesión${count!==1?"es":""} ese día (límite: ${limit}). ¿Asignar de todos modos?`, doAssign, "Asignar de todos modos");
+    return;
+  }
+  doAssign();
 }
 
 function adminConfirmPick(slotId, memberCode){
