@@ -1404,7 +1404,7 @@ function adminAssign(slotId, role){
   if(count >= limit){ showAlert(`${memberName(memberCode)} ya tiene ${limit} sesión${limit!==1?"es":""} ese día (límite diario).`); return; }
   if(STATE.picks.find(p=>p.slotId===slotId&&p.memberCode===memberCode&&p.status!=="cancelled")) return;
   const slot2 = STATE.slots.find(s=>s.id===slotId);
-  STATE.picks.push({ slotId, memberCode, status:"pending", notes:"", by:SESSION.code });
+  STATE.picks.push({ slotId, memberCode, status:"confirmed", notes:"", by:SESSION.code });
   logChange("Asignar", `${memberName(memberCode)} → ${slot2?slot2.day+" "+slot2.date+" "+slot2.timeStart:slotId}`);
   renderAdmin("sesiones"); renderPublicCal();
 }
