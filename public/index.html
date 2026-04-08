@@ -238,31 +238,40 @@ td{padding:10px 14px;vertical-align:middle;}
 .pub-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;}
 /* ── WEEKLY CAL GRID ── */
 .cwg-wrap{width:100%;overflow-x:auto;}
-.cwg-row{display:grid;grid-template-columns:54px repeat(7,1fr);border-bottom:1px solid var(--line);}
+.cwg-row{display:grid;grid-template-columns:48px repeat(7,1fr);border-bottom:1px solid rgba(255,255,255,.06);}
 .cwg-row:last-child{border-bottom:none;}
-.cwg-head-row{display:grid;grid-template-columns:54px repeat(7,1fr);background:var(--db);}
-.cwg-time{padding:7px 6px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--line);font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:.02em;color:var(--muted);}
-.cwg-head-row .cwg-time{border-right-color:rgba(255,255,255,.1);background:var(--db);}
-.cwg-dh{padding:12px 6px 10px;border-left:1px solid rgba(255,255,255,.1);text-align:center;}
-.cwg-dh.cwg-today .cwg-dh-name{color:#fff;opacity:1;}
+.cwg-head-row{display:grid;grid-template-columns:48px repeat(7,1fr);background:var(--db);}
+.cwg-time{padding:0 6px;display:flex;align-items:center;justify-content:center;border-right:1px solid rgba(255,255,255,.06);font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:.02em;color:rgba(255,255,255,.25);background:var(--db);}
+.cwg-head-row .cwg-time{border-right-color:rgba(255,255,255,.08);}
+.cwg-dh{padding:14px 8px 12px;border-left:1px solid rgba(255,255,255,.08);text-align:center;}
 .cwg-dh.cwg-today .cwg-dh-date{color:var(--gold);}
-.cwg-dh-name{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;font-weight:700;}
-.cwg-dh-date{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;color:#fff;line-height:1;}
-.cwg-dh-month{font-size:9px;color:rgba(255,255,255,.35);margin-top:3px;letter-spacing:.06em;}
-.cwg-cell{border-left:1px solid var(--line);min-height:80px;position:relative;display:flex;align-items:stretch;justify-content:stretch;}
-.cwg-cell.blocked{background:var(--db);}
-.cwg-cell.blocked::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold);}
-.cwg-cell.open{background:var(--surface);}
-.cwg-cell.none{background:var(--bg);}
-.cwg-live{display:flex;flex-direction:column;align-items:flex-start;gap:0;padding:10px 10px 10px 13px;width:100%;}
-.cwg-live-tag{font-size:7px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;}
-.cwg-live-time{font-size:13px;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:500;line-height:1;margin-bottom:8px;}
-.cwg-live-names{display:flex;flex-direction:column;gap:5px;width:100%;margin-top:6px;}
-.cwg-live-name{display:flex;align-items:center;gap:6px;line-height:1.2;}
-.cwg-live-name-role{font-size:7px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);opacity:.75;flex-shrink:0;width:14px;}
-.cwg-live-name-val{font-size:10px;color:rgba(255,255,255,.92);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.cwg-av{width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(208,174,43,.6);flex-shrink:0;background:rgba(255,255,255,.08);}
-.cwg-av-ph{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.1);border:1.5px solid rgba(208,174,43,.4);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:rgba(255,255,255,.6);flex-shrink:0;}
+.cwg-dh-name{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:5px;font-weight:700;}
+.cwg-dh.cwg-today .cwg-dh-name{color:var(--gold);}
+.cwg-dh-date{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:500;color:#fff;line-height:1;}
+.cwg-dh-month{font-size:9px;color:rgba(255,255,255,.25);margin-top:4px;letter-spacing:.08em;text-transform:uppercase;}
+
+/* Celda vacía */
+.cwg-cell{border-left:1px solid rgba(255,255,255,.06);min-height:100px;position:relative;display:flex;align-items:stretch;}
+.cwg-cell.blocked{background:linear-gradient(135deg,#1d2640 0%,#202945 100%);}
+.cwg-cell.blocked::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--gold) 0%,rgba(208,174,43,.4) 100%);}
+.cwg-cell.open{background:rgba(255,255,255,.02);}
+.cwg-cell.none{background:transparent;}
+
+/* Contenido de celda LIVE */
+.cwg-live{display:flex;flex-direction:column;padding:10px 10px 12px 14px;width:100%;gap:0;}
+.cwg-live-header{display:flex;align-items:baseline;gap:6px;margin-bottom:9px;}
+.cwg-live-tag{font-size:7px;font-weight:900;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);}
+.cwg-live-time{font-size:14px;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:500;line-height:1;opacity:.9;}
+.cwg-live-divider{width:100%;height:1px;background:rgba(255,255,255,.08);margin-bottom:9px;}
+
+/* Filas de persona */
+.cwg-live-names{display:flex;flex-direction:column;gap:6px;}
+.cwg-live-person{display:flex;align-items:center;gap:7px;}
+.cwg-av{width:26px;height:26px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(208,174,43,.5);flex-shrink:0;background:rgba(255,255,255,.06);}
+.cwg-av-ph{width:26px;height:26px;border-radius:50%;background:rgba(208,174,43,.12);border:1.5px solid rgba(208,174,43,.35);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:rgba(208,174,43,.9);flex-shrink:0;font-family:'DM Sans',sans-serif;}
+.cwg-person-info{display:flex;flex-direction:column;gap:1px;min-width:0;}
+.cwg-person-name{font-size:10px;color:rgba(255,255,255,.9);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;}
+.cwg-person-role{font-size:8px;color:rgba(208,174,43,.65);letter-spacing:.08em;text-transform:uppercase;font-weight:500;line-height:1;}
 .pub-empty{text-align:center;padding:32px;color:var(--muted);font-size:12px;letter-spacing:.1em;}
 
 /* ── GMV / REPORTE ── */
@@ -1507,15 +1516,25 @@ function renderPublicCal(){
           ? `<img src="${photo}" class="cwg-av" alt=""/>`
           : `<div class="cwg-av-ph">${ini}</div>`;
       };
-      const namesHtml = (anfiName || backName) ? `<div class="cwg-live-names">
-        ${anfiPick ? `<div class="cwg-live-name">${calAvatar(anfiPick.memberCode)}<span class="cwg-live-name-val">${anfiName}</span></div>` : ""}
-        ${backPick ? `<div class="cwg-live-name">${calAvatar(backPick.memberCode)}<span class="cwg-live-name-val">${backName}</span></div>` : ""}
-      </div>` : "";
+      const personRow = (pick, name, roleLabel) => `
+        <div class="cwg-live-person">
+          ${calAvatar(pick.memberCode)}
+          <div class="cwg-person-info">
+            <div class="cwg-person-name">${name}</div>
+            <div class="cwg-person-role">${roleLabel}</div>
+          </div>
+        </div>`;
+      const hasNames = anfiPick || backPick;
       cells += `<div class="cwg-cell blocked">
         <div class="cwg-live">
-          <div class="cwg-live-tag">● LIVE</div>
-          <div class="cwg-live-time">${time}–${slot.timeEnd}</div>
-          ${namesHtml}
+          <div class="cwg-live-header">
+            <span class="cwg-live-tag">● LIVE</span>
+            <span class="cwg-live-time">${time}–${slot.timeEnd}</span>
+          </div>
+          ${hasNames ? `<div class="cwg-live-divider"></div><div class="cwg-live-names">
+            ${anfiPick ? personRow(anfiPick, anfiName, "Anfitriona") : ""}
+            ${backPick ? personRow(backPick, backName, "Backend") : ""}
+          </div>` : ""}
         </div>
       </div>`;
     });
