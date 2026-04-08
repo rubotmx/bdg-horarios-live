@@ -579,16 +579,26 @@ function initFirebase(){
     _db.ref(FB_PATH).on("value", snap => {
       const remote = snap.val();
       if(remote && !_fbWriting){
+        // Firebase tiene datos → úsalos como fuente de verdad
         STATE = remote;
         if(!STATE.changelog) STATE.changelog = [];
+        if(!STATE.admins)    STATE.admins    = [];
         migrateSlotDays();
         localStorage.setItem("bdg_horarios_v2", JSON.stringify(STATE));
-        // Re-renderizar si el usuario ya está en la app
         if(document.getElementById("app").style.display !== "none"){
           if(SESSION.role === "admin") renderAdmin(currentAdminTab);
           else if(SESSION.role) renderMember();
         }
         renderPublicCal();
+      } else if(!remote && !_fbReady){
+        // Firebase vacío en primera conexión → subir datos locales si existen
+        const hasLocalData = STATE.members.length > 0 || STATE.slots.length > 0;
+        if(hasLocalData){
+          _fbWriting = true;
+          _db.ref(FB_PATH).set(STATE)
+            .catch(e => console.warn("Firebase initial upload error:", e))
+            .finally(() => setTimeout(() => { _fbWriting = false; }, 500));
+        }
       }
       _fbReady = true;
     });
