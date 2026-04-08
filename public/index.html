@@ -522,7 +522,11 @@ let STATE = {
   slots:     [],  // { id, day, date, timeStart, timeEnd }
   picks:     [],  // { slotId, memberCode, status, notes }  status: pending|confirmed|cancelled
   changelog: [],  // { at, adminCode, adminName, action, detail }
+  admins:    [],  // { code, name, pass } — gestionado por Rubén
 };
+
+// Retorna lista activa de admins (STATE sobreescribe defaults)
+function getAdmins(){ return STATE.admins && STATE.admins.length ? STATE.admins : ADMINS; }
 let SESSION = { role: null, code: null, name: null };
 let pendingAccessRole = null;
 let pendingNotesSlotId = null;
@@ -593,6 +597,7 @@ function load(){
   const raw = localStorage.getItem("bdg_horarios_v2");
   if(raw){ try{ STATE = JSON.parse(raw); }catch(e){} }
   if(!STATE.changelog) STATE.changelog = [];
+  if(!STATE.admins)    STATE.admins    = [];
   migrateSlotDays();
   initFirebase();
 }
@@ -761,7 +766,7 @@ function submitAccess(){
   err.style.display="none";
   if(pendingAccessRole === "admin"){
     const pass = document.getElementById("adminPass").value;
-    const admin = ADMINS.find(a => a.pass === pass);
+    const admin = getAdmins().find(a => a.pass === pass);
     if(!admin){
       err.style.display="block"; err.textContent="Contraseña incorrecta."; return;
     }
@@ -812,6 +817,7 @@ function renderAdmin(tab="equipo"){
       </div>
       <div class="tab ${tab==="bitacora"?"active":""}" onclick="renderAdmin('bitacora')">Bitácora${STATE.changelog&&STATE.changelog.length>0?` <span style="font-size:9px;background:var(--oxide-l);color:var(--oxide);padding:1px 5px;vertical-align:middle;">${STATE.changelog.length}</span>`:""}
       </div>
+      ${SESSION.code==="RUB"?`<div class="tab ${tab==="cuentas"?"active":""}" onclick="renderAdmin('cuentas')" style="color:var(--muted);border-left:1px solid var(--line2);margin-left:auto;">⚙ Admins</div>`:""}
     </div>
     <div id="tabContent"></div>`;
   if(tab==="equipo")    renderAdminEquipo();
@@ -819,6 +825,7 @@ function renderAdmin(tab="equipo"){
   if(tab==="resumen")   renderAdminResumen();
   if(tab==="historial") renderAdminHistorial();
   if(tab==="bitacora")  renderAdminBitacora();
+  if(tab==="cuentas"&&SESSION.code==="RUB") renderAdminCuentas();
 }
 
 // TAB: EQUIPO
@@ -1041,14 +1048,23 @@ function changeWeek(d){ currentWeekOffset+=d; renderAdmin("sesiones"); }
 
 function jumpToWeek(dateStr){
   if(!dateStr) return;
+  // Calcular el domingo de la semana del target
   const target = new Date(dateStr + "T12:00:00");
-  const now    = new Date();
+  const targetSun = new Date(target);
+  targetSun.setDate(target.getDate() - target.getDay());
+  targetSun.setHours(0,0,0,0);
+  // Calcular el domingo de la semana actual (offset=0)
+  const now = new Date();
   const thisSun = new Date(now);
   thisSun.setDate(now.getDate() - now.getDay());
   thisSun.setHours(0,0,0,0);
-  const diff = Math.floor((target - thisSun) / (7 * 24 * 60 * 60 * 1000));
-  currentWeekOffset = diff;
+  // Diferencia exacta en semanas (días enteros)
+  const diffDays = Math.round((targetSun - thisSun) / 86400000);
+  currentWeekOffset = Math.round(diffDays / 7);
   renderAdmin("sesiones");
+  // Restaurar el valor del input tras re-render
+  const inp = document.getElementById("jumpToDate");
+  if(inp) inp.value = dateStr;
 }
 
 function openSlotModal(){
@@ -1982,6 +1998,95 @@ function weekLabel_from(sunIso){
   end.setDate(end.getDate()+6);
   const d6 = localISO(end);
   return `${fmtDate(d0)} – ${fmtDate(d6)}`;
+}
+
+// ── GESTIÓN DE ADMINS (solo Rubén) ────────────────────────────────────────────
+function renderAdminCuentas(){
+  if(SESSION.code !== "RUB") return;
+  const list = getAdmins();
+
+  const rows = list.map((a,i) => {
+    const isDefault = !STATE.admins.length; // usando defaults hardcoded
+    const canRemove = list.length > 1;
+    return `<tr>
+      <td><span class="code-badge">${a.code}</span></td>
+      <td style="font-size:13px;font-weight:500;">${a.name}</td>
+      <td style="font-size:12px;color:var(--muted);">${"•".repeat(a.pass.length)}</td>
+      <td>
+        <button class="btn ghost" style="font-size:11px;padding:5px 10px;" onclick="editAdminPass(${i})">Cambiar contraseña</button>
+        ${canRemove&&!isDefault?`<button class="btn danger" style="margin-left:6px;" onclick="removeAdmin(${i})">Eliminar</button>`:""}
+      </td>
+    </tr>`;
+  }).join("");
+
+  document.getElementById("tabContent").innerHTML = `
+    <div style="max-width:640px;">
+      <div class="section-header">
+        <span class="section-title">Cuentas de administradora</span>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:20px;">Solo tú puedes agregar, eliminar o cambiar contraseñas de administradoras.</p>
+      <div class="table-wrap" style="margin-bottom:28px;">
+        <table><thead><tr><th>Código</th><th>Nombre</th><th>Contraseña</th><th>Acciones</th></tr></thead>
+        <tbody>${rows}</tbody></table>
+      </div>
+      <div class="add-form">
+        <div class="add-form-title">Agregar administradora</div>
+        <div class="form-row">
+          <div class="field"><label>Nombre</label>
+            <input id="newAdminName" type="text" placeholder="ej. Sofía" maxlength="30"/></div>
+          <div class="field"><label>Código (3 letras)</label>
+            <input id="newAdminCode" type="text" placeholder="ej. SOF" maxlength="5" style="text-transform:uppercase;"/></div>
+          <div class="field"><label>Contraseña</label>
+            <input id="newAdminPass" type="password" placeholder="mínimo 6 caracteres"/></div>
+          <div class="field" style="display:flex;align-items:flex-end;">
+            <button class="btn accent" onclick="addAdmin()">+ Agregar</button></div>
+        </div>
+        <div class="form-err" id="adminCuentaErr"></div>
+      </div>
+    </div>`;
+}
+
+function addAdmin(){
+  const name = document.getElementById("newAdminName").value.trim();
+  const code = document.getElementById("newAdminCode").value.trim().toUpperCase();
+  const pass = document.getElementById("newAdminPass").value;
+  const err  = document.getElementById("adminCuentaErr");
+  if(name.length < 2){ err.style.display="block"; err.textContent="Nombre muy corto."; return; }
+  if(code.length < 2){ err.style.display="block"; err.textContent="Código muy corto."; return; }
+  if(pass.length < 6){ err.style.display="block"; err.textContent="Contraseña mínimo 6 caracteres."; return; }
+  const current = getAdmins();
+  if(current.find(a=>a.code===code)){ err.style.display="block"; err.textContent="Ese código ya existe."; return; }
+  // Copiar defaults a STATE si aún no se ha personalizado
+  if(!STATE.admins.length) STATE.admins = [...ADMINS];
+  STATE.admins.push({ code, name, pass });
+  logChange("Agregar admin", `${name} (${code})`);
+  renderAdminCuentas();
+}
+
+function removeAdmin(idx){
+  if(SESSION.code !== "RUB") return;
+  if(!STATE.admins.length) STATE.admins = [...ADMINS];
+  const a = STATE.admins[idx];
+  if(!a) return;
+  showConfirm(`¿Eliminar la cuenta de ${a.name}? Ya no podrá ingresar.`, ()=>{
+    STATE.admins.splice(idx, 1);
+    logChange("Eliminar admin", `${a.name} (${a.code})`);
+    renderAdminCuentas();
+  }, "Eliminar");
+}
+
+function editAdminPass(idx){
+  if(SESSION.code !== "RUB") return;
+  const current = getAdmins();
+  const a = current[idx];
+  if(!a) return;
+  const nueva = prompt(`Nueva contraseña para ${a.name} (mínimo 6 caracteres):`);
+  if(!nueva) return;
+  if(nueva.length < 6){ showAlert("La contraseña debe tener al menos 6 caracteres."); return; }
+  if(!STATE.admins.length) STATE.admins = [...ADMINS];
+  STATE.admins[idx].pass = nueva;
+  logChange("Cambiar contraseña admin", `${a.name} (${a.code})`);
+  renderAdminCuentas();
 }
 
 // ── BITÁCORA ──────────────────────────────────────────────────────────────────
