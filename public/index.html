@@ -356,10 +356,16 @@ td{padding:10px 14px;vertical-align:middle;}
     <div class="pub-cal">
       <div class="pub-cal-header">
         <span class="pub-cal-title">Calendario de sesiones</span>
-        <div class="pub-week-nav">
-          <button class="pub-week-btn" id="pubBackBtn" onclick="pubChangeWeek(-1)" style="visibility:hidden">‹</button>
-          <span class="pub-week-label" id="pubWeekLabel">—</span>
-          <button class="pub-week-btn" onclick="pubChangeWeek(1)">›</button>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <button class="btn ghost" style="font-size:11px;padding:7px 14px;letter-spacing:.1em;display:flex;align-items:center;gap:6px;" onclick="exportCalendarImage()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Exportar imagen
+          </button>
+          <div class="pub-week-nav">
+            <button class="pub-week-btn" id="pubBackBtn" onclick="pubChangeWeek(-1)" style="visibility:hidden">‹</button>
+            <span class="pub-week-label" id="pubWeekLabel">—</span>
+            <button class="pub-week-btn" onclick="pubChangeWeek(1)">›</button>
+          </div>
         </div>
       </div>
       <div id="pubGrid"></div>
@@ -1266,7 +1272,7 @@ const DAYS_SHORT = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
 
 function renderPublicCal(){
   const weekDates = getWeekDates(pubWeekOffset);
-  const today     = new Date().toISOString().slice(0,10);
+  const today     = localISO(new Date());
 
   document.getElementById("pubWeekLabel").textContent = weekLabel(pubWeekOffset);
 
@@ -1318,6 +1324,158 @@ function pubChangeWeek(d){
   if(next < 0) return;
   pubWeekOffset = next;
   renderPublicCal();
+}
+
+function exportCalendarImage(){
+  const monSun = getWeekDates(pubWeekOffset);
+  // Reordenar Dom→Sáb: [Dom(6), Lun(0), Mar(1), Mié(2), Jue(3), Vie(4), Sáb(5)]
+  const dates   = [monSun[6], monSun[0], monSun[1], monSun[2], monSun[3], monSun[4], monSun[5]];
+  const dayNames = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+
+  const SCALE   = 2;          // retina
+  const TW      = 72;         // ancho columna de hora
+  const CW      = 110;        // ancho de cada día
+  const HDR     = 90;         // altura cabecera días
+  const TITL    = 56;         // altura título superior
+  const RH      = 52;         // altura de cada fila horaria
+  const PAD     = 20;         // padding lateral
+  const W       = PAD + TW + CW * 7 + PAD;
+  const H       = TITL + HDR + RH * DEFAULT_TIMES.length + PAD;
+
+  const canvas  = document.createElement("canvas");
+  canvas.width  = W * SCALE;
+  canvas.height = H * SCALE;
+  const c       = canvas.getContext("2d");
+  c.scale(SCALE, SCALE);
+
+  // ── Paleta BDG ────────────────────────────────────────────────
+  const COL = {
+    bg:      "#FAF9F6",
+    carbon:  "#1C1C1A",
+    muted:   "#888880",
+    line:    "#E5E0D8",
+    blocked: "#C4A882",      // ranura bloqueada (warm)
+    blockedT:"#3D2E1E",      // texto sobre bloqueado
+    empty:   "#F5F3EE",
+    headerFg:"#FFFFFF",
+    accent:  "#9C6B3C",
+  };
+
+  // Fondo general
+  c.fillStyle = COL.bg;
+  c.fillRect(0, 0, W, H);
+
+  // ── Título ────────────────────────────────────────────────────
+  c.fillStyle = COL.carbon;
+  c.font = `bold ${14 * 1}px 'Arial', sans-serif`;
+  c.textAlign = "left";
+  c.fillText("BDG — Horarios TikTok LIVE", PAD + TW, 26);
+
+  // Rango de fechas (Dom X – Sáb X)
+  c.fillStyle = COL.muted;
+  c.font = `11px Arial`;
+  const rangeLabel = `${dayNames[0]} ${fmtDate(dates[0])}  –  ${dayNames[6]} ${fmtDate(dates[6])}`;
+  c.fillText(rangeLabel, PAD + TW, 44);
+
+  // Logo/marca pequeña derecha
+  c.fillStyle = COL.accent;
+  c.font = `bold 11px Arial`;
+  c.textAlign = "right";
+  c.fillText("baladigala.com", W - PAD, 44);
+  c.textAlign = "left";
+
+  // Separador
+  c.strokeStyle = COL.line;
+  c.lineWidth = 1;
+  c.beginPath(); c.moveTo(PAD, TITL - 8); c.lineTo(W - PAD, TITL - 8); c.stroke();
+
+  // ── Cabecera días ─────────────────────────────────────────────
+  const hdrY = TITL;
+  // Celda vacía sobre columna de horas
+  c.fillStyle = COL.carbon;
+  c.fillRect(PAD, hdrY, TW, HDR);
+
+  dayNames.forEach((name, i) => {
+    const x = PAD + TW + CW * i;
+    // Fondo oscuro header
+    c.fillStyle = COL.carbon;
+    c.fillRect(x, hdrY, CW, HDR);
+
+    // Separador vertical
+    c.strokeStyle = "rgba(255,255,255,0.12)";
+    c.lineWidth = 1;
+    c.beginPath(); c.moveTo(x, hdrY); c.lineTo(x, hdrY + HDR); c.stroke();
+
+    // Nombre día
+    c.fillStyle = "rgba(255,255,255,0.5)";
+    c.font = `9px Arial`;
+    c.textAlign = "center";
+    c.fillText(name.toUpperCase(), x + CW / 2, hdrY + 22);
+
+    // Número de fecha
+    const dayNum = dates[i] ? dates[i].split("-")[2].replace(/^0/,"") : "";
+    const monStr = fmtDate(dates[i]).split(" ")[1] || "";
+    c.fillStyle = "#FFFFFF";
+    c.font = `bold 20px 'Georgia', serif`;
+    c.fillText(dayNum, x + CW / 2, hdrY + 50);
+
+    c.fillStyle = "rgba(255,255,255,0.45)";
+    c.font = `10px Arial`;
+    c.fillText(monStr, x + CW / 2, hdrY + 68);
+  });
+
+  // ── Filas de horario ──────────────────────────────────────────
+  DEFAULT_TIMES.forEach((time, ri) => {
+    const y = TITL + HDR + RH * ri;
+
+    // Columna de hora
+    c.fillStyle = ri % 2 === 0 ? "#F2EFE9" : COL.bg;
+    c.fillRect(PAD, y, TW, RH);
+    c.strokeStyle = COL.line;
+    c.lineWidth = 1;
+    c.strokeRect(PAD, y, TW, RH);
+    c.fillStyle = COL.muted;
+    c.font = `11px 'Georgia', serif`;
+    c.textAlign = "center";
+    c.fillText(time, PAD + TW / 2, y + RH / 2 + 4);
+
+    // Celdas por día
+    dates.forEach((date, ci) => {
+      const x = PAD + TW + CW * ci;
+      const slot = date ? STATE.slots.find(s => s.date === date && s.timeStart === time) : null;
+
+      if(!slot){
+        c.fillStyle = ri % 2 === 0 ? "#F7F5F1" : COL.bg;
+        c.fillRect(x, y, CW, RH);
+      } else {
+        // Bloque bloqueado — solo color, sin nombres
+        c.fillStyle = COL.blocked;
+        c.fillRect(x, y, CW, RH);
+
+        // Ícono LIVE
+        c.fillStyle = COL.blockedT;
+        c.font = `bold 10px Arial`;
+        c.textAlign = "center";
+        c.fillText("● LIVE", x + CW / 2, y + RH / 2 - 4);
+
+        // Horario
+        c.font = `10px Arial`;
+        c.fillStyle = COL.blockedT;
+        c.fillText(`${time} – ${slot.timeEnd}`, x + CW / 2, y + RH / 2 + 12);
+      }
+
+      // Borde celda
+      c.strokeStyle = COL.line;
+      c.lineWidth = 0.5;
+      c.strokeRect(x, y, CW, RH);
+    });
+  });
+
+  // ── Descargar ─────────────────────────────────────────────────
+  const link = document.createElement("a");
+  link.download = `BDG-Horarios-${dates[0]}.png`;
+  link.href = canvas.toDataURL("image/png");
+  link.click();
 }
 
 // ── FORMAT GMV ────────────────────────────────────────────────────────────────
