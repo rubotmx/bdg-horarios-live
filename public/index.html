@@ -237,11 +237,11 @@ td{padding:10px 14px;vertical-align:middle;}
 .pub-week-btn:hover{border-color:var(--carbon);}
 .pub-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;}
 /* ── WEEKLY CAL GRID ── */
-.cwg-wrap{width:100%;overflow-x:auto;}
+.cwg-wrap{width:100%;overflow-x:auto;background:var(--db);border-radius:2px;}
 .cwg-row{display:grid;grid-template-columns:48px repeat(7,1fr);border-bottom:1px solid rgba(255,255,255,.06);}
 .cwg-row:last-child{border-bottom:none;}
-.cwg-head-row{display:grid;grid-template-columns:48px repeat(7,1fr);background:var(--db);}
-.cwg-time{padding:0 6px;display:flex;align-items:center;justify-content:center;border-right:1px solid rgba(255,255,255,.06);font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:.02em;color:rgba(255,255,255,.25);background:var(--db);}
+.cwg-head-row{display:grid;grid-template-columns:48px repeat(7,1fr);background:rgba(255,255,255,.04);}
+.cwg-time{padding:0 6px;display:flex;align-items:center;justify-content:center;border-right:1px solid rgba(255,255,255,.06);font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:.02em;color:rgba(255,255,255,.25);background:rgba(0,0,0,.12);}
 .cwg-head-row .cwg-time{border-right-color:rgba(255,255,255,.08);}
 .cwg-dh{padding:14px 8px 12px;border-left:1px solid rgba(255,255,255,.08);text-align:center;}
 .cwg-dh.cwg-today .cwg-dh-date{color:var(--gold);}
@@ -254,8 +254,8 @@ td{padding:10px 14px;vertical-align:middle;}
 .cwg-cell{border-left:1px solid rgba(255,255,255,.06);min-height:100px;position:relative;display:flex;align-items:stretch;}
 .cwg-cell.blocked{background:linear-gradient(135deg,#1d2640 0%,#202945 100%);}
 .cwg-cell.blocked::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--gold) 0%,rgba(208,174,43,.4) 100%);}
-.cwg-cell.open{background:rgba(255,255,255,.02);}
-.cwg-cell.none{background:transparent;}
+.cwg-cell.open{background:rgba(255,255,255,.03);}
+.cwg-cell.none{background:rgba(255,255,255,.015);}
 
 /* Contenido de celda LIVE */
 .cwg-live{display:flex;flex-direction:column;padding:10px 10px 12px 14px;width:100%;gap:0;}
