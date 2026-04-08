@@ -582,13 +582,13 @@ function addMins(time, mins){
 
 function getWeekDates(offset=0){
   const now = new Date();
-  const monday = new Date(now);
-  monday.setDate(now.getDate() - (now.getDay()||7) + 1 + offset*7);
-  monday.setHours(0,0,0,0);
+  const sun = new Date(now);
+  sun.setDate(now.getDate() - now.getDay() + offset * 7);
+  sun.setHours(0,0,0,0);
   return Array.from({length:7},(_,i)=>{
-    const d = new Date(monday); d.setDate(monday.getDate()+i);
+    const d = new Date(sun); d.setDate(sun.getDate()+i);
     return localISO(d);
-  });
+  }); // [Dom, Lun, Mar, Mié, Jue, Vie, Sáb]
 }
 
 function weekLabel(offset){
@@ -799,7 +799,7 @@ function removeMember(code){
 // Genera 8 sesiones × 7 días para la semana indicada (si no existen ya)
 function generateDefaultWeek(offset){
   const weekDates = getWeekDates(offset);
-  const DAYS = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+  const DAYS = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
   let added = 0;
   weekDates.forEach((date, di) => {
     DEFAULT_TIMES.forEach(start => {
@@ -939,9 +939,10 @@ function jumpToWeek(dateStr){
   if(!dateStr) return;
   const target = new Date(dateStr + "T12:00:00");
   const now    = new Date();
-  const monday = new Date(now); monday.setDate(now.getDate() - (now.getDay()||7) + 1);
-  monday.setHours(0,0,0,0);
-  const diff = Math.floor((target - monday) / (7 * 24 * 60 * 60 * 1000));
+  const thisSun = new Date(now);
+  thisSun.setDate(now.getDate() - now.getDay());
+  thisSun.setHours(0,0,0,0);
+  const diff = Math.floor((target - thisSun) / (7 * 24 * 60 * 60 * 1000));
   currentWeekOffset = diff;
   renderAdmin("sesiones");
 }
@@ -1281,16 +1282,12 @@ function saveNotes(){
 let pubWeekOffset = 0;
 const DAYS_SHORT = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
 
-function sunSatLabel(offset){
-  const d = getSunSatWeek(offset);
-  return `${fmtDate(d[0])} – ${fmtDate(d[6])}`;
-}
 
 function renderPublicCal(){
-  const weekDates = getSunSatWeek(pubWeekOffset);
+  const weekDates = getWeekDates(pubWeekOffset);
   const today     = localISO(new Date());
 
-  document.getElementById("pubWeekLabel").textContent = sunSatLabel(pubWeekOffset);
+  document.getElementById("pubWeekLabel").textContent = weekLabel(pubWeekOffset);
 
   // Solo hacia adelante
   const backBtn = document.getElementById("pubBackBtn");
@@ -1338,18 +1335,6 @@ function pubChangeWeek(d){
   renderPublicCal();
 }
 
-function getSunSatWeek(offset){
-  // Calcula semana real Dom→Sáb para el offset dado
-  const monDates = getWeekDates(offset); // [Lun...Dom]
-  const monday   = new Date(monDates[0] + "T12:00:00");
-  const sunday   = new Date(monday);
-  sunday.setDate(monday.getDate() - 1); // domingo anterior al lunes
-  return Array.from({length:7}, (_,i) => {
-    const d = new Date(sunday);
-    d.setDate(sunday.getDate() + i);
-    return localISO(d);
-  }); // [Dom, Lun, Mar, Mié, Jue, Vie, Sáb]
-}
 
 function exportCalendarImage(){
   const logoEl = document.querySelector('.topbar img');
@@ -1367,7 +1352,7 @@ function exportCalendarImage(){
 }
 
 function _drawCalendarCanvas(logoImg){
-  const dates    = getSunSatWeek(pubWeekOffset);
+  const dates    = getWeekDates(pubWeekOffset);
   const dayNames = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
 
   const weekSlots   = STATE.slots.filter(s => dates.includes(s.date));
@@ -1874,13 +1859,13 @@ function renderHistDuplas(past){
 
 function slotWeekMon(dateStr){
   const d = new Date(dateStr+"T12:00:00");
-  const mon = new Date(d); mon.setDate(d.getDate() - (d.getDay()||7) + 1);
-  return localISO(mon);
+  const sun = new Date(d); sun.setDate(d.getDate() - d.getDay());
+  return localISO(sun);
 }
 
-function weekLabel_from(mondayIso){
-  const d0 = mondayIso;
-  const end = new Date(mondayIso+"T12:00:00");
+function weekLabel_from(sunIso){
+  const d0 = sunIso;
+  const end = new Date(sunIso+"T12:00:00");
   end.setDate(end.getDate()+6);
   const d6 = localISO(end);
   return `${fmtDate(d0)} – ${fmtDate(d6)}`;
@@ -1909,7 +1894,7 @@ load();
 
   // Generar slots de la semana actual si no existen
   const weekDates = getWeekDates(0);
-  const DAYS_NAMES = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+  const DAYS_NAMES = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
   const hasSlots   = STATE.slots.some(s => weekDates.includes(s.date));
   if(!hasSlots){
     weekDates.forEach((date, di) => {
