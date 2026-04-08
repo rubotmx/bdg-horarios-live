@@ -238,24 +238,25 @@ td{padding:10px 14px;vertical-align:middle;}
 .pub-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;}
 /* ── WEEKLY CAL GRID ── */
 .cwg-wrap{width:100%;overflow-x:auto;}
-.cwg{width:100%;border:1px solid var(--line);border-collapse:collapse;min-width:580px;}
 .cwg-row{display:grid;grid-template-columns:54px repeat(7,1fr);border-bottom:1px solid var(--line);}
 .cwg-row:last-child{border-bottom:none;}
-.cwg-head-row{display:grid;grid-template-columns:54px repeat(7,1fr);background:var(--carbon);}
-.cwg-time{padding:7px 6px;font-size:11px;color:var(--muted);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--line);font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:.02em;}
-.cwg-head-row .cwg-time{border-right-color:rgba(255,255,255,.12);}
-.cwg-dh{padding:10px 6px;border-left:1px solid rgba(255,255,255,.12);text-align:center;color:#fff;}
-.cwg-dh.cwg-today{background:var(--oxide);}
-.cwg-dh-name{font-size:9px;letter-spacing:.2em;text-transform:uppercase;opacity:.6;margin-bottom:2px;}
-.cwg-dh-date{font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:500;}
-.cwg-cell{padding:5px 7px;border-left:1px solid var(--line);min-height:50px;}
-.cwg-cell.full{background:var(--pos-l);}
-.cwg-cell.part{background:var(--warn-l);}
+.cwg-head-row{display:grid;grid-template-columns:54px repeat(7,1fr);background:var(--db);}
+.cwg-time{padding:7px 6px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--line);font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:.02em;color:var(--muted);}
+.cwg-head-row .cwg-time{border-right-color:rgba(255,255,255,.1);background:var(--db);}
+.cwg-dh{padding:12px 6px 10px;border-left:1px solid rgba(255,255,255,.1);text-align:center;}
+.cwg-dh.cwg-today .cwg-dh-name{color:#fff;opacity:1;}
+.cwg-dh.cwg-today .cwg-dh-date{color:var(--gold);}
+.cwg-dh-name{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;font-weight:700;}
+.cwg-dh-date{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;color:#fff;line-height:1;}
+.cwg-dh-month{font-size:9px;color:rgba(255,255,255,.35);margin-top:3px;letter-spacing:.06em;}
+.cwg-cell{border-left:1px solid var(--line);min-height:50px;position:relative;display:flex;align-items:center;justify-content:center;}
+.cwg-cell.blocked{background:var(--db);}
+.cwg-cell.blocked::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold);}
 .cwg-cell.open{background:var(--surface);}
 .cwg-cell.none{background:var(--bg);}
-.cwg-spot{display:flex;align-items:center;gap:4px;font-size:11px;padding:2px 0;line-height:1.3;}
-.cwg-sname{font-weight:500;color:var(--text);}
-.cwg-libre{color:var(--muted);font-size:10px;}
+.cwg-live{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;}
+.cwg-live-tag{font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);}
+.cwg-live-time{font-size:11px;color:rgba(255,255,255,.65);font-family:'Cormorant Garamond',serif;}
 .pub-empty{text-align:center;padding:32px;color:var(--muted);font-size:12px;letter-spacing:.1em;}
 
 /* ── GMV / REPORTE ── */
@@ -1296,9 +1297,12 @@ function renderPublicCal(){
   let headCols = `<div class="cwg-time"></div>`;
   weekDates.forEach((date, i) => {
     const isTod = date === today;
+    const [,mm,dd] = date.split("-");
+    const ms = ["","Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
     headCols += `<div class="cwg-dh${isTod?" cwg-today":""}">
       <div class="cwg-dh-name">${DAYS_SHORT[i]}</div>
-      <div class="cwg-dh-date">${fmtDate(date)}</div>
+      <div class="cwg-dh-date">${parseInt(dd)}</div>
+      <div class="cwg-dh-month">${ms[parseInt(mm)]}</div>
     </div>`;
   });
 
@@ -1309,19 +1313,12 @@ function renderPublicCal(){
     weekDates.forEach(date => {
       const slot = STATE.slots.find(s => s.date === date && s.timeStart === time);
       if(!slot){ cells += `<div class="cwg-cell none"></div>`; return; }
-      const anfiPick = STATE.picks.find(p => p.slotId===slot.id && p.status!=="cancelled" && memberRole(p.memberCode)==="anfitriona");
-      const backPick = STATE.picks.find(p => p.slotId===slot.id && p.status!=="cancelled" && memberRole(p.memberCode)==="backend");
-      const cls = (anfiPick && backPick) ? "full" : (anfiPick || backPick) ? "part" : "open";
-      const anfiTxt = anfiPick
-        ? avatarHtml(anfiPick.memberCode,"sm") + '<span class="cwg-sname">' + memberName(anfiPick.memberCode).split(" ")[0] + "</span>"
-        : '<span class="cwg-libre">Libre</span>';
-      const backTxt = backPick
-        ? avatarHtml(backPick.memberCode,"sm") + '<span class="cwg-sname">' + memberName(backPick.memberCode).split(" ")[0] + "</span>"
-        : '<span class="cwg-libre">Libre</span>';
-      cells += '<div class="cwg-cell ' + cls + '">'
-        + '<div class="cwg-spot">🎙 ' + anfiTxt + '</div>'
-        + '<div class="cwg-spot">💻 ' + backTxt + '</div>'
-        + '</div>';
+      cells += `<div class="cwg-cell blocked">
+        <div class="cwg-live">
+          <div class="cwg-live-tag">● LIVE</div>
+          <div class="cwg-live-time">${time}–${slot.timeEnd}</div>
+        </div>
+      </div>`;
     });
     rows += `<div class="cwg-row">${cells}</div>`;
   });
@@ -1353,173 +1350,209 @@ function exportCalendarImage(){
   const dates    = getSunSatWeek(pubWeekOffset);
   const dayNames = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
 
-  // ── Contar sesiones y horas de la semana ──────────────────────
-  const weekSlots = STATE.slots.filter(s => dates.includes(s.date));
-  const totalSes  = weekSlots.length;
-  const totalHrs  = (totalSes * SESSION_MINS / 60);
+  const weekSlots   = STATE.slots.filter(s => dates.includes(s.date));
+  const totalSes    = weekSlots.length;
+  const totalHrs    = totalSes * SESSION_MINS / 60;
   const totalHrsStr = totalHrs % 1 === 0 ? totalHrs + "h" : totalHrs.toFixed(1) + "h";
 
-  const SCALE   = 2;
-  const TW      = 72;
-  const CW      = 110;
-  const HDR     = 90;
-  const TITL    = 56;
-  const RH      = 52;
-  const FOOT    = 56;    // footer resumen
-  const PAD     = 20;
-  const W       = PAD + TW + CW * 7 + PAD;
-  const H       = TITL + HDR + RH * DEFAULT_TIMES.length + FOOT + PAD;
+  // ── Layout ────────────────────────────────────────────────────
+  const SCALE = 2;
+  const TW    = 68;    // columna de horas
+  const CW    = 108;   // ancho de cada día
+  const TOPB  = 40;    // topbar marca
+  const TITL  = 58;    // título + fecha
+  const HDR   = 82;    // cabecera de días
+  const RH    = 50;    // altura por fila horaria
+  const FOOT  = 60;    // footer stats
+  const W     = TW + CW * 7;
+  const H     = TOPB + TITL + HDR + RH * DEFAULT_TIMES.length + FOOT;
 
-  const canvas  = document.createElement("canvas");
+  const canvas = document.createElement("canvas");
   canvas.width  = W * SCALE;
   canvas.height = H * SCALE;
-  const c       = canvas.getContext("2d");
+  const c = canvas.getContext("2d");
   c.scale(SCALE, SCALE);
 
-  const COL = {
-    bg:      "#FAF9F6",
-    carbon:  "#1C1C1A",
-    muted:   "#888880",
-    line:    "#E5E0D8",
-    blocked: "#C4A882",
-    blockedT:"#3D2E1E",
-    accent:  "#9C6B3C",
-  };
+  // ── Paleta BDG ────────────────────────────────────────────────
+  const DB   = "#202945";
+  const GOLD = "#D0AE2B";
+  const OW   = "#F9F8F6";
+  const SF2  = "#F2F2F0";
+  const LINE = "#E0DDDA";
+  const MUT  = "#9A9A9E";
 
-  // Fondo
-  c.fillStyle = COL.bg;
-  c.fillRect(0, 0, W, H);
+  // ── 1. Topbar ─────────────────────────────────────────────────
+  c.fillStyle = DB;
+  c.fillRect(0, 0, W, TOPB);
 
-  // ── Título ────────────────────────────────────────────────────
-  c.fillStyle = COL.carbon;
-  c.font = `bold 14px Arial`;
+  // Punto dorado
+  c.fillStyle = GOLD;
+  c.beginPath(); c.arc(16, TOPB / 2, 3.5, 0, Math.PI * 2); c.fill();
+
+  // Marca izquierda
+  c.fillStyle = "#FFFFFF";
+  c.font = `700 10px 'DM Sans', Arial`;
   c.textAlign = "left";
-  c.fillText("BDG — Horarios TikTok LIVE", PAD + TW, 26);
+  c.letterSpacing = "0.2em";
+  c.fillText("BALA DI GALA", 28, TOPB / 2 + 4);
 
-  c.fillStyle = COL.muted;
-  c.font = `11px Arial`;
-  const rangeLabel = `${dayNames[0]} ${fmtDate(dates[0])}  –  ${dayNames[6]} ${fmtDate(dates[6])}`;
-  c.fillText(rangeLabel, PAD + TW, 44);
-
-  c.fillStyle = COL.accent;
-  c.font = `bold 11px Arial`;
+  // Cuenta TikTok derecha
+  c.fillStyle = GOLD;
+  c.font = `700 10px 'DM Sans', Arial`;
   c.textAlign = "right";
-  c.fillText("baladigala.com", W - PAD, 44);
+  c.fillText("@baladigala", W - 14, TOPB / 2 - 2);
+  c.fillStyle = "rgba(255,255,255,0.35)";
+  c.font = `400 9px 'DM Sans', Arial`;
+  c.fillText("TikTok LIVE", W - 14, TOPB / 2 + 10);
+
+  // ── 2. Título ─────────────────────────────────────────────────
+  c.fillStyle = "#FFFFFF";
+  c.fillRect(0, TOPB, W, TITL);
+
+  c.fillStyle = DB;
+  c.font = `500 17px 'Cormorant Garamond', Georgia`;
   c.textAlign = "left";
+  c.fillText("Calendario de sesiones", TW, TOPB + 26);
 
-  c.strokeStyle = COL.line;
+  c.fillStyle = MUT;
+  c.font = `400 10px 'DM Sans', Arial`;
+  c.letterSpacing = "0.05em";
+  const rangeLabel = `${dayNames[0]} ${fmtDate(dates[0])}  –  ${dayNames[6]} ${fmtDate(dates[6])}`;
+  c.fillText(rangeLabel, TW, TOPB + 44);
+
+  // Separador inferior título
+  c.strokeStyle = LINE;
   c.lineWidth = 1;
-  c.beginPath(); c.moveTo(PAD, TITL - 8); c.lineTo(W - PAD, TITL - 8); c.stroke();
+  c.beginPath(); c.moveTo(0, TOPB + TITL - 1); c.lineTo(W, TOPB + TITL - 1); c.stroke();
 
-  // ── Cabecera días ─────────────────────────────────────────────
-  const hdrY = TITL;
-  c.fillStyle = COL.carbon;
-  c.fillRect(PAD, hdrY, TW + CW * 7, HDR);
+  // ── 3. Cabecera días ──────────────────────────────────────────
+  const hdrY = TOPB + TITL;
+
+  // Celda vacía columna de horas
+  c.fillStyle = DB;
+  c.fillRect(0, hdrY, TW, HDR);
 
   dayNames.forEach((name, i) => {
-    const x = PAD + TW + CW * i;
+    const x = TW + CW * i;
+    c.fillStyle = DB;
+    c.fillRect(x, hdrY, CW, HDR);
 
-    c.strokeStyle = "rgba(255,255,255,0.12)";
+    // Divisor vertical
+    c.strokeStyle = "rgba(255,255,255,0.1)";
     c.lineWidth = 1;
-    c.beginPath(); c.moveTo(x, hdrY); c.lineTo(x, hdrY + HDR); c.stroke();
+    c.beginPath(); c.moveTo(x, hdrY + 8); c.lineTo(x, hdrY + HDR - 8); c.stroke();
 
-    c.fillStyle = "rgba(255,255,255,0.5)";
-    c.font = `9px Arial`;
+    // Nombre día en gold
+    c.fillStyle = GOLD;
+    c.font = `700 8px 'DM Sans', Arial`;
     c.textAlign = "center";
-    c.fillText(name.toUpperCase(), x + CW / 2, hdrY + 22);
+    c.fillText(name.toUpperCase(), x + CW / 2, hdrY + 20);
 
-    const dayNum = dates[i] ? dates[i].split("-")[2].replace(/^0/,"") : "";
-    const monStr = fmtDate(dates[i]).split(" ")[1] || "";
-
+    // Número de día grande
+    const dayNum = dates[i] ? dates[i].split("-")[2].replace(/^0/, "") : "";
     c.fillStyle = "#FFFFFF";
-    c.font = `bold 20px Georgia`;
+    c.font = `500 24px 'Cormorant Garamond', Georgia`;
     c.fillText(dayNum, x + CW / 2, hdrY + 50);
 
-    c.fillStyle = "rgba(255,255,255,0.45)";
-    c.font = `10px Arial`;
-    c.fillText(monStr, x + CW / 2, hdrY + 68);
+    // Mes en muted
+    const monStr = fmtDate(dates[i]).split(" ")[1] || "";
+    c.fillStyle = "rgba(255,255,255,0.38)";
+    c.font = `400 9px 'DM Sans', Arial`;
+    c.fillText(monStr, x + CW / 2, hdrY + 66);
   });
 
-  // ── Filas de horario ──────────────────────────────────────────
+  // ── 4. Filas de horario ───────────────────────────────────────
   DEFAULT_TIMES.forEach((time, ri) => {
-    const y = TITL + HDR + RH * ri;
+    const y = hdrY + HDR + RH * ri;
+    const alt = ri % 2 === 0;
 
-    c.fillStyle = ri % 2 === 0 ? "#F2EFE9" : COL.bg;
-    c.fillRect(PAD, y, TW, RH);
-    c.strokeStyle = COL.line;
-    c.lineWidth = 1;
-    c.strokeRect(PAD, y, TW, RH);
-    c.fillStyle = COL.muted;
-    c.font = `11px Georgia`;
+    // Columna hora
+    c.fillStyle = alt ? SF2 : OW;
+    c.fillRect(0, y, TW, RH);
+    c.strokeStyle = LINE;
+    c.lineWidth = 0.5;
+    c.strokeRect(0, y, TW, RH);
+
+    c.fillStyle = MUT;
+    c.font = `400 11px 'Cormorant Garamond', Georgia`;
     c.textAlign = "center";
-    c.fillText(time, PAD + TW / 2, y + RH / 2 + 4);
+    c.fillText(time, TW / 2, y + RH / 2 + 4);
 
+    // Celdas por día
     dates.forEach((date, ci) => {
-      const x = PAD + TW + CW * ci;
+      const x = TW + CW * ci;
       const slot = date ? STATE.slots.find(s => s.date === date && s.timeStart === time) : null;
 
-      if(!slot){
-        c.fillStyle = ri % 2 === 0 ? "#F7F5F1" : COL.bg;
+      if (!slot) {
+        c.fillStyle = alt ? SF2 : OW;
         c.fillRect(x, y, CW, RH);
       } else {
-        c.fillStyle = COL.blocked;
+        // Slot bloqueado — fondo navy, texto gold + blanco
+        c.fillStyle = DB;
         c.fillRect(x, y, CW, RH);
-        c.fillStyle = COL.blockedT;
-        c.font = `bold 10px Arial`;
+
+        // Barra gold izquierda (3px)
+        c.fillStyle = GOLD;
+        c.fillRect(x, y, 3, RH);
+
+        // Etiqueta LIVE
+        c.fillStyle = GOLD;
+        c.font = `700 8px 'DM Sans', Arial`;
         c.textAlign = "center";
-        c.fillText("● LIVE", x + CW / 2, y + RH / 2 - 5);
-        c.font = `10px Arial`;
-        c.fillText(`${time} – ${slot.timeEnd}`, x + CW / 2, y + RH / 2 + 10);
+        c.letterSpacing = "0.15em";
+        c.fillText("● LIVE", x + CW / 2 + 1, y + RH / 2 - 5);
+
+        // Horario
+        c.fillStyle = "rgba(255,255,255,0.75)";
+        c.font = `400 10px 'DM Sans', Arial`;
+        c.letterSpacing = "0";
+        c.fillText(`${time} – ${slot.timeEnd}`, x + CW / 2 + 1, y + RH / 2 + 10);
       }
 
-      c.strokeStyle = COL.line;
+      c.strokeStyle = LINE;
       c.lineWidth = 0.5;
       c.strokeRect(x, y, CW, RH);
     });
   });
 
-  // ── Footer resumen ────────────────────────────────────────────
-  const footY = TITL + HDR + RH * DEFAULT_TIMES.length;
+  // ── 5. Footer stats ───────────────────────────────────────────
+  const footY = hdrY + HDR + RH * DEFAULT_TIMES.length;
+  c.fillStyle = DB;
+  c.fillRect(0, footY, W, FOOT);
 
-  c.fillStyle = COL.carbon;
-  c.fillRect(0, footY, W, FOOT + PAD);
+  // Divisor gold superior footer
+  c.fillStyle = GOLD;
+  c.fillRect(0, footY, W, 2);
 
-  // Pill: sesiones
-  const pill1X = PAD + TW;
-  const pill2X = pill1X + 180;
-
-  // Sesiones
-  c.fillStyle = "rgba(255,255,255,0.08)";
-  c.beginPath();
-  c.roundRect ? c.roundRect(pill1X, footY + 14, 160, 28, 4) : c.rect(pill1X, footY + 14, 160, 28);
-  c.fill();
-  c.fillStyle = "rgba(255,255,255,0.45)";
-  c.font = `10px Arial`;
+  // Stat 1: Sesiones
+  const s1x = TW;
+  c.fillStyle = "rgba(255,255,255,0.4)";
+  c.font = `700 8px 'DM Sans', Arial`;
   c.textAlign = "left";
-  c.fillText("SESIONES", pill1X + 10, footY + 24);
-  c.fillStyle = "#FFFFFF";
-  c.font = `bold 16px Georgia`;
-  c.fillText(totalSes, pill1X + 10, footY + 36);
+  c.letterSpacing = "0.18em";
+  c.fillText("SESIONES", s1x, footY + 22);
+  c.fillStyle = GOLD;
+  c.font = `900 22px 'DM Sans', Arial`;
+  c.letterSpacing = "0";
+  c.fillText(totalSes, s1x, footY + 46);
 
-  // Horas
-  c.fillStyle = "rgba(255,255,255,0.08)";
-  c.beginPath();
-  c.roundRect ? c.roundRect(pill2X, footY + 14, 160, 28, 4) : c.rect(pill2X, footY + 14, 160, 28);
-  c.fill();
-  c.fillStyle = "rgba(255,255,255,0.45)";
-  c.font = `10px Arial`;
-  c.fillText("HORAS EN VIVO", pill2X + 10, footY + 24);
-  c.fillStyle = "#FFFFFF";
-  c.font = `bold 16px Georgia`;
-  c.fillText(totalHrsStr, pill2X + 10, footY + 36);
+  // Stat 2: Horas
+  const s2x = s1x + 140;
+  c.fillStyle = "rgba(255,255,255,0.4)";
+  c.font = `700 8px 'DM Sans', Arial`;
+  c.letterSpacing = "0.18em";
+  c.fillText("HORAS EN VIVO", s2x, footY + 22);
+  c.fillStyle = GOLD;
+  c.font = `900 22px 'DM Sans', Arial`;
+  c.letterSpacing = "0";
+  c.fillText(totalHrsStr, s2x, footY + 46);
 
-  // Leyenda color
-  c.fillStyle = COL.blocked;
-  c.fillRect(W - PAD - 110, footY + 18, 12, 12);
-  c.fillStyle = "rgba(255,255,255,0.5)";
-  c.font = `10px Arial`;
-  c.textAlign = "left";
-  c.fillText("= Horario bloqueado", W - PAD - 93, footY + 28);
+  // @baladigala marca agua footer derecha
+  c.fillStyle = "rgba(255,255,255,0.12)";
+  c.font = `700 13px 'DM Sans', Arial`;
+  c.textAlign = "right";
+  c.letterSpacing = "0";
+  c.fillText("@baladigala", W - 14, footY + FOOT / 2 + 5);
 
   // ── Descargar ─────────────────────────────────────────────────
   const link = document.createElement("a");
