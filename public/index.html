@@ -1326,21 +1326,39 @@ function pubChangeWeek(d){
   renderPublicCal();
 }
 
+function getSunSatWeek(offset){
+  // Calcula semana real Dom→Sáb para el offset dado
+  const monDates = getWeekDates(offset); // [Lun...Dom]
+  const monday   = new Date(monDates[0] + "T12:00:00");
+  const sunday   = new Date(monday);
+  sunday.setDate(monday.getDate() - 1); // domingo anterior al lunes
+  return Array.from({length:7}, (_,i) => {
+    const d = new Date(sunday);
+    d.setDate(sunday.getDate() + i);
+    return localISO(d);
+  }); // [Dom, Lun, Mar, Mié, Jue, Vie, Sáb]
+}
+
 function exportCalendarImage(){
-  const monSun = getWeekDates(pubWeekOffset);
-  // Reordenar Dom→Sáb: [Dom(6), Lun(0), Mar(1), Mié(2), Jue(3), Vie(4), Sáb(5)]
-  const dates   = [monSun[6], monSun[0], monSun[1], monSun[2], monSun[3], monSun[4], monSun[5]];
+  const dates    = getSunSatWeek(pubWeekOffset);
   const dayNames = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
 
-  const SCALE   = 2;          // retina
-  const TW      = 72;         // ancho columna de hora
-  const CW      = 110;        // ancho de cada día
-  const HDR     = 90;         // altura cabecera días
-  const TITL    = 56;         // altura título superior
-  const RH      = 52;         // altura de cada fila horaria
-  const PAD     = 20;         // padding lateral
+  // ── Contar sesiones y horas de la semana ──────────────────────
+  const weekSlots = STATE.slots.filter(s => dates.includes(s.date));
+  const totalSes  = weekSlots.length;
+  const totalHrs  = (totalSes * SESSION_MINS / 60);
+  const totalHrsStr = totalHrs % 1 === 0 ? totalHrs + "h" : totalHrs.toFixed(1) + "h";
+
+  const SCALE   = 2;
+  const TW      = 72;
+  const CW      = 110;
+  const HDR     = 90;
+  const TITL    = 56;
+  const RH      = 52;
+  const FOOT    = 56;    // footer resumen
+  const PAD     = 20;
   const W       = PAD + TW + CW * 7 + PAD;
-  const H       = TITL + HDR + RH * DEFAULT_TIMES.length + PAD;
+  const H       = TITL + HDR + RH * DEFAULT_TIMES.length + FOOT + PAD;
 
   const canvas  = document.createElement("canvas");
   canvas.width  = W * SCALE;
@@ -1348,75 +1366,63 @@ function exportCalendarImage(){
   const c       = canvas.getContext("2d");
   c.scale(SCALE, SCALE);
 
-  // ── Paleta BDG ────────────────────────────────────────────────
   const COL = {
     bg:      "#FAF9F6",
     carbon:  "#1C1C1A",
     muted:   "#888880",
     line:    "#E5E0D8",
-    blocked: "#C4A882",      // ranura bloqueada (warm)
-    blockedT:"#3D2E1E",      // texto sobre bloqueado
-    empty:   "#F5F3EE",
-    headerFg:"#FFFFFF",
+    blocked: "#C4A882",
+    blockedT:"#3D2E1E",
     accent:  "#9C6B3C",
   };
 
-  // Fondo general
+  // Fondo
   c.fillStyle = COL.bg;
   c.fillRect(0, 0, W, H);
 
   // ── Título ────────────────────────────────────────────────────
   c.fillStyle = COL.carbon;
-  c.font = `bold ${14 * 1}px 'Arial', sans-serif`;
+  c.font = `bold 14px Arial`;
   c.textAlign = "left";
   c.fillText("BDG — Horarios TikTok LIVE", PAD + TW, 26);
 
-  // Rango de fechas (Dom X – Sáb X)
   c.fillStyle = COL.muted;
   c.font = `11px Arial`;
   const rangeLabel = `${dayNames[0]} ${fmtDate(dates[0])}  –  ${dayNames[6]} ${fmtDate(dates[6])}`;
   c.fillText(rangeLabel, PAD + TW, 44);
 
-  // Logo/marca pequeña derecha
   c.fillStyle = COL.accent;
   c.font = `bold 11px Arial`;
   c.textAlign = "right";
   c.fillText("baladigala.com", W - PAD, 44);
   c.textAlign = "left";
 
-  // Separador
   c.strokeStyle = COL.line;
   c.lineWidth = 1;
   c.beginPath(); c.moveTo(PAD, TITL - 8); c.lineTo(W - PAD, TITL - 8); c.stroke();
 
   // ── Cabecera días ─────────────────────────────────────────────
   const hdrY = TITL;
-  // Celda vacía sobre columna de horas
   c.fillStyle = COL.carbon;
-  c.fillRect(PAD, hdrY, TW, HDR);
+  c.fillRect(PAD, hdrY, TW + CW * 7, HDR);
 
   dayNames.forEach((name, i) => {
     const x = PAD + TW + CW * i;
-    // Fondo oscuro header
-    c.fillStyle = COL.carbon;
-    c.fillRect(x, hdrY, CW, HDR);
 
-    // Separador vertical
     c.strokeStyle = "rgba(255,255,255,0.12)";
     c.lineWidth = 1;
     c.beginPath(); c.moveTo(x, hdrY); c.lineTo(x, hdrY + HDR); c.stroke();
 
-    // Nombre día
     c.fillStyle = "rgba(255,255,255,0.5)";
     c.font = `9px Arial`;
     c.textAlign = "center";
     c.fillText(name.toUpperCase(), x + CW / 2, hdrY + 22);
 
-    // Número de fecha
     const dayNum = dates[i] ? dates[i].split("-")[2].replace(/^0/,"") : "";
     const monStr = fmtDate(dates[i]).split(" ")[1] || "";
+
     c.fillStyle = "#FFFFFF";
-    c.font = `bold 20px 'Georgia', serif`;
+    c.font = `bold 20px Georgia`;
     c.fillText(dayNum, x + CW / 2, hdrY + 50);
 
     c.fillStyle = "rgba(255,255,255,0.45)";
@@ -1428,18 +1434,16 @@ function exportCalendarImage(){
   DEFAULT_TIMES.forEach((time, ri) => {
     const y = TITL + HDR + RH * ri;
 
-    // Columna de hora
     c.fillStyle = ri % 2 === 0 ? "#F2EFE9" : COL.bg;
     c.fillRect(PAD, y, TW, RH);
     c.strokeStyle = COL.line;
     c.lineWidth = 1;
     c.strokeRect(PAD, y, TW, RH);
     c.fillStyle = COL.muted;
-    c.font = `11px 'Georgia', serif`;
+    c.font = `11px Georgia`;
     c.textAlign = "center";
     c.fillText(time, PAD + TW / 2, y + RH / 2 + 4);
 
-    // Celdas por día
     dates.forEach((date, ci) => {
       const x = PAD + TW + CW * ci;
       const slot = date ? STATE.slots.find(s => s.date === date && s.timeStart === time) : null;
@@ -1448,28 +1452,64 @@ function exportCalendarImage(){
         c.fillStyle = ri % 2 === 0 ? "#F7F5F1" : COL.bg;
         c.fillRect(x, y, CW, RH);
       } else {
-        // Bloque bloqueado — solo color, sin nombres
         c.fillStyle = COL.blocked;
         c.fillRect(x, y, CW, RH);
-
-        // Ícono LIVE
         c.fillStyle = COL.blockedT;
         c.font = `bold 10px Arial`;
         c.textAlign = "center";
-        c.fillText("● LIVE", x + CW / 2, y + RH / 2 - 4);
-
-        // Horario
+        c.fillText("● LIVE", x + CW / 2, y + RH / 2 - 5);
         c.font = `10px Arial`;
-        c.fillStyle = COL.blockedT;
-        c.fillText(`${time} – ${slot.timeEnd}`, x + CW / 2, y + RH / 2 + 12);
+        c.fillText(`${time} – ${slot.timeEnd}`, x + CW / 2, y + RH / 2 + 10);
       }
 
-      // Borde celda
       c.strokeStyle = COL.line;
       c.lineWidth = 0.5;
       c.strokeRect(x, y, CW, RH);
     });
   });
+
+  // ── Footer resumen ────────────────────────────────────────────
+  const footY = TITL + HDR + RH * DEFAULT_TIMES.length;
+
+  c.fillStyle = COL.carbon;
+  c.fillRect(0, footY, W, FOOT + PAD);
+
+  // Pill: sesiones
+  const pill1X = PAD + TW;
+  const pill2X = pill1X + 180;
+
+  // Sesiones
+  c.fillStyle = "rgba(255,255,255,0.08)";
+  c.beginPath();
+  c.roundRect ? c.roundRect(pill1X, footY + 14, 160, 28, 4) : c.rect(pill1X, footY + 14, 160, 28);
+  c.fill();
+  c.fillStyle = "rgba(255,255,255,0.45)";
+  c.font = `10px Arial`;
+  c.textAlign = "left";
+  c.fillText("SESIONES", pill1X + 10, footY + 24);
+  c.fillStyle = "#FFFFFF";
+  c.font = `bold 16px Georgia`;
+  c.fillText(totalSes, pill1X + 10, footY + 36);
+
+  // Horas
+  c.fillStyle = "rgba(255,255,255,0.08)";
+  c.beginPath();
+  c.roundRect ? c.roundRect(pill2X, footY + 14, 160, 28, 4) : c.rect(pill2X, footY + 14, 160, 28);
+  c.fill();
+  c.fillStyle = "rgba(255,255,255,0.45)";
+  c.font = `10px Arial`;
+  c.fillText("HORAS EN VIVO", pill2X + 10, footY + 24);
+  c.fillStyle = "#FFFFFF";
+  c.font = `bold 16px Georgia`;
+  c.fillText(totalHrsStr, pill2X + 10, footY + 36);
+
+  // Leyenda color
+  c.fillStyle = COL.blocked;
+  c.fillRect(W - PAD - 110, footY + 18, 12, 12);
+  c.fillStyle = "rgba(255,255,255,0.5)";
+  c.font = `10px Arial`;
+  c.textAlign = "left";
+  c.fillText("= Horario bloqueado", W - PAD - 93, footY + 28);
 
   // ── Descargar ─────────────────────────────────────────────────
   const link = document.createElement("a");
