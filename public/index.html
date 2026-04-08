@@ -543,6 +543,13 @@ function avatarHtml(code, size="sm"){
 // ── UTILS ─────────────────────────────────────────────────────────────────────
 function uid(){ return "s" + Date.now() + Math.random().toString(36).slice(2,5); }
 
+function localISO(d){
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  const dd = String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${dd}`;
+}
+
 function fmtDate(d){
   if(!d) return "—";
   const [,m,day] = d.split("-");
@@ -560,9 +567,10 @@ function getWeekDates(offset=0){
   const now = new Date();
   const monday = new Date(now);
   monday.setDate(now.getDate() - (now.getDay()||7) + 1 + offset*7);
+  monday.setHours(0,0,0,0);
   return Array.from({length:7},(_,i)=>{
     const d = new Date(monday); d.setDate(monday.getDate()+i);
-    return d.toISOString().slice(0,10);
+    return localISO(d);
   });
 }
 
@@ -1619,12 +1627,14 @@ function renderHistDuplas(past){
 function slotWeekMon(dateStr){
   const d = new Date(dateStr+"T12:00:00");
   const mon = new Date(d); mon.setDate(d.getDate() - (d.getDay()||7) + 1);
-  return mon.toISOString().slice(0,10);
+  return localISO(mon);
 }
 
 function weekLabel_from(mondayIso){
   const d0 = mondayIso;
-  const d6 = new Date(new Date(mondayIso+"T12:00:00").setDate(new Date(mondayIso+"T12:00:00").getDate()+6)).toISOString().slice(0,10);
+  const end = new Date(mondayIso+"T12:00:00");
+  end.setDate(end.getDate()+6);
+  const d6 = localISO(end);
   return `${fmtDate(d0)} – ${fmtDate(d6)}`;
 }
 
