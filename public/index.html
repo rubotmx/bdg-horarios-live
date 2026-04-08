@@ -238,9 +238,9 @@ td{padding:10px 14px;vertical-align:middle;}
 .pub-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;}
 /* ── WEEKLY CAL GRID ── */
 .cwg-wrap{width:100%;overflow-x:auto;background:var(--db);border-radius:2px;}
-.cwg-row{display:grid;grid-template-columns:48px repeat(7,1fr);border-bottom:1px solid rgba(255,255,255,.06);}
+.cwg-row{display:grid;grid-template-columns:48px repeat(7,minmax(0,1fr));border-bottom:1px solid rgba(255,255,255,.06);}
 .cwg-row:last-child{border-bottom:none;}
-.cwg-head-row{display:grid;grid-template-columns:48px repeat(7,1fr);background:rgba(255,255,255,.04);}
+.cwg-head-row{display:grid;grid-template-columns:48px repeat(7,minmax(0,1fr));background:rgba(255,255,255,.04);}
 .cwg-time{padding:0 6px;display:flex;align-items:center;justify-content:center;border-right:1px solid rgba(255,255,255,.06);font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:.02em;color:rgba(255,255,255,.25);background:rgba(0,0,0,.12);}
 .cwg-head-row .cwg-time{border-right-color:rgba(255,255,255,.08);}
 .cwg-dh{padding:14px 8px 12px;border-left:1px solid rgba(255,255,255,.08);text-align:center;}
