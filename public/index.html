@@ -528,6 +528,20 @@ function save(){ localStorage.setItem("bdg_horarios_v2", JSON.stringify(STATE));
 function load(){
   const raw = localStorage.getItem("bdg_horarios_v2");
   if(raw){ try{ STATE = JSON.parse(raw); }catch(e){} }
+  migrateSlotDays();
+}
+
+// Deriva siempre el nombre del día desde la fecha — corrige datos históricos incorrectos
+const DAYS_ES = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+function dayFromDate(dateStr){ return DAYS_ES[new Date(dateStr + "T12:00:00").getDay()]; }
+function migrateSlotDays(){
+  let changed = false;
+  STATE.slots.forEach(slot => {
+    if(!slot.date) return;
+    const correct = dayFromDate(slot.date);
+    if(slot.day !== correct){ slot.day = correct; changed = true; }
+  });
+  if(changed) save();
 }
 
 // ── FOTOS DE PERFIL ───────────────────────────────────────────────────────────
@@ -805,7 +819,7 @@ function generateDefaultWeek(offset){
     DEFAULT_TIMES.forEach(start => {
       const exists = STATE.slots.find(s => s.date === date && s.timeStart === start);
       if(!exists){
-        STATE.slots.push({ id: uid(), day: DAYS[di], date, timeStart: start, timeEnd: addMins(start, SESSION_MINS) });
+        STATE.slots.push({ id: uid(), day: dayFromDate(date), date, timeStart: start, timeEnd: addMins(start, SESSION_MINS) });
         added++;
       }
     });
@@ -1899,7 +1913,7 @@ load();
   if(!hasSlots){
     weekDates.forEach((date, di) => {
       DEFAULT_TIMES.forEach(start => {
-        STATE.slots.push({ id:uid(), day:DAYS_NAMES[di], date, timeStart:start, timeEnd:addMins(start, SESSION_MINS) });
+        STATE.slots.push({ id:uid(), day:dayFromDate(date), date, timeStart:start, timeEnd:addMins(start, SESSION_MINS) });
       });
     });
   }
