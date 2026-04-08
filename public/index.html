@@ -249,17 +249,18 @@ td{padding:10px 14px;vertical-align:middle;}
 .cwg-dh-name{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;font-weight:700;}
 .cwg-dh-date{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;color:#fff;line-height:1;}
 .cwg-dh-month{font-size:9px;color:rgba(255,255,255,.35);margin-top:3px;letter-spacing:.06em;}
-.cwg-cell{border-left:1px solid var(--line);min-height:50px;position:relative;display:flex;align-items:center;justify-content:center;}
+.cwg-cell{border-left:1px solid var(--line);min-height:80px;position:relative;display:flex;align-items:stretch;justify-content:stretch;}
 .cwg-cell.blocked{background:var(--db);}
 .cwg-cell.blocked::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold);}
 .cwg-cell.open{background:var(--surface);}
 .cwg-cell.none{background:var(--bg);}
-.cwg-live{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;}
-.cwg-live-tag{font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);}
-.cwg-live-time{font-size:11px;color:rgba(255,255,255,.65);font-family:'Cormorant Garamond',serif;}
-.cwg-live-names{display:flex;flex-direction:column;align-items:center;gap:1px;margin-top:3px;width:100%;}
-.cwg-live-name{font-size:9px;color:rgba(255,255,255,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90%;text-align:center;font-weight:500;}
-.cwg-live-name span{color:rgba(208,174,43,.7);font-size:8px;margin-right:2px;}
+.cwg-live{display:flex;flex-direction:column;align-items:flex-start;gap:0;padding:10px 10px 10px 13px;width:100%;}
+.cwg-live-tag{font-size:7px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;}
+.cwg-live-time{font-size:13px;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:500;line-height:1;margin-bottom:8px;}
+.cwg-live-names{display:flex;flex-direction:column;gap:4px;width:100%;margin-top:auto;}
+.cwg-live-name{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(255,255,255,.9);font-weight:500;line-height:1.2;}
+.cwg-live-name-role{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);opacity:.8;flex-shrink:0;}
+.cwg-live-name-val{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .pub-empty{text-align:center;padding:32px;color:var(--muted);font-size:12px;letter-spacing:.1em;}
 
 /* ── GMV / REPORTE ── */
@@ -1491,8 +1492,8 @@ function renderPublicCal(){
       const anfiName = anfiPick ? memberName(anfiPick.memberCode) : null;
       const backName = backPick ? memberName(backPick.memberCode) : null;
       const namesHtml = (anfiName || backName) ? `<div class="cwg-live-names">
-        ${anfiName ? `<div class="cwg-live-name"><span>🎙</span>${anfiName}</div>` : ""}
-        ${backName ? `<div class="cwg-live-name"><span>💻</span>${backName}</div>` : ""}
+        ${anfiName ? `<div class="cwg-live-name"><span class="cwg-live-name-role">🎙</span><span class="cwg-live-name-val">${anfiName}</span></div>` : ""}
+        ${backName ? `<div class="cwg-live-name"><span class="cwg-live-name-role">💻</span><span class="cwg-live-name-val">${backName}</span></div>` : ""}
       </div>` : "";
       cells += `<div class="cwg-cell blocked">
         <div class="cwg-live">
