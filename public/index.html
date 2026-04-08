@@ -971,7 +971,7 @@ function renderAdminSesiones(){
           <span style="font-size:11px;color:var(--muted);">${daySlots.length} sesion${daySlots.length!==1?"es":""}</span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
-          <input type="date" id="jumpToDate" value="${filterDate}" style="padding:5px 8px;border:1px solid var(--line2);font-size:12px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);outline:none;" onchange="jumpToWeek(this.value)"/>
+          <input type="date" id="jumpToDate" style="padding:5px 8px;border:2px solid var(--gold);font-size:12px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);outline:none;font-weight:600;" onchange="jumpToWeek(this.value)"/>
           <button class="btn ghost" style="font-size:11px;padding:6px 12px;" onclick="filterDate=null;renderAdmin('sesiones')">← Ver semana</button>
         </div>
       </div>
@@ -989,6 +989,9 @@ function renderAdminSesiones(){
     addCard.className = "add-slot-card"; addCard.onclick = openSlotModal;
     addCard.innerHTML = `<div class="add-slot-icon">＋</div><div class="add-slot-text">Nueva sesión</div>`;
     grid.appendChild(addCard);
+    // Setear el valor del input por JS (el atributo value en innerHTML no siempre aplica)
+    const ji = document.getElementById("jumpToDate");
+    if(ji) ji.value = filterDate;
     return;
   }
 
