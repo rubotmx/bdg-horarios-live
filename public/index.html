@@ -257,10 +257,12 @@ td{padding:10px 14px;vertical-align:middle;}
 .cwg-live{display:flex;flex-direction:column;align-items:flex-start;gap:0;padding:10px 10px 10px 13px;width:100%;}
 .cwg-live-tag{font-size:7px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;}
 .cwg-live-time{font-size:13px;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:500;line-height:1;margin-bottom:8px;}
-.cwg-live-names{display:flex;flex-direction:column;gap:4px;width:100%;margin-top:auto;}
-.cwg-live-name{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(255,255,255,.9);font-weight:500;line-height:1.2;}
-.cwg-live-name-role{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);opacity:.8;flex-shrink:0;}
-.cwg-live-name-val{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cwg-live-names{display:flex;flex-direction:column;gap:5px;width:100%;margin-top:6px;}
+.cwg-live-name{display:flex;align-items:center;gap:6px;line-height:1.2;}
+.cwg-live-name-role{font-size:7px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);opacity:.75;flex-shrink:0;width:14px;}
+.cwg-live-name-val{font-size:10px;color:rgba(255,255,255,.92);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cwg-av{width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(208,174,43,.6);flex-shrink:0;background:rgba(255,255,255,.08);}
+.cwg-av-ph{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.1);border:1.5px solid rgba(208,174,43,.4);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:rgba(255,255,255,.6);flex-shrink:0;}
 .pub-empty{text-align:center;padding:32px;color:var(--muted);font-size:12px;letter-spacing:.1em;}
 
 /* ── GMV / REPORTE ── */
@@ -1491,9 +1493,17 @@ function renderPublicCal(){
       const backPick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)==="backend");
       const anfiName = anfiPick ? memberName(anfiPick.memberCode) : null;
       const backName = backPick ? memberName(backPick.memberCode) : null;
+      const calAvatar = code => {
+        const photo = getPhoto(code);
+        const m = STATE.members.find(mb=>mb.code===code);
+        const ini = m ? m.name.trim()[0].toUpperCase() : "?";
+        return photo
+          ? `<img src="${photo}" class="cwg-av" alt=""/>`
+          : `<div class="cwg-av-ph">${ini}</div>`;
+      };
       const namesHtml = (anfiName || backName) ? `<div class="cwg-live-names">
-        ${anfiName ? `<div class="cwg-live-name"><span class="cwg-live-name-role">🎙</span><span class="cwg-live-name-val">${anfiName}</span></div>` : ""}
-        ${backName ? `<div class="cwg-live-name"><span class="cwg-live-name-role">💻</span><span class="cwg-live-name-val">${backName}</span></div>` : ""}
+        ${anfiPick ? `<div class="cwg-live-name">${calAvatar(anfiPick.memberCode)}<span class="cwg-live-name-val">${anfiName}</span></div>` : ""}
+        ${backPick ? `<div class="cwg-live-name">${calAvatar(backPick.memberCode)}<span class="cwg-live-name-val">${backName}</span></div>` : ""}
       </div>` : "";
       cells += `<div class="cwg-cell blocked">
         <div class="cwg-live">
