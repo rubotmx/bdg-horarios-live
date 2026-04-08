@@ -532,6 +532,7 @@ let pendingAccessRole = null;
 let pendingNotesSlotId = null;
 let currentWeekOffset = 0;
 let memberWeekOffset  = 0;
+let filterDate        = null; // null = semana completa, "YYYY-MM-DD" = solo ese día
 let previewedCode     = null;
 let pendingReporteSlotId = null;
 
@@ -950,10 +951,49 @@ function renderAdminSesiones(){
   // Auto-generar si la semana está vacía
   if(weekSlots.length === 0){
     generateDefaultWeek(currentWeekOffset);
-    return; // renderAdminSesiones se vuelve a llamar desde generateDefaultWeek
+    return;
   }
 
-  const totalSlots = weekDates.reduce((n, date) => n + DEFAULT_TIMES.length, 0); // 56
+  // ── Modo fecha única ──────────────────────────────────────────────────────
+  if(filterDate){
+    const daySlots = STATE.slots
+      .filter(s=>s.date===filterDate)
+      .sort((a,b)=>a.timeStart.localeCompare(b.timeStart));
+    const dayName  = dayFromDate(filterDate);
+    const [y,mo,d] = filterDate.split("-");
+    const ms = ["","Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+    const label = `${dayName} ${parseInt(d)} ${ms[parseInt(mo)]} ${y}`;
+
+    document.getElementById("tabContent").innerHTML = `
+      <div class="week-nav" style="flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;">${label}</span>
+          <span style="font-size:11px;color:var(--muted);">${daySlots.length} sesion${daySlots.length!==1?"es":""}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+          <input type="date" id="jumpToDate" value="${filterDate}" style="padding:5px 8px;border:1px solid var(--line2);font-size:12px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);outline:none;" onchange="jumpToWeek(this.value)"/>
+          <button class="btn ghost" style="font-size:11px;padding:6px 12px;" onclick="filterDate=null;renderAdmin('sesiones')">← Ver semana</button>
+        </div>
+      </div>
+      <div class="slots-grid" id="slotsGrid"></div>`;
+
+    const grid = document.getElementById("slotsGrid");
+    const anfiMembers = STATE.members.filter(m=>m.role==="anfitriona");
+    const backMembers = STATE.members.filter(m=>m.role==="backend");
+    if(daySlots.length === 0){
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">📅</div>No hay sesiones para este día.</div>`;
+    } else {
+      daySlots.forEach(slot => renderSlotCard(slot, grid, anfiMembers, backMembers));
+    }
+    const addCard = document.createElement("div");
+    addCard.className = "add-slot-card"; addCard.onclick = openSlotModal;
+    addCard.innerHTML = `<div class="add-slot-icon">＋</div><div class="add-slot-text">Nueva sesión</div>`;
+    grid.appendChild(addCard);
+    return;
+  }
+
+  // ── Modo semana completa ──────────────────────────────────────────────────
+  const totalSlots = weekDates.length * DEFAULT_TIMES.length;
   const missing = totalSlots - weekSlots.length;
 
   document.getElementById("tabContent").innerHTML = `
@@ -961,7 +1001,7 @@ function renderAdminSesiones(){
       <button class="week-btn" onclick="changeWeek(-1)">‹</button>
       <div class="week-label">${weekLabel(currentWeekOffset)}</div>
       <button class="week-btn" onclick="changeWeek(1)">›</button>
-      ${currentWeekOffset!==0?`<button class="btn ghost" style="font-size:11px;padding:6px 12px;" onclick="currentWeekOffset=0;renderAdmin('sesiones')">Semana actual</button>`:""}
+      ${currentWeekOffset!==0?`<button class="btn ghost" style="font-size:11px;padding:6px 12px;" onclick="filterDate=null;currentWeekOffset=0;renderAdmin('sesiones')">Semana actual</button>`:""}
       <span style="font-size:11px;color:var(--muted);">${weekSlots.length} sesion${weekSlots.length!==1?"es":""}</span>
       <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
         <label style="font-size:11px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;">Ir a fecha</label>
@@ -975,68 +1015,9 @@ function renderAdminSesiones(){
     <div class="slots-grid" id="slotsGrid"></div>`;
 
   const grid = document.getElementById("slotsGrid");
-
   const anfiMembers = STATE.members.filter(m=>m.role==="anfitriona");
   const backMembers = STATE.members.filter(m=>m.role==="backend");
-
-  weekSlots.forEach(slot=>{
-    const anfiPick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)==="anfitriona");
-    const backPick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)==="backend");
-    const anfiName = anfiPick ? memberName(anfiPick.memberCode) : null;
-    const backName = backPick ? memberName(backPick.memberCode) : null;
-
-    const spotHtml = (icon, label, pick, name, role) => {
-      const members = role==="anfitriona" ? anfiMembers : backMembers;
-      const selId   = `sel_${role}_${slot.id}`;
-      if(pick && name){
-        const isConf = pick.status==="confirmed";
-        const byAdmin = pick.by === "admin";
-        return `<div class="spot-row filled">
-          <span class="spot-icon">${icon}</span>
-          <span class="spot-label">${label}</span>
-          <span class="spot-name">${name}${byAdmin?' <span class="adm-tag">Admin</span>':""}</span>
-          <span class="spot-status ${pick.status}">${isConf?"✓ Conf.":"Pend."}</span>
-          <button class="adm-spot-btn conf${isConf?" active":""}" onclick="adminConfirmPick('${slot.id}','${pick.memberCode}')" title="${isConf?"Marcar pendiente":"Confirmar"}">✓ Conf</button>
-          <button class="adm-spot-btn rm" onclick="adminRemovePick('${slot.id}','${pick.memberCode}')" title="Quitar asignación">×</button>
-        </div>`;
-      } else {
-        const opts = members.length
-          ? members.map(m=>`<option value="${m.code}">${m.name}</option>`).join("")
-          : `<option value="" disabled>Sin miembros</option>`;
-        return `<div class="spot-row open">
-          <span class="spot-icon">${icon}</span>
-          <span class="spot-label">${label}</span>
-          <select id="${selId}" class="adm-select"><option value="">— libre —</option>${opts}</select>
-          <button class="adm-spot-btn assign" onclick="adminAssign('${slot.id}','${role}')">Asignar</button>
-        </div>`;
-      }
-    };
-
-    const isPast = slot.date < new Date().toISOString().slice(0,10);
-    const gmvFmt = slot.gmv > 0 ? fmtGMV(slot.gmv) : null;
-
-    const div = document.createElement("div");
-    div.className = "slot-card";
-    div.innerHTML = `
-      <button class="slot-delete-btn" onclick="deleteSlot('${slot.id}')" title="Eliminar sesión">🗑</button>
-      <div class="slot-day">${slot.day} · ${fmtDate(slot.date)}${isPast?` <span style="font-size:9px;background:var(--surface3);color:var(--muted);padding:1px 5px;vertical-align:middle;letter-spacing:.1em;">PASADO</span>`:""}</div>
-      <div class="slot-time">${slot.timeStart} – ${slot.timeEnd}</div>
-      <div class="slot-spots">
-        ${spotHtml("🎙️","Anfitriona",anfiPick,anfiName,"anfitriona")}
-        ${spotHtml("💻","Backend",backPick,backName,"backend")}
-      </div>
-      <div class="slot-report">
-        <div class="slot-report-title">Reporte · GMV</div>
-        ${gmvFmt
-          ? `<div class="gmv-display">${gmvFmt}</div>${slot.reporte?`<div style="font-size:11px;color:var(--muted);margin-top:4px;font-style:italic;">📝 ${slot.reporte}</div>`:""}`
-          : `<div style="font-size:11px;color:var(--muted);">Sin reporte registrado</div>`}
-        <button class="report-save-btn" style="margin-top:10px;" onclick="openReporte('${slot.id}')">
-          ${gmvFmt ? "✏️ Editar reporte" : "+ Agregar reporte"}
-        </button>
-      </div>`;
-    grid.appendChild(div);
-  });
-
+  weekSlots.forEach(slot => renderSlotCard(slot, grid, anfiMembers, backMembers));
   const addCard = document.createElement("div");
   addCard.className = "add-slot-card";
   addCard.onclick = openSlotModal;
@@ -1044,25 +1025,80 @@ function renderAdminSesiones(){
   grid.appendChild(addCard);
 }
 
-function changeWeek(d){ currentWeekOffset+=d; renderAdmin("sesiones"); }
+function renderSlotCard(slot, grid, anfiMembers, backMembers){
+  const anfiPick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)==="anfitriona");
+  const backPick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)==="backend");
+  const anfiName = anfiPick ? memberName(anfiPick.memberCode) : null;
+  const backName = backPick ? memberName(backPick.memberCode) : null;
+
+  const spotHtml = (icon, label, pick, name, role) => {
+    const members = role==="anfitriona" ? anfiMembers : backMembers;
+    const selId   = `sel_${role}_${slot.id}`;
+    if(pick && name){
+      const isConf = pick.status==="confirmed";
+      const byAdmin = pick.by && pick.by !== "member";
+      return `<div class="spot-row filled">
+        <span class="spot-icon">${icon}</span>
+        <span class="spot-label">${label}</span>
+        <span class="spot-name">${name}${byAdmin?' <span class="adm-tag">Admin</span>':""}</span>
+        <span class="spot-status ${pick.status}">${isConf?"✓ Conf.":"Pend."}</span>
+        <button class="adm-spot-btn conf${isConf?" active":""}" onclick="adminConfirmPick('${slot.id}','${pick.memberCode}')" title="${isConf?"Marcar pendiente":"Confirmar"}">✓ Conf</button>
+        <button class="adm-spot-btn rm" onclick="adminRemovePick('${slot.id}','${pick.memberCode}')" title="Quitar asignación">×</button>
+      </div>`;
+    } else {
+      const opts = members.length
+        ? members.map(m=>`<option value="${m.code}">${m.name}</option>`).join("")
+        : `<option value="" disabled>Sin miembros</option>`;
+      return `<div class="spot-row open">
+        <span class="spot-icon">${icon}</span>
+        <span class="spot-label">${label}</span>
+        <select id="${selId}" class="adm-select"><option value="">— libre —</option>${opts}</select>
+        <button class="adm-spot-btn assign" onclick="adminAssign('${slot.id}','${role}')">Asignar</button>
+      </div>`;
+    }
+  };
+
+  const isPast = slot.date < localISO(new Date());
+  const gmvFmt = slot.gmv > 0 ? fmtGMV(slot.gmv) : null;
+  const div = document.createElement("div");
+  div.className = "slot-card";
+  div.innerHTML = `
+    <button class="slot-delete-btn" onclick="deleteSlot('${slot.id}')" title="Eliminar sesión">🗑</button>
+    <div class="slot-day">${slot.day} · ${fmtDate(slot.date)}${isPast?` <span style="font-size:9px;background:var(--surface3);color:var(--muted);padding:1px 5px;vertical-align:middle;letter-spacing:.1em;">PASADO</span>`:""}</div>
+    <div class="slot-time">${slot.timeStart} – ${slot.timeEnd}</div>
+    <div class="slot-spots">
+      ${spotHtml("🎙️","Anfitriona",anfiPick,anfiName,"anfitriona")}
+      ${spotHtml("💻","Backend",backPick,backName,"backend")}
+    </div>
+    <div class="slot-report">
+      <div class="slot-report-title">Reporte · GMV</div>
+      ${gmvFmt
+        ? `<div class="gmv-display">${gmvFmt}</div>${slot.reporte?`<div style="font-size:11px;color:var(--muted);margin-top:4px;font-style:italic;">📝 ${slot.reporte}</div>`:""}`
+        : `<div style="font-size:11px;color:var(--muted);">Sin reporte registrado</div>`}
+      <button class="report-save-btn" style="margin-top:10px;" onclick="openReporte('${slot.id}')">
+        ${gmvFmt ? "✏️ Editar reporte" : "+ Agregar reporte"}
+      </button>
+    </div>`;
+  grid.appendChild(div);
+}
+
+function changeWeek(d){ filterDate=null; currentWeekOffset+=d; renderAdmin("sesiones"); }
 
 function jumpToWeek(dateStr){
   if(!dateStr) return;
-  // Calcular el domingo de la semana del target
+  filterDate = dateStr;
+  // Calcular el offset de semana para que generateDefaultWeek funcione si es necesario
   const target = new Date(dateStr + "T12:00:00");
   const targetSun = new Date(target);
   targetSun.setDate(target.getDate() - target.getDay());
   targetSun.setHours(0,0,0,0);
-  // Calcular el domingo de la semana actual (offset=0)
   const now = new Date();
   const thisSun = new Date(now);
   thisSun.setDate(now.getDate() - now.getDay());
   thisSun.setHours(0,0,0,0);
-  // Diferencia exacta en semanas (días enteros)
   const diffDays = Math.round((targetSun - thisSun) / 86400000);
   currentWeekOffset = Math.round(diffDays / 7);
   renderAdmin("sesiones");
-  // Restaurar el valor del input tras re-render
   const inp = document.getElementById("jumpToDate");
   if(inp) inp.value = dateStr;
 }
