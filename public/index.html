@@ -254,9 +254,12 @@ td{padding:10px 14px;vertical-align:middle;}
 .cwg-cell.blocked::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold);}
 .cwg-cell.open{background:var(--surface);}
 .cwg-cell.none{background:var(--bg);}
-.cwg-live{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;}
+.cwg-live{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;}
 .cwg-live-tag{font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);}
 .cwg-live-time{font-size:11px;color:rgba(255,255,255,.65);font-family:'Cormorant Garamond',serif;}
+.cwg-live-names{display:flex;flex-direction:column;align-items:center;gap:1px;margin-top:3px;width:100%;}
+.cwg-live-name{font-size:9px;color:rgba(255,255,255,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90%;text-align:center;font-weight:500;}
+.cwg-live-name span{color:rgba(208,174,43,.7);font-size:8px;margin-right:2px;}
 .pub-empty{text-align:center;padding:32px;color:var(--muted);font-size:12px;letter-spacing:.1em;}
 
 /* ── GMV / REPORTE ── */
@@ -1483,10 +1486,19 @@ function renderPublicCal(){
     weekDates.forEach(date => {
       const slot = STATE.slots.find(s => s.date === date && s.timeStart === time);
       if(!slot){ cells += `<div class="cwg-cell none"></div>`; return; }
+      const anfiPick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)==="anfitriona");
+      const backPick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)==="backend");
+      const anfiName = anfiPick ? memberName(anfiPick.memberCode) : null;
+      const backName = backPick ? memberName(backPick.memberCode) : null;
+      const namesHtml = (anfiName || backName) ? `<div class="cwg-live-names">
+        ${anfiName ? `<div class="cwg-live-name"><span>🎙</span>${anfiName}</div>` : ""}
+        ${backName ? `<div class="cwg-live-name"><span>💻</span>${backName}</div>` : ""}
+      </div>` : "";
       cells += `<div class="cwg-cell blocked">
         <div class="cwg-live">
           <div class="cwg-live-tag">● LIVE</div>
           <div class="cwg-live-time">${time}–${slot.timeEnd}</div>
+          ${namesHtml}
         </div>
       </div>`;
     });
