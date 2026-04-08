@@ -334,6 +334,9 @@ td{padding:10px 14px;vertical-align:middle;}
   .hist-row{grid-template-columns:1fr 1fr;}
 }
 </style>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -503,7 +506,11 @@ td{padding:10px 14px;vertical-align:middle;}
 
 <script>
 // ── CONSTANTES ────────────────────────────────────────────────────────────────
-const ADMIN_PASS   = "bdgadmin2026";
+const ADMINS = [
+  { code:"MIR", name:"Miranda",  pass:"miranda2026"  },
+  { code:"JAC", name:"Jackie",   pass:"jackie2026"   },
+  { code:"RUB", name:"Rubén",    pass:"ruben2026"    },
+];
 const MAX_ANFI     = 2;   // sesiones máx por DÍA para anfitrionas
 const DEFAULT_TIMES = ["08:30","10:00","11:30","13:00","14:30","16:00","17:30","19:00"]; // 8 sesiones × 1.5h = 8:30am–8:30pm
 const MAX_BACKEND  = 3;   // sesiones máx por DÍA para backend
@@ -511,9 +518,10 @@ const SESSION_MINS = 90;  // duración fija en minutos
 
 // ── ESTADO ────────────────────────────────────────────────────────────────────
 let STATE = {
-  members: [],  // { code, name, role }
-  slots:   [],  // { id, day, date, timeStart, timeEnd }
-  picks:   [],  // { slotId, memberCode, status, notes }  status: pending|confirmed|cancelled
+  members:   [],  // { code, name, role }
+  slots:     [],  // { id, day, date, timeStart, timeEnd }
+  picks:     [],  // { slotId, memberCode, status, notes }  status: pending|confirmed|cancelled
+  changelog: [],  // { at, adminCode, adminName, action, detail }
 };
 let SESSION = { role: null, code: null, name: null };
 let pendingAccessRole = null;
@@ -523,12 +531,86 @@ let memberWeekOffset  = 0;
 let previewedCode     = null;
 let pendingReporteSlotId = null;
 
+// ── FIREBASE CONFIG ───────────────────────────────────────────────────────────
+// Reemplaza estos valores con los de tu proyecto Firebase
+// (Firebase Console → Project Settings → Your apps → Web app → firebaseConfig)
+const FIREBASE_CONFIG = {
+  apiKey:            "REEMPLAZA_apiKey",
+  authDomain:        "REEMPLAZA_authDomain",
+  databaseURL:       "REEMPLAZA_databaseURL",
+  projectId:         "REEMPLAZA_projectId",
+  storageBucket:     "REEMPLAZA_storageBucket",
+  messagingSenderId: "REEMPLAZA_messagingSenderId",
+  appId:             "REEMPLAZA_appId",
+};
+const FB_PATH = "bdg_horarios_v2"; // nodo raíz en Realtime Database
+
+let _db = null;           // referencia Firebase Database
+let _fbReady = false;     // true cuando Firebase está conectado
+let _fbWriting = false;   // true mientras nosotros escribimos (evita re-render propio)
+let currentAdminTab = "equipo"; // tab activo en vista admin
+
+function initFirebase(){
+  try {
+    if(FIREBASE_CONFIG.apiKey.startsWith("REEMPLAZA")) return; // sin config → solo localStorage
+    if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    _db = firebase.database();
+    // Listener en tiempo real: solo re-renderiza si el cambio vino de OTRO dispositivo
+    _db.ref(FB_PATH).on("value", snap => {
+      const remote = snap.val();
+      if(remote && !_fbWriting){
+        STATE = remote;
+        if(!STATE.changelog) STATE.changelog = [];
+        migrateSlotDays();
+        localStorage.setItem("bdg_horarios_v2", JSON.stringify(STATE));
+        // Re-renderizar si el usuario ya está en la app
+        if(document.getElementById("app").style.display !== "none"){
+          if(SESSION.role === "admin") renderAdmin(currentAdminTab);
+          else if(SESSION.role) renderMember();
+        }
+        renderPublicCal();
+      }
+      _fbReady = true;
+    });
+  } catch(e) {
+    console.warn("Firebase init error:", e);
+  }
+}
+
 // ── PERSISTENCIA ──────────────────────────────────────────────────────────────
-function save(){ localStorage.setItem("bdg_horarios_v2", JSON.stringify(STATE)); }
+function save(){
+  if(!STATE.changelog) STATE.changelog = [];
+  localStorage.setItem("bdg_horarios_v2", JSON.stringify(STATE));
+  if(_db){
+    _fbWriting = true;
+    _db.ref(FB_PATH).set(STATE)
+      .catch(e => console.warn("Firebase write error:", e))
+      .finally(() => { setTimeout(() => { _fbWriting = false; }, 500); });
+  }
+}
+
 function load(){
   const raw = localStorage.getItem("bdg_horarios_v2");
   if(raw){ try{ STATE = JSON.parse(raw); }catch(e){} }
+  if(!STATE.changelog) STATE.changelog = [];
   migrateSlotDays();
+  initFirebase();
+}
+
+// ── AUDIT TRAIL ───────────────────────────────────────────────────────────────
+function logChange(action, detail){
+  if(!SESSION.code) return;
+  if(!STATE.changelog) STATE.changelog = [];
+  STATE.changelog.unshift({
+    at:        new Date().toISOString(),
+    adminCode: SESSION.code,
+    adminName: SESSION.name,
+    action,
+    detail
+  });
+  // Keep at most 200 entries
+  if(STATE.changelog.length > 200) STATE.changelog.length = 200;
+  save();
 }
 
 // Deriva siempre el nombre del día desde la fecha — corrige datos históricos incorrectos
@@ -660,7 +742,7 @@ function openAccess(role){
   document.getElementById("memberCode").value="";
   if(role === "admin"){
     document.getElementById("modalTitle").textContent = "Acceso Admin";
-    document.getElementById("modalSub").textContent   = "Ingresa la contraseña de administradora";
+    document.getElementById("modalSub").textContent   = "Ingresa tu contraseña personal (Miranda, Jackie o Rubén)";
     document.getElementById("adminPassField").style.display = "block";
     document.getElementById("codeField").style.display      = "none";
     setTimeout(()=>document.getElementById("adminPass").focus(),100);
@@ -678,10 +760,12 @@ function submitAccess(){
   const err = document.getElementById("accessErr");
   err.style.display="none";
   if(pendingAccessRole === "admin"){
-    if(document.getElementById("adminPass").value !== ADMIN_PASS){
+    const pass = document.getElementById("adminPass").value;
+    const admin = ADMINS.find(a => a.pass === pass);
+    if(!admin){
       err.style.display="block"; err.textContent="Contraseña incorrecta."; return;
     }
-    SESSION = { role:"admin", code:"ADMIN", name:"Administradora" };
+    SESSION = { role:"admin", code:admin.code, name:admin.name };
   } else {
     const raw    = document.getElementById("memberCode").value.trim().toUpperCase();
     const member = STATE.members.find(m => m.code===raw && m.role===pendingAccessRole);
@@ -709,13 +793,14 @@ function renderApp(){
   document.getElementById("appViewLabel").textContent = labels[SESSION.role];
   const chipPhoto = SESSION.role!=="admin" ? avatarHtml(SESSION.code,"sm") : "";
   document.getElementById("userChip").innerHTML = SESSION.role==="admin"
-    ? "⚙️ Admin"
+    ? `⚙️ ${SESSION.name} · ${SESSION.code}`
     : `${chipPhoto}<span>${SESSION.name} · ${SESSION.code}</span>`;
   SESSION.role === "admin" ? renderAdmin() : renderMember();
 }
 
 // ── ADMIN ─────────────────────────────────────────────────────────────────────
 function renderAdmin(tab="equipo"){
+  currentAdminTab = tab;
   const today = new Date().toISOString().slice(0,10);
   const pastWithGmv = STATE.slots.filter(s=>s.date < today && s.gmv > 0).length;
   document.getElementById("appBody").innerHTML = `
@@ -725,12 +810,15 @@ function renderAdmin(tab="equipo"){
       <div class="tab ${tab==="resumen"?"active":""}"  onclick="renderAdmin('resumen')">Resumen</div>
       <div class="tab ${tab==="historial"?"active":""}" onclick="renderAdmin('historial')">Historial${pastWithGmv>0?` <span style="font-size:9px;background:var(--pos-l);color:var(--pos);padding:1px 5px;vertical-align:middle;">${pastWithGmv}</span>`:""}
       </div>
+      <div class="tab ${tab==="bitacora"?"active":""}" onclick="renderAdmin('bitacora')">Bitácora${STATE.changelog&&STATE.changelog.length>0?` <span style="font-size:9px;background:var(--oxide-l);color:var(--oxide);padding:1px 5px;vertical-align:middle;">${STATE.changelog.length}</span>`:""}
+      </div>
     </div>
     <div id="tabContent"></div>`;
-  if(tab==="equipo")   renderAdminEquipo();
-  if(tab==="sesiones") renderAdminSesiones();
-  if(tab==="resumen")  renderAdminResumen();
+  if(tab==="equipo")    renderAdminEquipo();
+  if(tab==="sesiones")  renderAdminSesiones();
+  if(tab==="resumen")   renderAdminResumen();
   if(tab==="historial") renderAdminHistorial();
+  if(tab==="bitacora")  renderAdminBitacora();
 }
 
 // TAB: EQUIPO
@@ -797,7 +885,8 @@ function addMember(){
   const code = previewedCode || generateCode(name);
   previewedCode = null;
   STATE.members.push({ code, name, role });
-  save(); renderAdminEquipo();
+  logChange("Agregar miembro", `${name} (${code}) · ${role}`);
+  renderAdminEquipo();
 }
 
 function removeMember(code){
@@ -805,7 +894,8 @@ function removeMember(code){
   showConfirm(`¿Eliminar a ${m?m.name:"esta persona"}? También se borrarán sus selecciones.`, ()=>{
     STATE.members = STATE.members.filter(mb=>mb.code!==code);
     STATE.picks   = STATE.picks.filter(p=>p.memberCode!==code);
-    save(); renderAdminEquipo();
+    logChange("Eliminar miembro", `${m?m.name:code} (${code})`);
+    renderAdminEquipo();
   });
 }
 
@@ -992,18 +1082,18 @@ function saveSlot(){
   if(!date || !start){ err.style.display="block"; err.textContent="Completa la fecha y hora."; return; }
   err.style.display="none";
   syncDayFromDate();
-  STATE.slots.push({
-    id: uid(),
-    day: document.getElementById("slotDay").value,
-    date, timeStart: start, timeEnd: addMins(start, SESSION_MINS)
-  });
-  save(); closeModal("slotModal"); renderAdmin("sesiones"); renderPublicCal();
+  const newSlot = { id: uid(), day: document.getElementById("slotDay").value, date, timeStart: start, timeEnd: addMins(start, SESSION_MINS) };
+  STATE.slots.push(newSlot);
+  logChange("Crear sesión", `${newSlot.day} ${date} ${start}–${newSlot.timeEnd}`);
+  closeModal("slotModal"); renderAdmin("sesiones"); renderPublicCal();
 }
 
 function deleteSlot(id){
+  const slot = STATE.slots.find(s=>s.id===id);
   STATE.slots = STATE.slots.filter(s=>s.id!==id);
   STATE.picks = STATE.picks.filter(p=>p.slotId!==id);
-  save(); renderAdmin("sesiones"); renderPublicCal();
+  logChange("Eliminar sesión", slot ? `${slot.day} ${slot.date} ${slot.timeStart}–${slot.timeEnd}` : id);
+  renderAdmin("sesiones"); renderPublicCal();
 }
 
 // TAB: RESUMEN
@@ -1258,20 +1348,29 @@ function adminAssign(slotId, role){
   const count = dayPickCount(memberCode, slot.date);
   if(count >= limit){ showAlert(`${memberName(memberCode)} ya tiene ${limit} sesión${limit!==1?"es":""} ese día (límite diario).`); return; }
   if(STATE.picks.find(p=>p.slotId===slotId&&p.memberCode===memberCode&&p.status!=="cancelled")) return;
-  STATE.picks.push({ slotId, memberCode, status:"pending", notes:"", by:"admin" });
-  save(); renderAdmin("sesiones"); renderPublicCal();
+  const slot2 = STATE.slots.find(s=>s.id===slotId);
+  STATE.picks.push({ slotId, memberCode, status:"pending", notes:"", by:SESSION.code });
+  logChange("Asignar", `${memberName(memberCode)} → ${slot2?slot2.day+" "+slot2.date+" "+slot2.timeStart:slotId}`);
+  renderAdmin("sesiones"); renderPublicCal();
 }
 
 function adminConfirmPick(slotId, memberCode){
   const p = STATE.picks.find(p=>p.slotId===slotId&&p.memberCode===memberCode&&p.status!=="cancelled");
-  if(p){ p.status = p.status==="confirmed" ? "pending" : "confirmed"; save(); renderAdmin("sesiones"); renderPublicCal(); }
+  if(p){
+    const slot2 = STATE.slots.find(s=>s.id===slotId);
+    p.status = p.status==="confirmed" ? "pending" : "confirmed";
+    logChange(p.status==="confirmed"?"Confirmar asignación":"Pendiente asignación", `${memberName(memberCode)} · ${slot2?slot2.day+" "+slot2.timeStart:slotId}`);
+    renderAdmin("sesiones"); renderPublicCal();
+  }
 }
 
 function adminRemovePick(slotId, memberCode){
   const name = memberName(memberCode);
+  const slot2 = STATE.slots.find(s=>s.id===slotId);
   showConfirm(`¿Quitar la asignación de ${name}?`, ()=>{
     STATE.picks = STATE.picks.filter(p=>!(p.slotId===slotId&&p.memberCode===memberCode));
-    save(); renderAdmin("sesiones"); renderPublicCal();
+    logChange("Quitar asignación", `${name} · ${slot2?slot2.day+" "+slot2.timeStart:slotId}`);
+    renderAdmin("sesiones"); renderPublicCal();
   }, "Quitar");
 }
 
@@ -1883,6 +1982,53 @@ function weekLabel_from(sunIso){
   end.setDate(end.getDate()+6);
   const d6 = localISO(end);
   return `${fmtDate(d0)} – ${fmtDate(d6)}`;
+}
+
+// ── BITÁCORA ──────────────────────────────────────────────────────────────────
+function renderAdminBitacora(){
+  const log = STATE.changelog || [];
+  const ADMIN_COLORS = { MIR:"#7C3AED", JAC:"#0369A1", RUB:"#B45309" };
+
+  if(!log.length){
+    document.getElementById("tabContent").innerHTML = `
+      <div class="empty-state"><div class="empty-icon">📋</div>Aún no hay cambios registrados.<br>Los cambios aparecerán aquí en cuanto una administradora realice una acción.</div>`;
+    return;
+  }
+
+  const rows = log.map(entry => {
+    const dt   = new Date(entry.at);
+    const fecha = dt.toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"});
+    const hora  = dt.toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});
+    const color = ADMIN_COLORS[entry.adminCode] || "var(--text2)";
+    return `<tr>
+      <td style="white-space:nowrap;color:var(--muted);font-size:11px;">${fecha}<br><span style="font-size:10px;">${hora}</span></td>
+      <td><span style="display:inline-block;padding:2px 10px;font-size:11px;font-weight:700;letter-spacing:.08em;background:${color}18;color:${color};border-left:3px solid ${color};">${entry.adminCode}</span><br><span style="font-size:11px;color:var(--muted);">${entry.adminName}</span></td>
+      <td style="font-size:12px;font-weight:600;">${entry.action}</td>
+      <td style="font-size:12px;color:var(--text2);">${entry.detail||""}</td>
+    </tr>`;
+  }).join("");
+
+  document.getElementById("tabContent").innerHTML = `
+    <div class="section-header">
+      <span class="section-title">${log.length} cambio${log.length!==1?"s":""} registrado${log.length!==1?"s":""}</span>
+      <button class="btn danger" onclick="clearBitacora()">Limpiar bitácora</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Fecha / Hora</th><th>Administradora</th><th>Acción</th><th>Detalle</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function clearBitacora(){
+  showConfirm("¿Limpiar todo el historial de cambios? Esta acción no se puede deshacer.", ()=>{
+    STATE.changelog = [];
+    save();
+    renderAdmin("bitacora");
+  }, "Limpiar");
 }
 
 // ── ESCAPE PARA CERRAR MODALES ────────────────────────────────────────────────
