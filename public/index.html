@@ -618,6 +618,9 @@ function initFirebase(){
 
 function _applyRemote(remote){
   STATE = remote;
+  if(!STATE.members)   STATE.members   = [];
+  if(!STATE.slots)     STATE.slots     = [];
+  if(!STATE.picks)     STATE.picks     = [];
   if(!STATE.changelog) STATE.changelog = [];
   if(!STATE.admins)    STATE.admins    = [];
   if(!STATE.photos)    STATE.photos    = {};
@@ -640,6 +643,9 @@ function _pushToFirebase(){
 
 // ── PERSISTENCIA ──────────────────────────────────────────────────────────────
 function save(){
+  if(!STATE.members)   STATE.members   = [];
+  if(!STATE.slots)     STATE.slots     = [];
+  if(!STATE.picks)     STATE.picks     = [];
   if(!STATE.changelog) STATE.changelog = [];
   if(!STATE.photos)    STATE.photos    = {};
   STATE.lastModified = Date.now(); // timestamp para resolver conflictos
@@ -650,6 +656,9 @@ function save(){
 function load(){
   const raw = localStorage.getItem("bdg_horarios_v2");
   if(raw){ try{ STATE = JSON.parse(raw); }catch(e){} }
+  if(!STATE.members)      STATE.members      = [];
+  if(!STATE.slots)        STATE.slots        = [];
+  if(!STATE.picks)        STATE.picks        = [];
   if(!STATE.changelog)    STATE.changelog    = [];
   if(!STATE.admins)       STATE.admins       = [];
   if(!STATE.photos)       STATE.photos       = {};
