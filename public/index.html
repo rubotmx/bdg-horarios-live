@@ -352,6 +352,8 @@ td{padding:10px 14px;vertical-align:middle;}
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<!-- SheetJS para exportar Excel -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -513,6 +515,10 @@ td{padding:10px 14px;vertical-align:middle;}
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
       <span class="user-chip" id="userChip">—</span>
+      <button id="excelBtn" class="btn ghost" onclick="exportToExcel()" style="font-size:11px;padding:7px 14px;display:none;align-items:center;gap:6px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Excel
+      </button>
       <button class="btn ghost" onclick="doLogout()" style="font-size:11px;padding:7px 14px;">Salir</button>
     </div>
   </div>
@@ -826,6 +832,8 @@ function renderApp(){
   document.getElementById("userChip").innerHTML = SESSION.role==="admin"
     ? `⚙️ ${SESSION.name} · ${SESSION.code}`
     : `${chipPhoto}<span>${SESSION.name} · ${SESSION.code}</span>`;
+  const excelBtn = document.getElementById("excelBtn");
+  if(excelBtn) excelBtn.style.display = SESSION.role === "admin" ? "flex" : "none";
   SESSION.role === "admin" ? renderAdmin() : renderMember();
 }
 
@@ -2223,6 +2231,81 @@ function renderAdminBitacora(){
         <tbody>${rows}</tbody>
       </table>
     </div>`;
+}
+
+// ── EXPORTAR A EXCEL ──────────────────────────────────────────────────────────
+function exportToExcel(){
+  const wb = XLSX.utils.book_new();
+
+  // ── Hoja 1: Equipo ────────────────────────────────────────────────────────
+  const equipoData = [["Código","Nombre","Rol","Límite diario"]];
+  STATE.members.forEach(m => {
+    equipoData.push([m.code, m.name, m.role === "anfitriona" ? "Anfitriona" : "Staff Backend", memberLimit(m.role)]);
+  });
+  const wsEquipo = XLSX.utils.aoa_to_sheet(equipoData);
+  wsEquipo["!cols"] = [{wch:10},{wch:28},{wch:16},{wch:14}];
+  XLSX.utils.book_append_sheet(wb, wsEquipo, "Equipo");
+
+  // ── Hoja 2: Sesiones ──────────────────────────────────────────────────────
+  const sesionesData = [["Fecha","Día","Inicio","Fin","Anfitriona","Backend","GMV","Reporte"]];
+  [...STATE.slots]
+    .sort((a,b) => a.date.localeCompare(b.date) || a.timeStart.localeCompare(b.timeStart))
+    .forEach(slot => {
+      const anfiPick = STATE.picks.find(p => p.slotId===slot.id && p.status!=="cancelled" && memberRole(p.memberCode)==="anfitriona");
+      const backPick = STATE.picks.find(p => p.slotId===slot.id && p.status!=="cancelled" && memberRole(p.memberCode)==="backend");
+      sesionesData.push([
+        slot.date, slot.day, slot.timeStart, slot.timeEnd,
+        anfiPick ? memberName(anfiPick.memberCode) : "",
+        backPick ? memberName(backPick.memberCode) : "",
+        slot.gmv > 0 ? slot.gmv : "",
+        slot.reporte || ""
+      ]);
+    });
+  const wsSesiones = XLSX.utils.aoa_to_sheet(sesionesData);
+  wsSesiones["!cols"] = [{wch:12},{wch:12},{wch:8},{wch:8},{wch:22},{wch:22},{wch:12},{wch:40}];
+  XLSX.utils.book_append_sheet(wb, wsSesiones, "Sesiones");
+
+  // ── Hoja 3: Asignaciones ──────────────────────────────────────────────────
+  const asignData = [["Fecha","Día","Horario","Miembro","Rol","Estado","Notas","Asignado por"]];
+  [...STATE.picks]
+    .filter(p => p.status !== "cancelled")
+    .forEach(p => {
+      const slot = STATE.slots.find(s => s.id === p.slotId);
+      if(!slot) return;
+      const m = STATE.members.find(mb => mb.code === p.memberCode);
+      asignData.push([
+        slot.date, slot.day, `${slot.timeStart}–${slot.timeEnd}`,
+        m ? m.name : p.memberCode,
+        m ? (m.role === "anfitriona" ? "Anfitriona" : "Backend") : "",
+        p.status === "confirmed" ? "Confirmada" : "Pendiente",
+        p.notes || "",
+        p.by || ""
+      ]);
+    });
+  const wsAsign = XLSX.utils.aoa_to_sheet(asignData);
+  wsAsign["!cols"] = [{wch:12},{wch:12},{wch:14},{wch:22},{wch:12},{wch:12},{wch:30},{wch:10}];
+  XLSX.utils.book_append_sheet(wb, wsAsign, "Asignaciones");
+
+  // ── Hoja 4: Bitácora ──────────────────────────────────────────────────────
+  if(STATE.changelog && STATE.changelog.length){
+    const logData = [["Fecha","Hora","Admin","Acción","Detalle"]];
+    STATE.changelog.forEach(e => {
+      const dt = new Date(e.at);
+      logData.push([
+        dt.toLocaleDateString("es-MX"),
+        dt.toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}),
+        `${e.adminName} (${e.adminCode})`,
+        e.action, e.detail || ""
+      ]);
+    });
+    const wsLog = XLSX.utils.aoa_to_sheet(logData);
+    wsLog["!cols"] = [{wch:12},{wch:8},{wch:20},{wch:22},{wch:40}];
+    XLSX.utils.book_append_sheet(wb, wsLog, "Bitácora");
+  }
+
+  // Descargar
+  const fecha = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb, `BDG_Horarios_${fecha}.xlsx`);
 }
 
 function clearBitacora(){
