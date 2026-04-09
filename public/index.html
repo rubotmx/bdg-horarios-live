@@ -2432,58 +2432,7 @@ document.addEventListener("keydown", e => {
 // ── INIT ──────────────────────────────────────────────────────────────────────
 load();
 
-// Usuarios de prueba
-(function seedTest(){
-  // Miembros
-  const existing = STATE.members.map(m=>m.code);
-  if(!existing.includes("ANAT3S1"))
-    STATE.members.push({ code:"ANAT3S1", name:"Ana Prueba", role:"anfitriona" });
-  if(!existing.includes("LUIT3S2"))
-    STATE.members.push({ code:"LUIT3S2", name:"Luis Prueba", role:"backend" });
-
-  // Generar slots de la semana actual si no existen
-  const weekDates = getWeekDates(0);
-  const DAYS_NAMES = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
-  const hasSlots   = STATE.slots.some(s => weekDates.includes(s.date));
-  if(!hasSlots){
-    weekDates.forEach((date, di) => {
-      DEFAULT_TIMES.forEach(start => {
-        STATE.slots.push({ id:uid(), day:dayFromDate(date), date, timeStart:start, timeEnd:addMins(start, SESSION_MINS) });
-      });
-    });
-  }
-
-  // Asignar horarios de prueba (si no existen ya)
-  const weekSlots = STATE.slots
-    .filter(s => weekDates.includes(s.date))
-    .sort((a,b) => a.date.localeCompare(b.date) || a.timeStart.localeCompare(b.timeStart));
-
-  // [ slotIndex, anaStatus, luisStatus ] — mezcla para ver todos los estados
-  const assignments = [
-    [0, "confirmed", "confirmed"],
-    [1, "confirmed", "pending"],
-    [2, "pending",   "pending"],
-    [8, "confirmed", "confirmed"],   // martes
-    [9, "pending",   null],          // solo anfi
-    [10, null,       "pending"],     // solo backend
-  ];
-  assignments.forEach(([idx, anaStatus, luisStatus]) => {
-    const slot = weekSlots[idx];
-    if(!slot) return;
-    if(anaStatus && !STATE.picks.find(p=>p.slotId===slot.id&&p.memberCode==="ANAT3S1"))
-      STATE.picks.push({ slotId:slot.id, memberCode:"ANAT3S1", status:anaStatus, notes:"", by:"admin" });
-    if(luisStatus && !STATE.picks.find(p=>p.slotId===slot.id&&p.memberCode==="LUIT3S2"))
-      STATE.picks.push({ slotId:slot.id, memberCode:"LUIT3S2", status:luisStatus, notes:"", by:"admin" });
-  });
-
-  save();
-
-  // Fotos (avatares SVG)
-  if(!getPhoto("ANAT3S1"))
-    setPhoto("ANAT3S1","data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23B8432A'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23fff' opacity='.9'/%3E%3Cellipse cx='40' cy='68' rx='22' ry='18' fill='%23fff' opacity='.9'/%3E%3C/svg%3E");
-  if(!getPhoto("LUIT3S2"))
-    setPhoto("LUIT3S2","data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%234A5568'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23fff' opacity='.9'/%3E%3Cellipse cx='40' cy='68' rx='22' ry='18' fill='%23fff' opacity='.9'/%3E%3C/svg%3E");
-})();
+// (seedTest eliminado — datos de prueba removidos)
 
 renderPublicCal();
 </script>
