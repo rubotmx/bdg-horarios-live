@@ -1250,6 +1250,71 @@ function renderAdminResumen(){
     <div class="summary-grid">${cards}</div>`;
 }
 
+// ── GMV PERSONAL ──────────────────────────────────────────────────────────────
+function renderMemberGmv(){
+  // Solo anfitrionas ven esto (ellas son las que generan el GMV en vivo)
+  if(SESSION.role !== "anfitriona") return "";
+
+  const today = localISO(new Date());
+
+  // Sesiones pasadas donde esta anfitriona estuvo y hay GMV registrado
+  const gmvSlots = STATE.picks
+    .filter(p => p.memberCode === SESSION.code && p.status !== "cancelled")
+    .map(p => STATE.slots.find(s => s.id === p.slotId))
+    .filter(s => s && s.date < today && s.gmv > 0)
+    .sort((a,b) => b.date.localeCompare(b.date) || b.timeStart.localeCompare(a.timeStart));
+
+  const totalGmv   = gmvSlots.reduce((sum, s) => sum + (s.gmv || 0), 0);
+  const totalSes   = gmvSlots.length;
+
+  // Semana actual
+  const weekDates  = getWeekDates(0);
+  const weekGmv    = gmvSlots.filter(s => weekDates.includes(s.date)).reduce((sum,s)=>sum+(s.gmv||0),0);
+  const weekSes    = gmvSlots.filter(s => weekDates.includes(s.date)).length;
+
+  if(totalSes === 0) return `
+    <div style="background:var(--surface);border:1px solid var(--line);padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;gap:14px;">
+      <div style="font-size:28px;">💰</div>
+      <div>
+        <div style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;">Mis ventas</div>
+        <div style="font-size:13px;color:var(--text2);">Aún no hay sesiones con venta registrada.</div>
+      </div>
+    </div>`;
+
+  // Últimas 3 sesiones con GMV
+  const recentRows = gmvSlots.slice(0,3).map(s => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);">
+      <div>
+        <div style="font-size:12px;font-weight:500;">${s.day} · ${fmtDate(s.date)}</div>
+        <div style="font-size:11px;color:var(--muted);">${s.timeStart}–${s.timeEnd}</div>
+      </div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;color:var(--pos);">${fmtGMV(s.gmv)}</div>
+    </div>`).join("");
+
+  return `
+    <div style="background:var(--surface);border:1px solid var(--line);margin-bottom:24px;overflow:hidden;">
+      <!-- Header con totales -->
+      <div style="background:var(--db);padding:16px 20px;display:flex;gap:28px;align-items:center;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:4px;">Total acumulado</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500;color:var(--gold);line-height:1;">${fmtGMV(totalGmv)}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:3px;">${totalSes} sesión${totalSes!==1?"es":""} con venta</div>
+        </div>
+        <div style="width:1px;height:44px;background:rgba(255,255,255,.1);"></div>
+        <div>
+          <div style="font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:4px;">Esta semana</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:#fff;line-height:1;">${weekGmv>0?fmtGMV(weekGmv):"—"}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:3px;">${weekSes} sesión${weekSes!==1?"es":""}</div>
+        </div>
+      </div>
+      <!-- Últimas sesiones -->
+      ${totalSes > 0 ? `<div style="padding:4px 20px 12px;">
+        <div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);padding:14px 0 4px;">Últimas ventas</div>
+        ${recentRows}
+      </div>` : ""}
+    </div>`;
+}
+
 // ── MEMBER VIEW ───────────────────────────────────────────────────────────────
 function renderMember(){
   const body         = document.getElementById("appBody");
@@ -1304,6 +1369,8 @@ function renderMember(){
         <span style="font-size:11px;color:var(--muted);">${overallCount} sesion${overallCount!==1?"es":""} seleccionada${overallCount!==1?"s":""} en total</span>
       </div>
     </div>
+
+    ${renderMemberGmv()}
 
     ${myActivePicks.length > 0 ? `
       <div class="section-title" style="margin-bottom:12px;">Mis sesiones (${myActivePicks.length})</div>
