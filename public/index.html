@@ -582,42 +582,52 @@ function initFirebase(){
     if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     _db = firebase.database();
 
-    // Paso 1: subir el estado local a Firebase inmediatamente (local siempre gana al iniciar)
-    // Esto sobreescribe cualquier dato viejo en Firebase con lo que tenemos en este dispositivo
-    const hasLocalData = STATE.members.length > 0 || STATE.slots.length > 0;
-    if(hasLocalData){
-      STATE.lastModified = STATE.lastModified || Date.now();
-      _pushToFirebase();
-    }
-
-    // Paso 2: escuchar cambios de OTROS dispositivos (solo después de que _fbReady sea true)
     _db.ref(FB_PATH).on("value", snap => {
-      if(_fbWriting){ _fbReady = true; return; } // eco de nuestra escritura → ignorar
-      if(!_fbReady){ _fbReady = true; return; }  // primera respuesta ya manejada arriba → ignorar
+      if(_fbWriting){ _fbReady = true; return; }
 
       const remote = snap.val();
-      if(!remote) return;
+      const remoteTs = (remote && remote.lastModified) || 0;
+      const localTs  = STATE.lastModified || 0;
 
-      // Solo aceptar si viene de OTRO dispositivo con datos más recientes
-      const remoteTs = remote.lastModified || 0;
-      const localTs  = STATE.lastModified  || 0;
-      if(remoteTs > localTs){
-        STATE = remote;
-        if(!STATE.changelog) STATE.changelog = [];
-        if(!STATE.admins)    STATE.admins    = [];
-        if(!STATE.photos)    STATE.photos    = {};
-        migrateSlotDays();
-        localStorage.setItem("bdg_horarios_v2", JSON.stringify(STATE));
-        if(document.getElementById("app").style.display !== "none"){
-          if(SESSION.role === "admin") renderAdmin(currentAdminTab);
-          else if(SESSION.role) renderMember();
+      if(!_fbReady){
+        // Primera conexión: decidir quién tiene los datos correctos
+        _fbReady = true;
+        if(remoteTs > localTs){
+          // Firebase más reciente → úsalo
+          _applyRemote(remote);
+        } else if(localTs > remoteTs){
+          // Local más reciente → subir a Firebase
+          _pushToFirebase();
+        } else if(!remote){
+          // Firebase vacío → subir local si hay datos
+          if(STATE.members.length > 0 || STATE.slots.length > 0) _pushToFirebase();
         }
-        renderPublicCal();
+        // Si empatan (ambos = 0 y Firebase tiene datos) → no hacer nada, mantener local
+        return;
+      }
+
+      // Actualización en tiempo real de otro dispositivo
+      if(remote && remoteTs > localTs){
+        _applyRemote(remote);
       }
     });
   } catch(e) {
     console.warn("Firebase init error:", e);
   }
+}
+
+function _applyRemote(remote){
+  STATE = remote;
+  if(!STATE.changelog) STATE.changelog = [];
+  if(!STATE.admins)    STATE.admins    = [];
+  if(!STATE.photos)    STATE.photos    = {};
+  migrateSlotDays();
+  localStorage.setItem("bdg_horarios_v2", JSON.stringify(STATE));
+  if(document.getElementById("app").style.display !== "none"){
+    if(SESSION.role === "admin") renderAdmin(currentAdminTab);
+    else if(SESSION.role) renderMember();
+  }
+  renderPublicCal();
 }
 
 function _pushToFirebase(){
