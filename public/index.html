@@ -588,8 +588,8 @@ function initFirebase(){
       if(remote){
         const remoteTs = remote.lastModified || 0;
         const localTs  = STATE.lastModified  || 0;
-        if(remoteTs >= localTs){
-          // Firebase es más reciente → usarlo
+        if(remoteTs > localTs){
+          // Firebase es estrictamente más reciente → usarlo
           STATE = remote;
           if(!STATE.changelog) STATE.changelog = [];
           if(!STATE.admins)    STATE.admins    = [];
@@ -602,7 +602,7 @@ function initFirebase(){
           }
           renderPublicCal();
         } else {
-          // Local es más reciente → subir a Firebase para sincronizar otros dispositivos
+          // Local es igual o más reciente (incluye empate en 0) → local gana, subir a Firebase
           _pushToFirebase();
         }
       } else {
