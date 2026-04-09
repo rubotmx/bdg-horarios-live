@@ -1453,6 +1453,7 @@ function adminConfirmPick(slotId, memberCode){
   if(p){
     const slot2 = STATE.slots.find(s=>s.id===slotId);
     p.status = p.status==="confirmed" ? "pending" : "confirmed";
+    save();
     logChange(p.status==="confirmed"?"Confirmar asignación":"Pendiente asignación", `${memberName(memberCode)} · ${slot2?slot2.day+" "+slot2.timeStart:slotId}`);
     renderAdmin("sesiones"); renderPublicCal();
   }
@@ -1463,6 +1464,7 @@ function adminRemovePick(slotId, memberCode){
   const slot2 = STATE.slots.find(s=>s.id===slotId);
   showConfirm(`¿Quitar la asignación de ${name}?`, ()=>{
     STATE.picks = STATE.picks.filter(p=>!(p.slotId===slotId&&p.memberCode===memberCode));
+    save();
     logChange("Quitar asignación", `${name} · ${slot2?slot2.day+" "+slot2.timeStart:slotId}`);
     renderAdmin("sesiones"); renderPublicCal();
   }, "Quitar");
