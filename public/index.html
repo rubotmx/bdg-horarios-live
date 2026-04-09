@@ -583,33 +583,24 @@ function initFirebase(){
     _db = firebase.database();
 
     _db.ref(FB_PATH).on("value", snap => {
-      if(_fbWriting){ _fbReady = true; return; }
+      if(_fbWriting) return; // escribimos nosotros, ignorar eco
 
       const remote = snap.val();
-      const remoteTs = (remote && remote.lastModified) || 0;
-      const localTs  = STATE.lastModified || 0;
 
       if(!_fbReady){
-        // Primera conexión: decidir quién tiene los datos correctos
         _fbReady = true;
-        if(remoteTs > localTs){
-          // Firebase más reciente → úsalo
+        if(remote){
+          // Firebase tiene datos → siempre es la fuente de verdad
           _applyRemote(remote);
-        } else if(localTs > remoteTs){
-          // Local más reciente → subir a Firebase
-          _pushToFirebase();
-        } else if(!remote){
-          // Firebase vacío → subir local si hay datos
-          if(STATE.members.length > 0 || STATE.slots.length > 0) _pushToFirebase();
+        } else {
+          // Firebase vacío (primera vez) → subir datos locales si los hay
+          if((STATE.slots||[]).length > 0) _pushToFirebase();
         }
-        // Si empatan (ambos = 0 y Firebase tiene datos) → no hacer nada, mantener local
         return;
       }
 
-      // Actualización en tiempo real de otro dispositivo
-      if(remote && remoteTs > localTs){
-        _applyRemote(remote);
-      }
+      // Actualización en tiempo real de otro dispositivo → aplicar siempre
+      if(remote) _applyRemote(remote);
     });
   } catch(e) {
     console.warn("Firebase init error:", e);
