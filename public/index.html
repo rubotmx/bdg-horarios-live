@@ -615,6 +615,15 @@ function _applyRemote(remote){
   if(!STATE.changelog) STATE.changelog = [];
   if(!STATE.admins)    STATE.admins    = [];
   if(!STATE.photos)    STATE.photos    = {};
+  // Rechazar datos de prueba que vengan de Firebase
+  const hadTestMembers = STATE.members.some(m => TEST_CODES.has(m.code));
+  if(hadTestMembers){
+    console.warn("_applyRemote: datos de prueba detectados en Firebase — ignorando y limpiando");
+    STATE.members = STATE.members.filter(m => !TEST_CODES.has(m.code));
+    STATE.picks   = STATE.picks.filter(p => !TEST_CODES.has(p.memberCode));
+    // Si no quedan miembros reales, no sobreescribir localStorage
+    if(STATE.members.length === 0) return;
+  }
   migrateSlotDays();
   localStorage.setItem("bdg_horarios_v2", JSON.stringify(STATE));
   if(document.getElementById("app").style.display !== "none"){
@@ -624,8 +633,25 @@ function _applyRemote(remote){
   renderPublicCal();
 }
 
+// Códigos de miembros de prueba — NUNCA deben llegar a Firebase
+const TEST_CODES = new Set(["ANAT3S1","LUIT3S2"]);
+
+function _sanitizeBeforePush(){
+  // Elimina miembros de prueba de STATE antes de subir
+  if(Array.isArray(STATE.members)){
+    const before = STATE.members.length;
+    STATE.members = STATE.members.filter(m => !TEST_CODES.has(m.code));
+    if(STATE.members.length < before) console.warn("_sanitizeBeforePush: miembros de prueba eliminados antes del push");
+  }
+  // Elimina picks asociados a miembros de prueba
+  if(Array.isArray(STATE.picks)){
+    STATE.picks = STATE.picks.filter(p => !TEST_CODES.has(p.memberCode));
+  }
+}
+
 function _pushToFirebase(){
   if(!_db) return;
+  _sanitizeBeforePush();
   _fbWriting = true;
   _db.ref(FB_PATH).set(STATE)
     .catch(e => console.warn("Firebase write error:", e))
