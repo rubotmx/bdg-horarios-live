@@ -578,33 +578,37 @@ let currentAdminTab = "equipo"; // tab activo en vista admin
 
 function initFirebase(){
   try {
-    if(FIREBASE_CONFIG.apiKey.startsWith("REEMPLAZA")) return; // sin config → solo localStorage
+    if(FIREBASE_CONFIG.apiKey.startsWith("REEMPLAZA")) return;
     if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     _db = firebase.database();
-    // Listener en tiempo real: solo re-renderiza si el cambio vino de OTRO dispositivo
     _db.ref(FB_PATH).on("value", snap => {
       const remote = snap.val();
-      if(remote && !_fbWriting){
-        // Firebase tiene datos → úsalos como fuente de verdad
-        STATE = remote;
-        if(!STATE.changelog) STATE.changelog = [];
-        if(!STATE.admins)    STATE.admins    = [];
-        migrateSlotDays();
-        localStorage.setItem("bdg_horarios_v2", JSON.stringify(STATE));
-        if(document.getElementById("app").style.display !== "none"){
-          if(SESSION.role === "admin") renderAdmin(currentAdminTab);
-          else if(SESSION.role) renderMember();
+      if(_fbWriting){ _fbReady = true; return; } // ignorar eco de nuestra propia escritura
+
+      if(remote){
+        const remoteTs = remote.lastModified || 0;
+        const localTs  = STATE.lastModified  || 0;
+        if(remoteTs >= localTs){
+          // Firebase es más reciente → usarlo
+          STATE = remote;
+          if(!STATE.changelog) STATE.changelog = [];
+          if(!STATE.admins)    STATE.admins    = [];
+          if(!STATE.photos)    STATE.photos    = {};
+          migrateSlotDays();
+          localStorage.setItem("bdg_horarios_v2", JSON.stringify(STATE));
+          if(document.getElementById("app").style.display !== "none"){
+            if(SESSION.role === "admin") renderAdmin(currentAdminTab);
+            else if(SESSION.role) renderMember();
+          }
+          renderPublicCal();
+        } else {
+          // Local es más reciente → subir a Firebase para sincronizar otros dispositivos
+          _pushToFirebase();
         }
-        renderPublicCal();
-      } else if(!remote && !_fbReady){
-        // Firebase vacío en primera conexión → subir datos locales si existen
-        const hasLocalData = STATE.members.length > 0 || STATE.slots.length > 0;
-        if(hasLocalData){
-          _fbWriting = true;
-          _db.ref(FB_PATH).set(STATE)
-            .catch(e => console.warn("Firebase initial upload error:", e))
-            .finally(() => setTimeout(() => { _fbWriting = false; }, 500));
-        }
+      } else {
+        // Firebase vacío → subir datos locales si existen
+        const hasData = STATE.members.length > 0 || STATE.slots.length > 0;
+        if(hasData) _pushToFirebase();
       }
       _fbReady = true;
     });
@@ -613,23 +617,37 @@ function initFirebase(){
   }
 }
 
+function _pushToFirebase(){
+  if(!_db) return;
+  _fbWriting = true;
+  _db.ref(FB_PATH).set(STATE)
+    .catch(e => console.warn("Firebase write error:", e))
+    .finally(() => setTimeout(() => { _fbWriting = false; }, 1000));
+}
+
 // ── PERSISTENCIA ──────────────────────────────────────────────────────────────
 function save(){
   if(!STATE.changelog) STATE.changelog = [];
+  if(!STATE.photos)    STATE.photos    = {};
+  STATE.lastModified = Date.now(); // timestamp para resolver conflictos
   localStorage.setItem("bdg_horarios_v2", JSON.stringify(STATE));
-  if(_db){
-    _fbWriting = true;
-    _db.ref(FB_PATH).set(STATE)
-      .catch(e => console.warn("Firebase write error:", e))
-      .finally(() => { setTimeout(() => { _fbWriting = false; }, 500); });
-  }
+  _pushToFirebase();
 }
 
 function load(){
   const raw = localStorage.getItem("bdg_horarios_v2");
   if(raw){ try{ STATE = JSON.parse(raw); }catch(e){} }
-  if(!STATE.changelog) STATE.changelog = [];
-  if(!STATE.admins)    STATE.admins    = [];
+  if(!STATE.changelog)    STATE.changelog    = [];
+  if(!STATE.admins)       STATE.admins       = [];
+  if(!STATE.photos)       STATE.photos       = {};
+  if(!STATE.lastModified) STATE.lastModified = 0;
+  // Migrar fotos viejas de localStorage individual a STATE
+  STATE.members.forEach(m => {
+    if(!STATE.photos[m.code]){
+      const old = localStorage.getItem("bdg_photo_" + m.code);
+      if(old){ STATE.photos[m.code] = old; }
+    }
+  });
   migrateSlotDays();
   initFirebase();
 }
@@ -664,8 +682,12 @@ function migrateSlotDays(){
 }
 
 // ── FOTOS DE PERFIL ───────────────────────────────────────────────────────────
-function getPhoto(code){ return localStorage.getItem("bdg_photo_" + code) || null; }
-function setPhoto(code, dataUrl){ localStorage.setItem("bdg_photo_" + code, dataUrl); }
+function getPhoto(code){ return (STATE.photos && STATE.photos[code]) || null; }
+function setPhoto(code, dataUrl){
+  if(!STATE.photos) STATE.photos = {};
+  STATE.photos[code] = dataUrl;
+  save(); // sincroniza la foto a Firebase para todos los dispositivos
+}
 
 function uploadPhoto(code, afterFn){
   const inp = document.createElement("input");
