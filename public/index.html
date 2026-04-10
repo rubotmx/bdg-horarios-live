@@ -348,6 +348,39 @@ td{padding:10px 14px;vertical-align:middle;}
   .limit-bar{flex-direction:column;align-items:flex-start;gap:12px;}
   .hist-row{grid-template-columns:1fr 1fr;}
 }
+
+/* ── INVENTARIO TAB ── */
+.inv-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+.inv-ts{font-size:11px;color:var(--muted);margin-left:auto;}
+.inv-tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:2px;}
+.inv-tbl{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap;}
+.inv-tbl th{background:var(--surface2);padding:8px 10px;text-align:left;font-size:9px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:var(--muted);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:1;}
+.inv-tbl th.c-num{text-align:center;min-width:44px;}
+.inv-tbl td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:middle;}
+.inv-tbl td.c-num{text-align:center;}
+.inv-tbl tr:last-child td{border-bottom:none;}
+.inv-tbl tr.color-row td{background:var(--surface2);padding-top:5px;padding-bottom:5px;}
+.inv-tbl tr:hover td{background:rgba(208,174,43,.04);}
+.inv-prod-cell{display:flex;align-items:center;gap:10px;}
+.inv-thumb{width:40px;height:40px;object-fit:cover;border-radius:1px;flex-shrink:0;background:var(--surface2);}
+.inv-thumb-ph{width:40px;height:40px;background:var(--surface3);border-radius:1px;flex-shrink:0;}
+.inv-name{font-weight:600;font-size:12px;color:var(--text);}
+.inv-color{font-size:10px;color:var(--text2);}
+.pill-inv{display:inline-block;min-width:28px;text-align:center;padding:2px 6px;border-radius:2px;font-size:11px;font-weight:600;}
+.pill-inv.ok {background:var(--pos-l);color:var(--pos);}
+.pill-inv.low{background:var(--warn-l);color:var(--warn);}
+.pill-inv.out{background:var(--surface3);color:var(--muted);}
+.pill-inv.neg{background:var(--neg-l);color:var(--neg);}
+.pill-inv.na {color:var(--muted);}
+.inv-price{font-size:11px;color:var(--text2);}
+.inv-sale{font-size:11px;font-weight:600;color:var(--oxide2);}
+.inv-cat-btns{display:flex;gap:6px;flex-wrap:wrap;}
+.inv-cat-btn{padding:5px 12px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;border:1px solid var(--line2);background:none;cursor:pointer;color:var(--muted);font-family:var(--fn);}
+.inv-cat-btn.active{background:var(--carbon);color:#fff;border-color:var(--carbon);}
+.inv-sync-btn{padding:6px 14px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;border:none;background:var(--carbon);color:#fff;cursor:pointer;font-family:var(--fn);display:flex;align-items:center;gap:5px;}
+.inv-sync-btn:disabled{opacity:.45;cursor:not-allowed;}
+.spin{animation:inv-spin 1s linear infinite;display:inline-block;}
+@keyframes inv-spin{to{transform:rotate(360deg)}}
 </style>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -912,6 +945,7 @@ function renderAdmin(tab="equipo"){
       </div>
       <div class="tab ${tab==="bitacora"?"active":""}" onclick="renderAdmin('bitacora')">Bitácora${STATE.changelog&&STATE.changelog.length>0?` <span style="font-size:9px;background:var(--oxide-l);color:var(--oxide);padding:1px 5px;vertical-align:middle;">${STATE.changelog.length}</span>`:""}
       </div>
+      <div class="tab ${tab==="inventario"?"active":""}" onclick="renderAdmin('inventario')">Inventario</div>
       ${SESSION.code==="RUB"?`<div class="tab ${tab==="cuentas"?"active":""}" onclick="renderAdmin('cuentas')" style="color:var(--muted);border-left:1px solid var(--line2);margin-left:auto;">⚙ Admins</div>`:""}
     </div>
     <div id="tabContent"></div>`;
@@ -921,6 +955,7 @@ function renderAdmin(tab="equipo"){
   if(tab==="historial") renderAdminHistorial();
   if(tab==="bitacora")  renderAdminBitacora();
   if(tab==="cuentas"&&SESSION.code==="RUB") renderAdminCuentas();
+  if(tab==="inventario") renderAdminInventario();
 }
 
 // TAB: EQUIPO
@@ -2454,6 +2489,203 @@ document.addEventListener("keydown", e => {
     if(el && el.style.display !== "none") closeModal(id);
   });
 });
+
+// ── INVENTARIO ────────────────────────────────────────────────────────────────
+const INV_PRODUCTS = [
+  {rank:1, cat:"clogs", name:"PENNY CLOG",              query:"PENNY CLOGS",            price:1495, sale:1099,
+   img:"https://cdn.shopify.com/s/files/1/2514/6232/files/PEN1_e207f618-1c9b-44f3-a549-3c769cf34758.jpg",
+   variantImgs:{"Taupe":"https://cdn.shopify.com/s/files/1/2514/6232/files/PEN1_e207f618-1c9b-44f3-a549-3c769cf34758.jpg","Brown":"https://cdn.shopify.com/s/files/1/2514/6232/files/B1.jpg","Black X Honey":"https://cdn.shopify.com/s/files/1/2514/6232/files/7506652103494_x1_fr_ee5bb9de-0956-42dd-b57f-73c940bca18d.jpg","Negro":"https://cdn.shopify.com/s/files/1/2514/6232/files/PENNYBLACK.jpg","Terracota":"https://cdn.shopify.com/s/files/1/2514/6232/files/web1_210bfce4-e7b3-4a09-8c51-df28f8dc3d4b.jpg","Olivo":"https://cdn.shopify.com/s/files/1/2514/6232/files/webv1.jpg"}},
+  {rank:2, cat:"clogs", name:"PENNY PONY CLOGS",        query:"PENNY PONY CLOGS",        price:2495, sale:1499,
+   img:"https://cdn.shopify.com/s/files/1/2514/6232/files/ponyweb.png"},
+  {rank:3, cat:"clogs", name:"PARKER CLOGS",            query:"PARKER CLOGS",            price:1495, sale:999,
+   img:"https://cdn.shopify.com/s/files/1/2514/6232/files/PAR1.jpg",
+   variantImgs:{"Taupe":"https://cdn.shopify.com/s/files/1/2514/6232/files/PAR1.jpg","Negro":"https://cdn.shopify.com/s/files/1/2514/6232/files/N1.jpg","Brown":"https://cdn.shopify.com/s/files/1/2514/6232/files/C1.jpg"}},
+  {rank:4, cat:"clogs", name:"FRANKIE CLOGS",           query:"FRANKIE CLOGS",           price:1395, sale:1199,
+   img:"https://cdn.shopify.com/s/files/1/2514/6232/files/Piper-beige-1.jpg",
+   variantImgs:{"Taupe":"https://cdn.shopify.com/s/files/1/2514/6232/files/Piper-beige-1.jpg","Brown":"https://cdn.shopify.com/s/files/1/2514/6232/files/Piper-brown-1.jpg","Black":"https://cdn.shopify.com/s/files/1/2514/6232/files/Piper-black-1.jpg"}},
+  {rank:5, cat:"acc",   name:"ECO PROTECT",             query:"ECO PROTECT",             price:311,
+   img:"https://cdn.shopify.com/s/files/1/2514/6232/files/eco-protect-1.jpg"},
+  {rank:6, cat:"flux",  name:"FLUX PONY SNEAKERS",      query:"FLUX PONY SNEAKERS",      price:2097, sale:1299,
+   img:"https://cdn.shopify.com/s/files/1/2514/6232/files/fluxppony2.jpg"},
+  {rank:7, cat:"flux",  name:"FLUX BABY BLUE SNEAKERS", query:"FLUX BABY BLUE SNEAKERS", price:1895, sale:1199,
+   img:"https://cdn.shopify.com/s/files/1/2514/6232/files/fluxblue1.jpg"},
+  {rank:8, cat:"flux",  name:"FLUX METALLIC SILVER",    query:"FLUX METALLIC SILVER",    price:2295, sale:999,
+   img:"https://cdn.shopify.com/s/files/1/2514/6232/files/fluxsilver1.jpg"},
+  {rank:9, cat:"flux",  name:"FLUX SAND SNEAKERS",      query:"FLUX SAND SNEAKERS",      price:1895, sale:999,
+   img:"https://cdn.shopify.com/s/files/1/2514/6232/files/fluxsand1.jpg"},
+];
+
+const INV_FALLBACK = {
+  "PENNY CLOG":{"Taupe":{"23":166,"24":221,"25":62,"26":61,"27":73,"28":0,"29":0},"Brown":{"23":44,"24":49,"25":82,"26":28,"27":0},"Black X Honey":{"23":0,"24":0,"25":0,"26":0,"27":0},"Negro":{"23":39,"24":75,"25":11,"26":23,"27":0},"Terracota":{"23":0,"24":4,"25":0,"26":0,"27":6},"Olivo":{"23":11,"24":1,"25":0,"26":0,"27":0}},
+  "PENNY PONY CLOGS":{"Default":{"23":0,"24":3,"25":1,"26":0,"27":3}},
+  "PARKER CLOGS":{"Taupe":{"23":1,"24":29,"25":13,"26":11,"27":0},"Negro":{"23":8,"24":10,"25":13,"26":2,"27":5},"Brown":{"23":0,"24":3,"25":18,"26":0,"27":0}},
+  "FRANKIE CLOGS":{"Taupe":{"23":4,"24":4,"25":0,"26":3,"27":3},"Brown":{"23":1,"24":1,"25":1,"26":3,"27":2},"Black":{"23":2,"24":3,"25":3,"26":0,"27":0}},
+  "ECO PROTECT":{"Default":{"Única":11}},
+  "FLUX PONY SNEAKERS":{"Default":{"23":4,"24":0,"25":0,"26":3,"27":2}},
+  "FLUX BABY BLUE SNEAKERS":{"Default":{"23":1,"24":1,"25":1,"26":8,"27":6}},
+  "FLUX METALLIC SILVER":{"Default":{"23":5,"24":0,"25":0,"26":0,"27":3}},
+  "FLUX SAND SNEAKERS":{"Default":{"23":9,"24":6,"25":6,"26":6,"27":9}},
+};
+
+let _invData = JSON.parse(JSON.stringify(INV_FALLBACK));
+let _invLoading = false;
+let _invTs = null;
+let _invCat = "all";
+let _invAutoTimer = null;
+
+function _invQClass(q){ return q >= 4 ? "ok" : q >= 1 ? "low" : q === 0 ? "out" : "neg"; }
+
+function _invParseVariants(variants){
+  const result = {};
+  variants.forEach(v => {
+    const parts = v.product_variant_title.split(" / ");
+    const color = parts.length >= 2 ? parts[0] : "Default";
+    const size  = parts.length >= 2 ? parts[1] : (parts[0] || "Única");
+    if(!result[color]) result[color] = {};
+    result[color][size] = (result[color][size] || 0) + (v.product_variant_inventory_quantity ?? 0);
+  });
+  return result;
+}
+
+async function _invFetch(query){
+  const res = await fetch(`/api/inventory?title=${encodeURIComponent(query)}`);
+  if(!res.ok) throw new Error(`${res.status}`);
+  const data = await res.json();
+  const variants = [];
+  (data.products || []).forEach(p =>
+    (p.variants || []).forEach(v =>
+      variants.push({ product_variant_title: v.title, product_variant_inventory_quantity: v.inventory_quantity ?? 0 })
+    )
+  );
+  return variants;
+}
+
+async function invSync(){
+  if(_invLoading) return;
+  _invLoading = true;
+  const btn = document.getElementById("invSyncBtn");
+  const icon = document.getElementById("invSyncIcon");
+  if(btn) btn.disabled = true;
+  if(icon) icon.classList.add("spin");
+  try {
+    const results = await Promise.allSettled(INV_PRODUCTS.map(p => _invFetch(p.query)));
+    let live = 0;
+    results.forEach((res, i) => {
+      if(res.status === "fulfilled" && res.value.length > 0){
+        _invData[INV_PRODUCTS[i].name] = _invParseVariants(res.value);
+        live++;
+      }
+    });
+    _invTs = new Date().toLocaleString("es-MX",{day:"numeric",month:"long",hour:"numeric",minute:"2-digit"});
+    const tsEl = document.getElementById("invTs");
+    if(tsEl) tsEl.textContent = `Actualizado: ${_invTs}${live === 0 ? " (cache)" : ""}`;
+  } catch(e) {
+    console.warn("Inventario sync error:", e);
+  } finally {
+    _invLoading = false;
+    if(btn) btn.disabled = false;
+    if(icon) icon.classList.remove("spin");
+  }
+  invRender();
+  // Auto-refresh 30 min
+  if(_invAutoTimer) clearTimeout(_invAutoTimer);
+  _invAutoTimer = setTimeout(() => invSync(), 30 * 60 * 1000);
+}
+
+function invRender(){
+  const wrap = document.getElementById("invTableWrap");
+  if(!wrap) return;
+
+  // Armar filas
+  const rows = [];
+  INV_PRODUCTS.filter(p => _invCat === "all" || p.cat === _invCat).forEach(prod => {
+    const cm = _invData[prod.name] || {};
+    const colors = Object.keys(cm);
+    const single = colors.length === 1 && (colors[0] === "Default" || colors[0] === "Única");
+    if(single){
+      rows.push({prod, colorLabel:null, sizes: cm[colors[0]] || {}});
+    } else {
+      colors.forEach(color => rows.push({prod, colorLabel:color, sizes: cm[color] || {}}));
+    }
+  });
+
+  // Todas las tallas únicas
+  const sizeSet = new Set();
+  rows.forEach(r => Object.keys(r.sizes).filter(k => k !== "Única").forEach(k => sizeSet.add(k)));
+  const allSizes = [...sizeSet].sort((a,b) => { const na=parseInt(a),nb=parseInt(b); return isNaN(na)||isNaN(nb)?a.localeCompare(b):na-nb; });
+
+  // Construir tabla
+  let lastProd = null;
+  const trs = rows.map(row => {
+    const isNew = row.prod.name !== lastProd;
+    lastProd = row.prod.name;
+    const hasColor = !!row.colorLabel;
+    const imgUrl = hasColor && row.prod.variantImgs?.[row.colorLabel]
+      ? row.prod.variantImgs[row.colorLabel]
+      : row.prod.img;
+
+    const thumbHtml = isNew
+      ? `<img class="inv-thumb" src="${imgUrl}" onerror="this.style.display='none'" loading="lazy"/>`
+      : `<div class="inv-thumb-ph"></div>`;
+
+    const nameHtml = isNew
+      ? `<div class="inv-name">${row.prod.name}</div>${hasColor ? `<div class="inv-color">${row.colorLabel}</div>` : ""}`
+      : `<div class="inv-color" style="padding-left:0">${row.colorLabel || ""}</div>`;
+
+    const sizeCells = allSizes.map(s => {
+      const q = row.sizes[s];
+      if(q === undefined || q === null) return `<td class="c-num"><span class="pill-inv na">—</span></td>`;
+      const qd = Math.max(0,q);
+      return `<td class="c-num"><span class="pill-inv ${_invQClass(qd)}">${qd}</span></td>`;
+    }).join("");
+
+    const unicaQ = row.sizes["Única"];
+    const unicaCell = unicaQ !== undefined
+      ? `<td class="c-num"><span class="pill-inv ${_invQClass(Math.max(0,unicaQ))}">${Math.max(0,unicaQ)}</span></td>`.repeat(1)
+      : "";
+
+    const priceHtml = isNew
+      ? `<td class="c-num" style="text-align:right;"><span class="inv-price">$${(row.prod.price||0).toLocaleString("es-MX")}</span>${row.prod.sale?`<br><span class="inv-sale">⚡ $${row.prod.sale.toLocaleString("es-MX")}</span>`:""}</td>`
+      : `<td></td>`;
+
+    return `<tr class="${!isNew?"color-row":""}">
+      <td><div class="inv-prod-cell">${thumbHtml}<div>${nameHtml}</div></div></td>
+      ${allSizes.length ? sizeCells : unicaCell}
+      ${priceHtml}
+    </tr>`;
+  }).join("");
+
+  const sizeHeaders = allSizes.length
+    ? allSizes.map(s => `<th class="c-num">${s}</th>`).join("")
+    : `<th class="c-num">Stock</th>`;
+
+  wrap.innerHTML = `
+    <table class="inv-tbl">
+      <thead><tr>
+        <th style="min-width:220px;">Modelo</th>
+        ${sizeHeaders}
+        <th style="text-align:right;min-width:110px;">Precio</th>
+      </tr></thead>
+      <tbody>${trs}</tbody>
+    </table>`;
+}
+
+function renderAdminInventario(){
+  const cats = [{k:"all",label:"Todo"},{k:"clogs",label:"Clogs"},{k:"flux",label:"Flux"},{k:"acc",label:"Accesorios"}];
+  document.getElementById("tabContent").innerHTML = `
+    <div class="inv-toolbar">
+      <div class="inv-cat-btns">
+        ${cats.map(c=>`<button class="inv-cat-btn ${_invCat===c.k?"active":""}" onclick="_invCat='${c.k}';invRender();renderAdminInventario()">${c.label}</button>`).join("")}
+      </div>
+      <button class="inv-sync-btn" id="invSyncBtn" onclick="invSync()">
+        <span id="invSyncIcon">↻</span> Actualizar
+      </button>
+      <span class="inv-ts" id="invTs">${_invTs ? `Actualizado: ${_invTs}` : "Cargando…"}</span>
+    </div>
+    <div class="inv-tbl-wrap" id="invTableWrap"></div>`;
+  invRender();
+  if(!_invTs) invSync();
+}
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 load();
