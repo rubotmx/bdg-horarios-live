@@ -2702,7 +2702,8 @@ async function invSync(){
 
 function invRender(){
   const wrap = document.getElementById("invTableWrap");
-  if(!wrap) return;
+  const pubWrapCheck = document.getElementById("pubInvTableWrap");
+  if(!wrap && !pubWrapCheck) return;
 
   // Armar filas
   const rows = [];
@@ -2787,7 +2788,7 @@ function invRender(){
       <tbody>${trs}</tbody>
     </table>`;
 
-  wrap.innerHTML = tableHtml;
+  if(wrap) wrap.innerHTML = tableHtml;
 
   // También renderiza en el landing público (sin filtro de categoría)
   const pubWrap = document.getElementById("pubInvTableWrap");
