@@ -2036,6 +2036,62 @@ function leaderboardHtml(role){
 // ── HISTORIAL ─────────────────────────────────────────────────────────────────
 let historialWeekFilter = "todas";
 let historialView       = "semanas";  // semanas | anfitrionas | backend | duplas
+let _gmvSyncing = false;
+
+async function loadLiveGMV(){
+  if(_gmvSyncing) return;
+  const past = getPastSlots();
+  if(!past.length) return;
+  _gmvSyncing = true;
+
+  // Mostrar indicador
+  const ind = document.getElementById("gmvLiveInd");
+  if(ind){ ind.style.display="inline"; }
+
+  try {
+    // Rango: primer slot pasado → hoy
+    const dates = past.map(s=>s.date).sort();
+    const dateMin = dates[0]    + "T00:00:00-06:00";
+    const dateMax = dates[dates.length-1] + "T23:59:59-06:00";
+
+    const res  = await fetch(`/api/orders?date_min=${encodeURIComponent(dateMin)}&date_max=${encodeURIComponent(dateMax)}`);
+    if(!res.ok) throw new Error(`orders API ${res.status}`);
+    const { orders } = await res.json();
+
+    // Calcular GMV por slot
+    let changed = false;
+    past.forEach(slot => {
+      const tStart = new Date(`${slot.date}T${slot.timeStart}:00`);
+      const tEnd   = new Date(`${slot.date}T${slot.timeEnd}:00`);
+      const inRange = orders.filter(o => {
+        const t = new Date(o.created_at.slice(0,19)); // strip tz — already -06:00
+        return t >= tStart && t < tEnd;
+      });
+      const gmv    = Math.round(inRange.reduce((s,o)=>s+parseFloat(o.total_price),0)*100)/100;
+      const n      = inRange.length;
+      if(slot.gmv !== gmv || slot.orders !== n){
+        slot.gmv    = gmv;
+        slot.orders = n;
+        changed = true;
+      }
+    });
+
+    if(changed){
+      STATE.lastModified = Date.now();
+      localStorage.setItem("bdg_horarios_v2", JSON.stringify(STATE));
+      _pushToFirebase();
+    }
+    // Re-render si el tab sigue abierto
+    if(currentAdminTab === "historial") renderAdminHistorial();
+    if(currentAdminTab === "resumen")   renderAdminResumen();
+  } catch(e){
+    console.warn("loadLiveGMV error:", e);
+  } finally {
+    _gmvSyncing = false;
+    const ind2 = document.getElementById("gmvLiveInd");
+    if(ind2) ind2.style.display="none";
+  }
+}
 let historialAnfiFilter = "todas";   // para filtrar por anfitriona en vista semanas
 
 function getPastSlots(){
@@ -2050,7 +2106,7 @@ function histKpisHtml(past){
   const withGmv  = past.filter(sl=>sl.gmv>0);
   const avgGmv   = withGmv.length ? totalGmv / withGmv.length : 0;
   return `<div class="hist-kpis">
-    <div class="hist-kpi"><div class="hist-kpi-label">GMV Total</div><div class="hist-kpi-val accent">${totalGmv>0?fmtGMV(totalGmv):"—"}</div></div>
+    <div class="hist-kpi"><div class="hist-kpi-label">GMV Total <span id="gmvLiveInd" style="display:none;font-size:9px;letter-spacing:.1em;color:var(--muted);animation:inv-spin 1.2s linear infinite;display:none;">↻</span></div><div class="hist-kpi-val accent">${totalGmv>0?fmtGMV(totalGmv):"—"}</div></div>
     <div class="hist-kpi"><div class="hist-kpi-label">Promedio / sesión</div><div class="hist-kpi-val">${avgGmv>0?fmtGMV(avgGmv):"—"}</div></div>
     <div class="hist-kpi"><div class="hist-kpi-label">Sesiones</div><div class="hist-kpi-val">${past.length}</div></div>
     <div class="hist-kpi"><div class="hist-kpi-label">Con GMV</div><div class="hist-kpi-val">${withGmv.length} <span style="font-size:14px;color:var(--muted);">/ ${past.length}</span></div></div>
@@ -2088,6 +2144,8 @@ function renderAdminHistorial(){
   if(historialView === "duplas")      body = renderHistDuplas(past);
 
   document.getElementById("tabContent").innerHTML = kpis + subtabs + body;
+  // Carga GMV live en background
+  loadLiveGMV();
 }
 
 // ── VISTA: SEMANAS ────────────────────────────────────────────────────────────
@@ -2535,29 +2593,44 @@ let _invAutoTimer = null;
 
 function _invQClass(q){ return q >= 4 ? "ok" : q >= 1 ? "low" : q === 0 ? "out" : "neg"; }
 
-function _invParseVariants(variants){
+// Imágenes live por color: { "PENNY CLOG": { "Taupe": "https://..." } }
+let _invColorImgs = {};
+
+function _invParseVariants(variants, images){
+  const imgMap = {};
+  (images || []).forEach(img => { imgMap[img.id] = img.src; });
   const result = {};
+  const colorImg = {};
   variants.forEach(v => {
     const parts = v.product_variant_title.split(" / ");
     const color = parts.length >= 2 ? parts[0] : "Default";
     const size  = parts.length >= 2 ? parts[1] : (parts[0] || "Única");
     if(!result[color]) result[color] = {};
     result[color][size] = (result[color][size] || 0) + (v.product_variant_inventory_quantity ?? 0);
+    // Primera imagen de cada color
+    if(!colorImg[color] && v.image_id && imgMap[v.image_id]){
+      colorImg[color] = imgMap[v.image_id];
+    }
   });
-  return result;
+  return { stock: result, colorImg };
 }
 
 async function _invFetch(query){
   const res = await fetch(`/api/inventory?title=${encodeURIComponent(query)}`);
   if(!res.ok) throw new Error(`${res.status}`);
   const data = await res.json();
-  const variants = [];
-  (data.products || []).forEach(p =>
+  const variants = [], images = [];
+  (data.products || []).forEach(p => {
+    (p.images || []).forEach(img => images.push(img));
     (p.variants || []).forEach(v =>
-      variants.push({ product_variant_title: v.title, product_variant_inventory_quantity: v.inventory_quantity ?? 0 })
-    )
-  );
-  return variants;
+      variants.push({
+        product_variant_title: v.title,
+        product_variant_inventory_quantity: v.inventory_quantity ?? 0,
+        image_id: v.image_id
+      })
+    );
+  });
+  return { variants, images };
 }
 
 async function invSync(){
@@ -2571,8 +2644,10 @@ async function invSync(){
     const results = await Promise.allSettled(INV_PRODUCTS.map(p => _invFetch(p.query)));
     let live = 0;
     results.forEach((res, i) => {
-      if(res.status === "fulfilled" && res.value.length > 0){
-        _invData[INV_PRODUCTS[i].name] = _invParseVariants(res.value);
+      if(res.status === "fulfilled" && res.value.variants.length > 0){
+        const { stock, colorImg } = _invParseVariants(res.value.variants, res.value.images);
+        _invData[INV_PRODUCTS[i].name] = stock;
+        if(Object.keys(colorImg).length) _invColorImgs[INV_PRODUCTS[i].name] = colorImg;
         live++;
       }
     });
@@ -2620,9 +2695,11 @@ function invRender(){
     const isNew = row.prod.name !== lastProd;
     lastProd = row.prod.name;
     const hasColor = !!row.colorLabel;
-    const imgUrl = hasColor && row.prod.variantImgs?.[row.colorLabel]
-      ? row.prod.variantImgs[row.colorLabel]
-      : row.prod.img;
+    // Prioridad: foto live de Shopify → fallback hardcodeado
+    const liveImg = _invColorImgs[row.prod.name]?.[row.colorLabel || "Default"];
+    const imgUrl = liveImg
+      || (hasColor && row.prod.variantImgs?.[row.colorLabel])
+      || row.prod.img;
 
     const thumbHtml = isNew
       ? `<img class="inv-thumb" src="${imgUrl}" onerror="this.style.display='none'" loading="lazy"/>`
@@ -2689,8 +2766,9 @@ function renderAdminInventario(){
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 load();
-
 renderPublicCal();
+// Pre-carga inventario en background para que esté listo al abrir la pestaña
+setTimeout(() => invSync(), 2000);
 </script>
 </body>
 </html>

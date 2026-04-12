@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   if (!title) return res.status(400).json({ error: "title requerido" });
 
   try {
-    const url = `https://${STORE}/admin/api/2024-01/products.json?title=${encodeURIComponent(title)}&fields=id,title,variants&limit=10`;
+    const url = `https://${STORE}/admin/api/2024-01/products.json?title=${encodeURIComponent(title)}&fields=id,title,variants,images&limit=10`;
     const r = await fetch(url, {
       headers: { "X-Shopify-Access-Token": TOKEN }
     });
