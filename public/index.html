@@ -435,6 +435,20 @@ td{padding:10px 14px;vertical-align:middle;}
       <div id="pubGrid"></div>
     </div>
   </div>
+
+  <!-- Inventario público -->
+  <div style="display:flex;justify-content:center;background:var(--surface);border-top:1px solid var(--line);padding:32px 16px 48px;">
+    <div style="width:100%;max-width:1000px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+        <div>
+          <div style="font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px;">Inventario · Shopify Live</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;">Stock disponible</div>
+        </div>
+        <span id="pubInvTs" style="font-size:11px;color:var(--muted);">Cargando…</span>
+      </div>
+      <div class="inv-tbl-wrap" id="pubInvTableWrap"><div style="padding:32px;text-align:center;color:var(--muted);font-size:12px;">Cargando inventario…</div></div>
+    </div>
+  </div>
 </div>
 
 <!-- ── CONFIRM MODAL ── -->
@@ -2755,7 +2769,7 @@ function invRender(){
     ? allSizes.map(s => `<th class="c-num">${s}</th>`).join("")
     : `<th class="c-num">Stock</th>`;
 
-  wrap.innerHTML = `
+  const tableHtml = `
     <table class="inv-tbl">
       <thead><tr>
         <th style="min-width:220px;">Modelo</th>
@@ -2764,6 +2778,39 @@ function invRender(){
       </tr></thead>
       <tbody>${trs}</tbody>
     </table>`;
+
+  wrap.innerHTML = tableHtml;
+
+  // También renderiza en el landing público (sin filtro de categoría)
+  const pubWrap = document.getElementById("pubInvTableWrap");
+  if(pubWrap){
+    // Para el público: todas las categorías, misma tabla
+    const pubRows = [];
+    INV_PRODUCTS.forEach(prod => {
+      const cm = _invData[prod.name] || {};
+      const colors = Object.keys(cm);
+      const single = colors.length === 1 && (colors[0] === "Default" || colors[0] === "Única");
+      if(single){ pubRows.push({prod, colorLabel:null, sizes: cm[colors[0]] || {}}); }
+      else { colors.forEach(color => pubRows.push({prod, colorLabel:color, sizes: cm[color] || {}})); }
+    });
+    const pubSizeSet = new Set();
+    pubRows.forEach(r => Object.keys(r.sizes).filter(k=>k!=="Única").forEach(k=>pubSizeSet.add(k)));
+    const pubSizes = [...pubSizeSet].sort((a,b)=>{const na=parseInt(a),nb=parseInt(b);return isNaN(na)||isNaN(nb)?a.localeCompare(b):na-nb;});
+    let pubLastProd = null;
+    const pubTrs = pubRows.map(row => {
+      const isNew = row.prod.name !== pubLastProd; pubLastProd = row.prod.name;
+      const liveImg = _invColorImgs[row.prod.name]?.[row.colorLabel||"Default"];
+      const imgUrl = liveImg || (row.colorLabel && row.prod.variantImgs?.[row.colorLabel]) || row.prod.img;
+      const thumbHtml = isNew ? `<img class="inv-thumb" src="${imgUrl}" onerror="this.style.display='none'" loading="lazy"/>` : `<div class="inv-thumb-ph"></div>`;
+      const nameHtml  = isNew ? `<div class="inv-name">${row.prod.name}</div>${row.colorLabel?`<div class="inv-color">${row.colorLabel}</div>`:""}` : `<div class="inv-color">${row.colorLabel||""}</div>`;
+      const sizeCells = pubSizes.map(s=>{ const q=row.sizes[s]; if(q===undefined||q===null) return `<td class="c-num"><span class="pill-inv na">—</span></td>`; const qd=Math.max(0,q); return `<td class="c-num"><span class="pill-inv ${_invQClass(qd)}">${qd}</span></td>`; }).join("");
+      const priceHtml = isNew ? `<td class="c-num" style="text-align:right;"><span class="inv-price">$${(row.prod.price||0).toLocaleString("es-MX")}</span>${row.prod.sale?`<br><span class="inv-sale">⚡ $${row.prod.sale.toLocaleString("es-MX")}</span>`:""}</td>` : `<td></td>`;
+      return `<tr class="${!isNew?"color-row":""}"><td><div class="inv-prod-cell">${thumbHtml}<div>${nameHtml}</div></div></td>${pubSizes.length?sizeCells:""}${priceHtml}</tr>`;
+    }).join("");
+    pubWrap.innerHTML = `<table class="inv-tbl"><thead><tr><th style="min-width:220px;">Modelo</th>${pubSizes.map(s=>`<th class="c-num">${s}</th>`).join("")}<th style="text-align:right;min-width:110px;">Precio</th></tr></thead><tbody>${pubTrs}</tbody></table>`;
+    const tsEl = document.getElementById("pubInvTs");
+    if(tsEl && _invTs) tsEl.textContent = `Actualizado: ${_invTs}`;
+  }
 }
 
 function renderAdminInventario(){
