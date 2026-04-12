@@ -2035,6 +2035,8 @@ function leaderboardHtml(role){
 
 // ── HISTORIAL ─────────────────────────────────────────────────────────────────
 let historialWeekFilter = "todas";
+let historialAnfiFilter = "todas";
+let historialSort       = "fecha";    // fecha | gmv
 let historialView       = "semanas";  // semanas | anfitrionas | backend | duplas
 let _gmvSyncing = false;
 
@@ -2092,12 +2094,13 @@ async function loadLiveGMV(){
     if(ind2) ind2.style.display="none";
   }
 }
-let historialAnfiFilter = "todas";   // para filtrar por anfitriona en vista semanas
-
 function getPastSlots(){
-  const today = new Date().toISOString().slice(0,10);
+  const now   = new Date();
+  const today = now.toISOString().slice(0,10);
+  const hhmm  = now.toTimeString().slice(0,5);
+  // Incluye semana actual: días pasados + sesiones de hoy que ya terminaron
   return STATE.slots
-    .filter(s => s.date < today)
+    .filter(s => s.date < today || (s.date === today && s.timeEnd <= hhmm))
     .sort((a,b) => b.date.localeCompare(a.date) || b.timeStart.localeCompare(a.timeStart));
 }
 
@@ -2164,10 +2167,21 @@ function renderHistSemanas(past){
     return ap && ap.memberCode === historialAnfiFilter;
   });
 
+  // Ordenar slots según selección
+  if(historialSort === "gmv") filtered.sort((a,b) => (b.gmv||0) - (a.gmv||0));
+  else filtered.sort((a,b) => b.date.localeCompare(a.date) || b.timeStart.localeCompare(a.timeStart));
+
   const byWeek = {};
   filtered.forEach(s=>{ const k=slotWeekMon(s.date); if(!byWeek[k]) byWeek[k]=[]; byWeek[k].push(s); });
 
-  const weekGroups = Object.entries(byWeek).sort(([a],[b])=>b.localeCompare(a)).map(([weekMon,slots])=>{
+  // Ordenar semanas: por fecha desc, o por GMV total desc
+  const weekEntries = Object.entries(byWeek).sort(([a,sa],[b,sb]) =>
+    historialSort === "gmv"
+      ? sb.reduce((t,sl)=>t+(sl.gmv||0),0) - sa.reduce((t,sl)=>t+(sl.gmv||0),0)
+      : b.localeCompare(a)
+  );
+
+  const weekGroups = weekEntries.map(([weekMon,slots])=>{
     const weekGmv = slots.reduce((s,sl)=>s+(sl.gmv||0),0);
     const rows = slots.map(slot=>{
       const anfiPick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)==="anfitriona");
@@ -2202,6 +2216,11 @@ function renderHistSemanas(past){
     <select onchange="historialAnfiFilter=this.value;renderAdminHistorial()">
       <option value="todas">Todas</option>${anfiOptions}
     </select>`:""}
+    <span style="font-size:11px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-left:8px;">Orden</span>
+    <select onchange="historialSort=this.value;renderAdminHistorial()">
+      <option value="fecha" ${historialSort==="fecha"?"selected":""}>Más reciente</option>
+      <option value="gmv"   ${historialSort==="gmv"  ?"selected":""}>Mayor GMV</option>
+    </select>
   </div>
   ${weekGroups||`<div class="empty-state" style="padding:32px;"><div class="empty-icon">🔍</div>Sin sesiones con esos filtros.</div>`}`;
 }
