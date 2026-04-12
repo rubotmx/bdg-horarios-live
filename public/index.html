@@ -2736,9 +2736,7 @@ function invRender(){
       || (hasColor && row.prod.variantImgs?.[row.colorLabel])
       || row.prod.img;
 
-    const thumbHtml = isNew
-      ? `<img class="inv-thumb" src="${imgUrl}" onerror="this.style.display='none'" loading="lazy"/>`
-      : `<div class="inv-thumb-ph"></div>`;
+    const thumbHtml = `<img class="inv-thumb" src="${imgUrl}" onerror="this.style.display='none'" loading="lazy"/>`;
 
     const nameHtml = isNew
       ? `<div class="inv-name">${row.prod.name}</div>${hasColor ? `<div class="inv-color">${row.colorLabel}</div>` : ""}`
@@ -2811,7 +2809,7 @@ function invRender(){
       const isNew = row.prod.name !== pubLastProd; pubLastProd = row.prod.name;
       const liveImg = _invColorImgs[row.prod.name]?.[row.colorLabel||"Default"];
       const imgUrl = liveImg || (row.colorLabel && row.prod.variantImgs?.[row.colorLabel]) || row.prod.img;
-      const thumbHtml = isNew ? `<img class="inv-thumb" src="${imgUrl}" onerror="this.style.display='none'" loading="lazy"/>` : `<div class="inv-thumb-ph"></div>`;
+      const thumbHtml = `<img class="inv-thumb" src="${imgUrl}" onerror="this.style.display='none'" loading="lazy"/>`;
       const nameHtml  = isNew ? `<div class="inv-name">${row.prod.name}</div>${row.colorLabel?`<div class="inv-color">${row.colorLabel}</div>`:""}` : `<div class="inv-color">${row.colorLabel||""}</div>`;
       const sizeCells = pubSizes.map(s=>{ const q=row.sizes[s]; if(q===undefined||q===null) return `<td class="c-num"><span class="pill-inv na">—</span></td>`; const qd=Math.max(0,q); return `<td class="c-num"><span class="pill-inv ${_invQClass(qd)}">${qd}</span></td>`; }).join("");
       const unicaPubQ = row.sizes["Única"];
