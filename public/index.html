@@ -535,6 +535,23 @@ td{padding:10px 14px;vertical-align:middle;}
   </div>
 </div>
 
+<!-- ── DISCLAIMER MODAL ── -->
+<div class="modal-overlay" id="disclaimerModal" style="display:flex;z-index:200;">
+  <div class="modal" style="max-width:400px;text-align:center;padding:44px 36px 36px;">
+    <div style="font-size:32px;margin-bottom:16px;">🔒</div>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;margin-bottom:8px;letter-spacing:-.01em;">Contenido confidencial</h2>
+    <p style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:6px;">
+      La información contenida en este sitio es <strong>propiedad exclusiva de Bala Di Gala</strong> y tiene carácter estrictamente confidencial.
+    </p>
+    <p style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:28px;">
+      Queda prohibida su reproducción, distribución o divulgación total o parcial sin autorización expresa. Al continuar, confirmas que eres personal autorizado.
+    </p>
+    <button onclick="document.getElementById('disclaimerModal').style.display='none'" style="width:100%;padding:13px;background:var(--db);color:#fff;border:none;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;">
+      Entendido · Continuar
+    </button>
+  </div>
+</div>
+
 <!-- ── CONFIRM MODAL ── -->
 <div class="modal-overlay" id="confirmModal" style="display:none;">
   <div class="modal" style="max-width:340px;">
