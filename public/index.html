@@ -2751,8 +2751,14 @@ function invRender(){
 
     const unicaQ = row.sizes["Única"];
     const unicaCell = unicaQ !== undefined
-      ? `<td class="c-num"><span class="pill-inv ${_invQClass(Math.max(0,unicaQ))}">${Math.max(0,unicaQ)}</span></td>`.repeat(1)
+      ? `<td class="c-num"><span class="pill-inv ${_invQClass(Math.max(0,unicaQ))}">${Math.max(0,unicaQ)}</span></td>`
       : "";
+
+    // Total de pares para esta fila
+    const rowTotal = Object.entries(row.sizes)
+      .filter(([k]) => k !== "Única")
+      .reduce((s,[,q]) => s + Math.max(0, q||0), 0)
+      + (unicaQ !== undefined ? Math.max(0, unicaQ) : 0);
 
     const priceHtml = isNew
       ? `<td class="c-num" style="text-align:right;"><span class="inv-price">$${(row.prod.price||0).toLocaleString("es-MX")}</span>${row.prod.sale?`<br><span class="inv-sale">⚡ $${row.prod.sale.toLocaleString("es-MX")}</span>`:""}</td>`
@@ -2761,6 +2767,7 @@ function invRender(){
     return `<tr class="${!isNew?"color-row":""}">
       <td><div class="inv-prod-cell">${thumbHtml}<div>${nameHtml}</div></div></td>
       ${allSizes.length ? sizeCells : unicaCell}
+      <td class="c-num" style="font-weight:700;color:var(--text);">${rowTotal}</td>
       ${priceHtml}
     </tr>`;
   }).join("");
@@ -2774,6 +2781,7 @@ function invRender(){
       <thead><tr>
         <th style="min-width:220px;">Modelo</th>
         ${sizeHeaders}
+        <th class="c-num" style="font-weight:700;">Total</th>
         <th style="text-align:right;min-width:110px;">Precio</th>
       </tr></thead>
       <tbody>${trs}</tbody>
@@ -2804,10 +2812,12 @@ function invRender(){
       const thumbHtml = isNew ? `<img class="inv-thumb" src="${imgUrl}" onerror="this.style.display='none'" loading="lazy"/>` : `<div class="inv-thumb-ph"></div>`;
       const nameHtml  = isNew ? `<div class="inv-name">${row.prod.name}</div>${row.colorLabel?`<div class="inv-color">${row.colorLabel}</div>`:""}` : `<div class="inv-color">${row.colorLabel||""}</div>`;
       const sizeCells = pubSizes.map(s=>{ const q=row.sizes[s]; if(q===undefined||q===null) return `<td class="c-num"><span class="pill-inv na">—</span></td>`; const qd=Math.max(0,q); return `<td class="c-num"><span class="pill-inv ${_invQClass(qd)}">${qd}</span></td>`; }).join("");
+      const unicaPubQ = row.sizes["Única"];
+      const pubRowTotal = Object.entries(row.sizes).filter(([k])=>k!=="Única").reduce((s,[,q])=>s+Math.max(0,q||0),0) + (unicaPubQ !== undefined ? Math.max(0, unicaPubQ) : 0);
       const priceHtml = isNew ? `<td class="c-num" style="text-align:right;"><span class="inv-price">$${(row.prod.price||0).toLocaleString("es-MX")}</span>${row.prod.sale?`<br><span class="inv-sale">⚡ $${row.prod.sale.toLocaleString("es-MX")}</span>`:""}</td>` : `<td></td>`;
-      return `<tr class="${!isNew?"color-row":""}"><td><div class="inv-prod-cell">${thumbHtml}<div>${nameHtml}</div></div></td>${pubSizes.length?sizeCells:""}${priceHtml}</tr>`;
+      return `<tr class="${!isNew?"color-row":""}"><td><div class="inv-prod-cell">${thumbHtml}<div>${nameHtml}</div></div></td>${pubSizes.length?sizeCells:""}<td class="c-num" style="font-weight:700;color:var(--text);">${pubRowTotal}</td>${priceHtml}</tr>`;
     }).join("");
-    pubWrap.innerHTML = `<table class="inv-tbl"><thead><tr><th style="min-width:220px;">Modelo</th>${pubSizes.map(s=>`<th class="c-num">${s}</th>`).join("")}<th style="text-align:right;min-width:110px;">Precio</th></tr></thead><tbody>${pubTrs}</tbody></table>`;
+    pubWrap.innerHTML = `<table class="inv-tbl"><thead><tr><th style="min-width:220px;">Modelo</th>${pubSizes.map(s=>`<th class="c-num">${s}</th>`).join("")}<th class="c-num" style="font-weight:700;">Total</th><th style="text-align:right;min-width:110px;">Precio</th></tr></thead><tbody>${pubTrs}</tbody></table>`;
     const tsEl = document.getElementById("pubInvTs");
     if(tsEl && _invTs) tsEl.textContent = `Actualizado: ${_invTs}`;
   }
