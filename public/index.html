@@ -234,6 +234,37 @@ td{padding:10px 14px;vertical-align:middle;}
 .pub-tab-btn.active{color:var(--db);border-bottom-color:var(--gold);}
 @media(max-width:600px){.pub-tab-btn{padding:11px 14px;font-size:10px;gap:5px;}}
 
+/* ── PODIO RANKING ── */
+.podium-stage{display:flex;align-items:flex-end;justify-content:center;gap:10px;padding:32px 8px 0;margin-bottom:4px;}
+.podium-person{display:flex;flex-direction:column;align-items:center;width:140px;}
+.podium-avatar{width:54px;height:54px;border-radius:50%;object-fit:cover;border:3px solid var(--line);background:var(--surface2);margin-bottom:6px;}
+.podium-avatar-ph{width:54px;height:54px;border-radius:50%;background:var(--surface2);border:3px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--text2);margin-bottom:6px;flex-shrink:0;}
+.podium-medal{font-size:26px;line-height:1;margin-bottom:6px;}
+.podium-name{font-size:12px;font-weight:700;text-align:center;color:var(--text);margin-bottom:2px;letter-spacing:.02em;}
+.podium-gmvhr{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--pos);line-height:1.1;}
+.podium-gmvhr-lbl{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.podium-block{width:100%;display:flex;align-items:center;justify-content:center;}
+.podium-block-1{height:100px;background:var(--gold);opacity:.85;border-radius:4px 4px 0 0;}
+.podium-block-2{height:68px;background:#9AA4A8;opacity:.75;border-radius:4px 4px 0 0;}
+.podium-block-3{height:46px;background:#C8956C;opacity:.75;border-radius:4px 4px 0 0;}
+.podium-pos{color:#fff;font-size:16px;font-weight:800;letter-spacing:.04em;}
+.podium-floor{height:10px;background:var(--line2);margin:0 -8px;}
+.rank-list-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--surface);}
+.rank-list-row:first-child{border-top:1px solid var(--line);}
+.rank-list-pos{font-size:12px;font-weight:700;color:var(--muted);width:22px;text-align:center;flex-shrink:0;}
+.rank-list-name{flex:1;font-size:13px;font-weight:600;color:var(--text);}
+.rank-list-gmvhr{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--pos);}
+.rank-list-sub{font-size:10px;color:var(--muted);}
+.rank-empty{text-align:center;padding:48px 16px;color:var(--muted);font-size:13px;}
+@media(max-width:600px){
+  .podium-person{width:100px;}
+  .podium-avatar,.podium-avatar-ph{width:44px;height:44px;font-size:14px;}
+  .podium-medal{font-size:22px;}
+  .podium-name{font-size:11px;}
+  .podium-gmvhr{font-size:17px;}
+  .podium-block-1{height:80px;} .podium-block-2{height:54px;} .podium-block-3{height:36px;}
+}
+
 /* ── CALENDARIO PÚBLICO ── */
 .pub-cal{width:100%;max-width:1060px;padding:28px 28px 48px;}
 .pub-cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
@@ -449,6 +480,10 @@ td{padding:10px 14px;vertical-align:middle;}
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 3H8a2 2 0 0 0-2 2v2h12V5a2 2 0 0 0-2-2z"/></svg>
       Inventario
     </button>
+    <button class="pub-tab-btn" id="tabBtnRank" onclick="pubSwitchTab('rank')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      Ranking
+    </button>
   </div>
 
   <!-- Calendario público -->
@@ -469,6 +504,19 @@ td{padding:10px 14px;vertical-align:middle;}
         </div>
       </div>
       <div id="pubGrid"></div>
+    </div>
+  </div>
+
+  <!-- Ranking público -->
+  <div id="pubRankSection" style="display:none;justify-content:center;background:var(--bg);min-height:calc(100vh - 100px);padding:40px 16px 64px;">
+    <div style="width:100%;max-width:560px;">
+      <div style="text-align:center;margin-bottom:8px;">
+        <div style="font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">Últimos 15 días</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;letter-spacing:-.01em;">Mejor GMV / hora</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Anfitrionas · promedio entre sesiones</div>
+      </div>
+      <div id="pubRankPodium"></div>
+      <div id="pubRankList" style="margin-top:8px;"></div>
     </div>
   </div>
 
@@ -1778,21 +1826,108 @@ function renderPublicCal(){
 }
 
 function pubSwitchTab(tab){
-  const cal = document.getElementById("pubCalSection");
-  const inv = document.getElementById("pubInvSection");
-  const btnCal = document.getElementById("tabBtnCal");
-  const btnInv = document.getElementById("tabBtnInv");
-  if(tab === "cal"){
-    cal.style.display = "flex";
-    inv.style.display = "none";
-    btnCal.classList.add("active");
-    btnInv.classList.remove("active");
-  } else {
-    cal.style.display = "none";
-    inv.style.display = "flex";
-    btnInv.classList.add("active");
-    btnCal.classList.remove("active");
+  const sections = {cal:"pubCalSection", inv:"pubInvSection", rank:"pubRankSection"};
+  const btns     = {cal:"tabBtnCal",     inv:"tabBtnInv",     rank:"tabBtnRank"};
+  Object.keys(sections).forEach(k => {
+    const s = document.getElementById(sections[k]);
+    const b = document.getElementById(btns[k]);
+    if(s) s.style.display = k === tab ? "flex" : "none";
+    if(b) b.classList.toggle("active", k === tab);
+  });
+  if(tab === "rank") renderPublicRanking();
+}
+
+function renderPublicRanking(){
+  const SESSION_H = SESSION_MINS / 60;
+  const now    = new Date();
+  const today  = now.toISOString().slice(0,10);
+  const hhmm   = now.toTimeString().slice(0,5);
+  const cutoff = new Date(now - 15 * 24 * 60 * 60 * 1000).toISOString().slice(0,10);
+
+  // Sesiones pasadas de los últimos 15 días con GMV
+  const recentSlots = STATE.slots.filter(s =>
+    s.gmv > 0 &&
+    s.date >= cutoff &&
+    (s.date < today || (s.date === today && s.timeEnd <= hhmm))
+  );
+
+  // Agrupar por anfitriona
+  const anfiMap = {};
+  recentSlots.forEach(slot => {
+    const pick = STATE.picks.find(p => p.slotId === slot.id && p.status !== "cancelled" && memberRole(p.memberCode) === "anfitriona");
+    if(!pick) return;
+    const code = pick.memberCode;
+    if(!anfiMap[code]) anfiMap[code] = { code, name: memberName(code), totalGmv: 0, sessions: 0 };
+    anfiMap[code].totalGmv += slot.gmv;
+    anfiMap[code].sessions++;
+  });
+
+  const ranked = Object.values(anfiMap)
+    .map(a => ({ ...a, gmvPorHora: a.totalGmv / (a.sessions * SESSION_H) }))
+    .sort((a,b) => b.gmvPorHora - a.gmvPorHora);
+
+  const podiumEl = document.getElementById("pubRankPodium");
+  const listEl   = document.getElementById("pubRankList");
+  if(!podiumEl || !listEl) return;
+
+  if(ranked.length === 0){
+    podiumEl.innerHTML = `<div class="rank-empty">Sin datos de GMV en los últimos 15 días.</div>`;
+    listEl.innerHTML = "";
+    return;
   }
+
+  // Iniciales para avatar placeholder
+  function initials(name){ return name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase(); }
+
+  // Podio: orden visual = 2do · 1ro · 3ro
+  const podiumOrder = [ranked[1], ranked[0], ranked[2]].filter(Boolean);
+  const podiumMeta  = [
+    { medal:"🥈", blockCls:"podium-block-2", pos:"2" },
+    { medal:"🥇", blockCls:"podium-block-1", pos:"1" },
+    { medal:"🥉", blockCls:"podium-block-3", pos:"3" },
+  ];
+  // Reajustar meta según cuántos hay
+  const visualMeta = ranked.length === 1
+    ? [podiumMeta[1]]
+    : ranked.length === 2
+      ? [podiumMeta[0], podiumMeta[1]]
+      : podiumMeta;
+  const visualOrder = ranked.length === 1
+    ? [ranked[0]]
+    : ranked.length === 2
+      ? [ranked[1], ranked[0]]
+      : podiumOrder;
+
+  podiumEl.innerHTML = `
+    <div class="podium-stage">
+      ${visualOrder.map((a, i) => `
+        <div class="podium-person">
+          <div class="podium-medal">${visualMeta[i].medal}</div>
+          <div class="podium-avatar-ph">${initials(a.name)}</div>
+          <div class="podium-name">${a.name.split(" ")[0]}</div>
+          <div class="podium-gmvhr">${fmtGMV(a.gmvPorHora)}</div>
+          <div class="podium-gmvhr-lbl">por hora</div>
+          <div class="podium-block ${visualMeta[i].blockCls}">
+            <span class="podium-pos">${visualMeta[i].pos}</span>
+          </div>
+        </div>`).join("")}
+    </div>
+    <div class="podium-floor"></div>`;
+
+  // Lista completa desde el 4to lugar
+  const rest = ranked.slice(3);
+  listEl.innerHTML = rest.length === 0 ? "" : `
+    <div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:20px 0 8px;font-weight:600;">Clasificación completa</div>
+    ${rest.map((a, i) => `
+      <div class="rank-list-row">
+        <div class="rank-list-pos">${i + 4}</div>
+        <div class="podium-avatar-ph" style="width:32px;height:32px;font-size:11px;margin-bottom:0;">${initials(a.name)}</div>
+        <div class="rank-list-name">${a.name}</div>
+        <div style="text-align:right;">
+          <div class="rank-list-gmvhr">${fmtGMV(a.gmvPorHora)}</div>
+          <div class="rank-list-sub">/hr · ${a.sessions} ses.</div>
+        </div>
+      </div>`).join("")}`;
 }
 
 function pubChangeWeek(d){
