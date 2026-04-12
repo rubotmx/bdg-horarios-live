@@ -2637,7 +2637,8 @@ function _invParseVariants(variants, images){
   variants.forEach(v => {
     const parts = v.product_variant_title.split(" / ");
     const color = parts.length >= 2 ? parts[0] : "Default";
-    const size  = parts.length >= 2 ? parts[1] : (parts[0] || "Única");
+    const rawSize = parts.length >= 2 ? parts[1] : (parts[0] || "Única");
+    const size = (rawSize === "Default Title" || rawSize === "Default") ? "Única" : rawSize;
     if(!result[color]) result[color] = {};
     result[color][size] = (result[color][size] || 0) + (v.product_variant_inventory_quantity ?? 0);
     // Primera imagen de cada color
