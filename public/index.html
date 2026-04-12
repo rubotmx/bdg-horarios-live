@@ -347,20 +347,37 @@ td{padding:10px 14px;vertical-align:middle;}
   .app-body{padding:16px;}
   .limit-bar{flex-direction:column;align-items:flex-start;gap:12px;}
   .hist-row{grid-template-columns:1fr 1fr;}
+  /* Inventario mobile */
+  .inv-tbl{font-size:11px;}
+  .inv-tbl th{padding:6px 7px;font-size:8px;letter-spacing:.1em;}
+  .inv-tbl th.c-num{min-width:36px;}
+  .inv-tbl td{padding:5px 7px;}
+  .inv-thumb{width:32px;height:32px;}
+  .inv-thumb-ph{width:32px;height:32px;}
+  .inv-name{font-size:11px;}
+  .inv-prod-cell{gap:7px;}
+  .inv-tbl th:first-child{min-width:130px!important;}
+  .inv-toolbar{gap:8px;}
+  .inv-cat-btns{gap:4px;}
+  .pill-inv{min-width:24px;padding:2px 4px;font-size:10px;}
 }
 
 /* ── INVENTARIO TAB ── */
 .inv-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
 .inv-ts{font-size:11px;color:var(--muted);margin-left:auto;}
-.inv-tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:2px;}
+.inv-tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:2px;position:relative;}
 .inv-tbl{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap;}
-.inv-tbl th{background:var(--surface2);padding:8px 10px;text-align:left;font-size:9px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:var(--muted);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:1;}
+.inv-tbl th{background:var(--surface2);padding:8px 10px;text-align:left;font-size:9px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:var(--muted);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:2;}
 .inv-tbl th.c-num{text-align:center;min-width:44px;}
 .inv-tbl td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:middle;}
 .inv-tbl td.c-num{text-align:center;}
 .inv-tbl tr:last-child td{border-bottom:none;}
 .inv-tbl tr.color-row td{background:var(--surface2);padding-top:5px;padding-bottom:5px;}
 .inv-tbl tr:hover td{background:rgba(208,174,43,.04);}
+/* Sticky primera columna */
+.inv-tbl th:first-child,.inv-tbl td:first-child{position:sticky;left:0;z-index:3;background:var(--surface);box-shadow:2px 0 4px rgba(0,0,0,.04);}
+.inv-tbl th:first-child{background:var(--surface2);z-index:4;}
+.inv-tbl tr.color-row td:first-child{background:var(--surface2);}
 .inv-prod-cell{display:flex;align-items:center;gap:10px;}
 .inv-thumb{width:40px;height:40px;object-fit:cover;border-radius:1px;flex-shrink:0;background:var(--surface2);}
 .inv-thumb-ph{width:40px;height:40px;background:var(--surface3);border-radius:1px;flex-shrink:0;}
