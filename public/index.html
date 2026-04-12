@@ -2788,6 +2788,10 @@ load();
 renderPublicCal();
 // Pre-carga inventario en background para que esté listo al abrir la pestaña
 setTimeout(() => invSync(), 2000);
+// GMV en background al cargar — actualiza sesiones pasadas sin tener que abrir Historial
+setTimeout(() => loadLiveGMV(), 4000);
+// Re-calcula cada hora para que la sesión actual aparezca actualizada
+setInterval(() => loadLiveGMV(), 60 * 60 * 1000);
 </script>
 </body>
 </html>
