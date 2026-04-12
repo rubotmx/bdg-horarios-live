@@ -436,6 +436,35 @@ td{padding:10px 14px;vertical-align:middle;}
 .inv-sync-btn:disabled{opacity:.45;cursor:not-allowed;}
 .spin{animation:inv-spin 1s linear infinite;display:inline-block;}
 @keyframes inv-spin{to{transform:rotate(360deg)}}
+
+/* ── MOTIVO CANCELACIÓN ── */
+.cancel-reason-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--line);cursor:pointer;font-size:13px;transition:background .1s;margin-bottom:6px;}
+.cancel-reason-opt:hover{background:var(--surface2);}
+.cancel-reason-opt input{accent-color:var(--db);width:16px;height:16px;flex-shrink:0;}
+.cancel-reason-opt span{font-weight:500;}
+.attend-badge{display:inline-block;padding:2px 8px;border-radius:2px;font-size:10px;font-weight:700;letter-spacing:.06em;}
+.attend-ok{background:var(--pos-l);color:var(--pos);}
+.attend-warn{background:var(--warn-l);color:var(--warn);}
+.attend-bad{background:var(--neg-l);color:var(--neg);}
+.cancel-breakdown{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.cancel-pill{font-size:9px;padding:2px 7px;border-radius:2px;background:var(--surface3);color:var(--text2);}
+
+/* ── MINI BAR CHART RANKING ── */
+.mini-chart{display:flex;align-items:flex-end;gap:4px;height:32px;margin:10px auto 0;justify-content:center;}
+.mini-bar-col{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.mini-bar{width:12px;border-radius:2px 2px 0 0;background:var(--oxide);transition:height .3s;}
+.mini-bar.zero{background:var(--line2);}
+.mini-bar-lbl{font-size:7px;color:var(--muted);letter-spacing:.04em;}
+
+/* ── RECORDATORIOS ADMIN ── */
+.remind-card{background:var(--surface);border:1px solid var(--line);padding:16px 20px;margin-bottom:10px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.remind-time{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;color:var(--text);}
+.remind-date{font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;}
+.remind-people{display:flex;flex-direction:column;gap:6px;margin-top:10px;}
+.remind-person{display:flex;align-items:center;gap:8px;font-size:12px;}
+.wa-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:#25D366;color:#fff;border:none;border-radius:2px;font-size:10px;font-family:var(--fn);font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;text-decoration:none;white-space:nowrap;}
+.wa-btn:hover{background:#1db954;}
+.wa-btn.no-phone{background:var(--surface3);color:var(--muted);cursor:default;}
 </style>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -549,6 +578,24 @@ td{padding:10px 14px;vertical-align:middle;}
     <button onclick="document.getElementById('disclaimerModal').style.display='none'" style="width:100%;padding:13px;background:var(--db);color:#fff;border:none;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;">
       Entendido · Continuar
     </button>
+  </div>
+</div>
+
+<!-- ── CANCEL REASON MODAL ── -->
+<div class="modal-overlay" id="cancelReasonModal" style="display:none;">
+  <div class="modal" style="max-width:360px;">
+    <h2>¿Por qué cancelas?</h2>
+    <p class="modal-sub">Esto ayuda a identificar patrones de ausentismo.</p>
+    <div style="margin:18px 0;">
+      <label class="cancel-reason-opt"><input type="radio" name="cancelReason" value="enfermedad"/><span>🤒 Enfermedad</span></label>
+      <label class="cancel-reason-opt"><input type="radio" name="cancelReason" value="personal"/><span>🏠 Motivo personal</span></label>
+      <label class="cancel-reason-opt"><input type="radio" name="cancelReason" value="sinAviso"/><span>⚠️ Sin aviso previo</span></label>
+      <label class="cancel-reason-opt"><input type="radio" name="cancelReason" value="otro"/><span>📝 Otro</span></label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="document.getElementById('cancelReasonModal').style.display='none'">Atrás</button>
+      <button class="btn danger" onclick="confirmCancelPick()">Confirmar cancelación</button>
+    </div>
   </div>
 </div>
 
@@ -1061,6 +1108,7 @@ function renderAdmin(tab="equipo"){
       <div class="tab ${tab==="bitacora"?"active":""}" onclick="renderAdmin('bitacora')">Bitácora${STATE.changelog&&STATE.changelog.length>0?` <span style="font-size:9px;background:var(--oxide-l);color:var(--oxide);padding:1px 5px;vertical-align:middle;">${STATE.changelog.length}</span>`:""}
       </div>
       <div class="tab ${tab==="inventario"?"active":""}" onclick="renderAdmin('inventario')">Inventario</div>
+      <div class="tab ${tab==="recordatorios"?"active":""}" onclick="renderAdmin('recordatorios')">Recordatorios</div>
       ${SESSION.code==="RUB"?`<div class="tab ${tab==="cuentas"?"active":""}" onclick="renderAdmin('cuentas')" style="color:var(--muted);border-left:1px solid var(--line2);margin-left:auto;">⚙ Admins</div>`:""}
     </div>
     <div id="tabContent"></div>`;
@@ -1070,7 +1118,8 @@ function renderAdmin(tab="equipo"){
   if(tab==="historial") renderAdminHistorial();
   if(tab==="bitacora")  renderAdminBitacora();
   if(tab==="cuentas"&&SESSION.code==="RUB") renderAdminCuentas();
-  if(tab==="inventario") renderAdminInventario();
+  if(tab==="inventario")    renderAdminInventario();
+  if(tab==="recordatorios") renderAdminRecordatorios();
 }
 
 // TAB: EQUIPO
@@ -1084,6 +1133,8 @@ function renderAdminEquipo(){
         <div class="field"><label>Nombre completo</label>
           <input id="newName" type="text" placeholder="ej. Ana García" maxlength="40"
             oninput="previewCode()" onkeydown="if(event.key==='Enter')addMember()"/></div>
+        <div class="field"><label>WhatsApp (10 dígitos)</label>
+          <input id="newPhone" type="tel" placeholder="ej. 5512345678" maxlength="10" style="font-family:'Cormorant Garamond',serif;font-size:15px;"/></div>
         <div class="field"><label>Rol</label>
           <select id="newRole" onchange="previewCode()">
             <option value="anfitriona">Anfitriona (máx ${MAX_ANFI} ses/día)</option>
@@ -1134,9 +1185,10 @@ function addMember(){
   const role = document.getElementById("newRole").value;
   const err  = document.getElementById("memberErr");
   if(name.length < 2){ err.style.display="block"; err.textContent="Escribe un nombre válido."; return; }
-  const code = previewedCode || generateCode(name);
+  const code  = previewedCode || generateCode(name);
+  const phone = (document.getElementById("newPhone").value||"").replace(/\D/g,"").slice(-10);
   previewedCode = null;
-  STATE.members.push({ code, name, role });
+  STATE.members.push({ code, name, role, phone });
   logChange("Agregar miembro", `${name} (${code}) · ${role}`);
   renderAdminEquipo();
 }
@@ -1683,8 +1735,25 @@ function selectSlot(slotId){
   save(); renderMember(); renderPublicCal();
 }
 
+let _pendingCancelSlotId = null;
+
 function cancelPick(slotId){
-  STATE.picks = STATE.picks.filter(p=>!(p.slotId===slotId&&p.memberCode===SESSION.code));
+  _pendingCancelSlotId = slotId;
+  document.querySelectorAll('input[name="cancelReason"]').forEach(r => r.checked = false);
+  document.getElementById('cancelReasonModal').style.display = 'flex';
+}
+
+function confirmCancelPick(){
+  const reasonEl = document.querySelector('input[name="cancelReason"]:checked');
+  if(!reasonEl){ return; }
+  const p = STATE.picks.find(pk => pk.slotId === _pendingCancelSlotId && pk.memberCode === SESSION.code && pk.status !== 'cancelled');
+  if(p){
+    p.status       = 'cancelled';
+    p.cancelReason = reasonEl.value;
+    p.cancelledAt  = new Date().toISOString().slice(0,10);
+  }
+  document.getElementById('cancelReasonModal').style.display = 'none';
+  _pendingCancelSlotId = null;
   save(); renderMember(); renderPublicCal();
 }
 
@@ -1896,6 +1965,35 @@ function renderPublicRanking(){
   // Iniciales para avatar placeholder
   function initials(name){ return name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase(); }
 
+  // Mini bar chart: últimas 6 semanas de GMV/hr para una anfitriona
+  function miniChart(code){
+    const weeks = [];
+    for(let i = 5; i >= 0; i--){
+      const d = new Date(now.getTime() - i * 7 * 24 * 60 * 60 * 1000);
+      weeks.push(slotWeekMon(d.toISOString().slice(0,10)));
+    }
+    const data = weeks.map(mon => {
+      const wSlots = STATE.slots.filter(s => slotWeekMon(s.date) === mon && s.gmv > 0 &&
+        (s.date < today || (s.date === today && s.timeEnd <= hhmm)));
+      const mine = wSlots.filter(s => {
+        const p = STATE.picks.find(pk => pk.slotId===s.id && pk.memberCode===code && pk.status!=="cancelled");
+        return !!p;
+      });
+      const gmvHr = mine.length ? mine.reduce((t,s)=>t+s.gmv,0) / (mine.length * SESSION_H) : 0;
+      return { mon, gmvHr };
+    });
+    const maxVal = Math.max(...data.map(d=>d.gmvHr), 1);
+    const bars = data.map(d => {
+      const h = Math.round((d.gmvHr / maxVal) * 28);
+      const lbl = d.mon.slice(5).replace("-","/");
+      return `<div class="mini-bar-col">
+        <div class="mini-bar ${d.gmvHr===0?"zero":""}" style="height:${Math.max(h,2)}px;"></div>
+        <div class="mini-bar-lbl">${lbl}</div>
+      </div>`;
+    }).join("");
+    return `<div class="mini-chart">${bars}</div>`;
+  }
+
   // Podio: orden visual = 2do · 1ro · 3ro
   const podiumOrder = [ranked[1], ranked[0], ranked[2]].filter(Boolean);
   const podiumMeta  = [
@@ -1924,6 +2022,7 @@ function renderPublicRanking(){
           <div class="podium-name">${a.name.split(" ")[0]}</div>
           <div class="podium-gmvhr">${fmtGMV(a.gmvPorHora)}</div>
           <div class="podium-gmvhr-lbl">por hora</div>
+          ${miniChart(a.code)}
           <div class="podium-block ${visualMeta[i].blockCls}">
             <span class="podium-pos">${visualMeta[i].pos}</span>
           </div>
@@ -2453,17 +2552,24 @@ function renderHistPersonas(role, past){
 
   const medals = ["🥇","🥈","🥉"];
 
+  const REASON_LABEL = { enfermedad:"🤒 Enfermedad", personal:"🏠 Personal", sinAviso:"⚠️ Sin aviso", otro:"📝 Otro" };
+
   const stats = members.map(m=>{
     const mySessions = past.filter(s=>{
       const p = STATE.picks.find(pk=>pk.slotId===s.id&&pk.memberCode===m.code&&pk.status!=="cancelled");
       return !!p;
     });
+    const cancels   = STATE.picks.filter(pk=>pk.memberCode===m.code&&pk.status==="cancelled");
+    const totalAss  = mySessions.length + cancels.length;
+    const attendPct = totalAss > 0 ? Math.round(mySessions.length/totalAss*100) : 100;
+    const reasonCounts = {};
+    cancels.forEach(c=>{ const r=c.cancelReason||"otro"; reasonCounts[r]=(reasonCounts[r]||0)+1; });
     const withGmv   = mySessions.filter(s=>s.gmv>0);
     const totalGmv  = withGmv.reduce((s,sl)=>s+(sl.gmv||0),0);
     const gmvPorHr  = withGmv.length ? totalGmv / (withGmv.length * SESSION_H) : 0;
     const avgGmv    = withGmv.length ? totalGmv / withGmv.length : 0;
     const best      = withGmv.sort((a,b)=>b.gmv-a.gmv)[0];
-    return { m, mySessions, withGmv, totalGmv, gmvPorHr, avgGmv, best };
+    return { m, mySessions, cancels, attendPct, reasonCounts, withGmv, totalGmv, gmvPorHr, avgGmv, best };
   }).sort((a,b)=>b.totalGmv-a.totalGmv);
 
   const maxGmv = stats[0]?.totalGmv || 0;
@@ -2471,6 +2577,9 @@ function renderHistPersonas(role, past){
   const cards = stats.map((s,i)=>{
     const pct = maxGmv>0 ? (s.totalGmv/maxGmv*100).toFixed(0) : 0;
     const bestSlot = s.best ? STATE.slots.find(sl=>sl.id===s.best.id) : null;
+    const attendCls = s.attendPct>=90?"attend-ok":s.attendPct>=70?"attend-warn":"attend-bad";
+    const cancelPills = Object.entries(s.reasonCounts).map(([r,n])=>
+      `<span class="cancel-pill">${REASON_LABEL[r]||r} ×${n}</span>`).join("");
     return `<div class="person-card">
       <div class="person-head">
         <span class="person-rank">${medals[i]||i+1}</span>
@@ -2489,10 +2598,11 @@ function renderHistPersonas(role, past){
       </div>
       <div class="person-stats">
         <div class="person-stat"><div class="person-stat-label">Sesiones totales</div><div class="person-stat-val">${s.mySessions.length}</div></div>
-        <div class="person-stat"><div class="person-stat-label">Con GMV</div><div class="person-stat-val">${s.withGmv.length}</div></div>
+        <div class="person-stat"><div class="person-stat-label">Asistencia</div><div class="person-stat-val"><span class="attend-badge ${attendCls}">${s.attendPct}%</span></div></div>
         <div class="person-stat"><div class="person-stat-label">Promedio / sesión</div><div class="person-stat-val">${s.avgGmv>0?fmtGMV(s.avgGmv):"—"}</div></div>
         <div class="person-stat"><div class="person-stat-label">Mejor sesión</div><div class="person-stat-val accent">${s.best?fmtGMV(s.best.gmv):"—"}${bestSlot?`<span style="font-size:11px;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:400;"> · ${fmtDate(bestSlot.date)}</span>`:""}</div></div>
       </div>
+      ${s.cancels.length>0?`<div class="cancel-breakdown">${cancelPills}</div>`:""}
     </div>`;
   }).join("");
 
@@ -3027,6 +3137,62 @@ function invRender(){
     const tsEl = document.getElementById("pubInvTs");
     if(tsEl && _invTs) tsEl.textContent = `Actualizado: ${_invTs}`;
   }
+}
+
+function renderAdminRecordatorios(){
+  const now   = new Date();
+  const today = now.toISOString().slice(0,10);
+  const hhmm  = now.toTimeString().slice(0,5);
+
+  // Sesiones próximas: hoy (no iniciadas) + mañana + pasado
+  const upcoming = STATE.slots
+    .filter(s => s.date > today || (s.date === today && s.timeStart > hhmm))
+    .sort((a,b)=> a.date.localeCompare(b.date) || a.timeStart.localeCompare(b.timeStart))
+    .slice(0, 20);
+
+  function waLink(phone, msg){
+    if(!phone) return `<span class="wa-btn no-phone">Sin teléfono</span>`;
+    const num = "52" + phone;
+    return `<a class="wa-btn" href="https://wa.me/${num}?text=${encodeURIComponent(msg)}" target="_blank">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Enviar
+    </a>`;
+  }
+
+  const cards = upcoming.map(slot => {
+    const anfiPick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)==="anfitriona");
+    const backPick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)==="backend");
+    const dateLabel = slot.date === today ? "Hoy" : slot.date === new Date(now.getTime()+86400000).toISOString().slice(0,10) ? "Mañana" : fmtDate(slot.date);
+
+    function personRow(pick, icon, roleLabel){
+      if(!pick) return `<div class="remind-person"><span>${icon}</span><span style="color:var(--muted);font-size:12px;">Sin ${roleLabel} asignada</span></div>`;
+      const m    = STATE.members.find(mb=>mb.code===pick.memberCode);
+      const name = m ? m.name : pick.memberCode;
+      const phone= m ? m.phone : null;
+      const msg  = `¡Hola ${name.split(" ")[0]}! ${icon} Recuerda tu sesión LIVE ${dateLabel} de ${slot.timeStart} a ${slot.timeEnd}. ¡Mucho éxito! 🙌`;
+      return `<div class="remind-person">${avatarHtml(pick.memberCode,"sm")}<span style="flex:1;">${name} <span style="color:var(--muted);font-size:10px;">${roleLabel}</span></span>${waLink(phone, msg)}</div>`;
+    }
+
+    return `<div class="remind-card">
+      <div>
+        <div class="remind-date">${slot.day} · ${dateLabel}</div>
+        <div class="remind-time">${slot.timeStart} – ${slot.timeEnd}</div>
+        <div class="remind-people">
+          ${personRow(anfiPick,"🎙️","anfitriona")}
+          ${personRow(backPick,"💻","backend")}
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+
+  document.getElementById("tabContent").innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+      <div class="section-title" style="margin:0;">Próximas ${upcoming.length} sesiones</div>
+      <div style="font-size:11px;color:var(--muted);">Presiona "Enviar" para abrir WhatsApp con el mensaje prellenado</div>
+    </div>
+    ${upcoming.length === 0
+      ? `<div class="empty-state"><div class="empty-icon">📅</div>No hay sesiones próximas registradas.</div>`
+      : cards}`;
 }
 
 function renderAdminInventario(){
