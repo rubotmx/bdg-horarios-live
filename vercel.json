@@ -9,6 +9,7 @@
     { "source": "/tiktok(.*)", "destination": "/public/tiktok/index.html" },
     { "source": "/pulse(.*)", "destination": "/public/pulse/index.html" },
     { "source": "/inventario(.*)", "destination": "/public/inventario/index.html" },
+    { "source": "/catalogo(.*)", "destination": "/public/catalogo/index.html" },
     { "source": "/meta(.*)", "destination": "/public/meta/index.html" },
     { "source": "/(.*)", "destination": "/public/index.html" }
   ]

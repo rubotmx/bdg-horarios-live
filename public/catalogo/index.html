@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="icon" href="/favicon.ico"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>BDG · Palacio de Hierro</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;500;600;700&family=Archivo:wght@400;500;600;700;800;900&family=Jost:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --terra:#c16452;--dark:#171717;--dark2:#1e1e1e;
+  --beige:#f0ece6;--cream:#fff;--line:#e8e2da;--muted:#9a9590;
+  --green:#3a9e6f;--red:#d94f3a;
+  --fn:'Archivo Narrow',sans-serif;--fh:'Archivo',sans-serif;--fl:'Jost',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--fn);background:var(--beige);color:var(--dark);min-height:100vh;}
+
+/* TOPBAR */
+.topbar{background:var(--dark);padding:0 28px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.topbar-logo{font-family:var(--fl);font-size:17px;font-weight:700;color:#fff;letter-spacing:.12em;}
+.topbar-logo span{color:var(--terra);}
+.topbar-right{display:flex;align-items:center;gap:20px;}
+.back{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);font-family:var(--fh);text-decoration:none;transition:color .12s;}
+.back:hover{color:#fff;}
+.topbar-meta{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.2);font-family:var(--fh);}
+
+/* PAGE */
+.page{max-width:1400px;margin:0 auto;padding:24px 24px 56px;}
+
+/* FILTER BAR */
+.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
+.filter-btn{padding:6px 16px;border-radius:20px;border:1px solid var(--line);background:var(--cream);font-family:var(--fn);font-size:12px;font-weight:600;cursor:pointer;transition:all .12s;color:var(--dark);}
+.filter-btn.active,.filter-btn:hover{background:var(--dark);color:#fff;border-color:var(--dark);}
+.filter-count{margin-left:auto;font-size:11px;color:var(--muted);font-family:var(--fn);}
+.search-input{padding:7px 14px;border-radius:20px;border:1px solid var(--line);background:var(--cream);font-family:var(--fn);font-size:12px;color:var(--dark);outline:none;width:200px;transition:border-color .12s;}
+.search-input:focus{border-color:var(--terra);}
+
+/* GRID */
+.catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
+
+/* PRODUCT CARD */
+.product-card{background:var(--cream);border-radius:10px;overflow:hidden;border:1px solid var(--line);transition:box-shadow .18s,transform .18s;cursor:default;}
+.product-card:hover{box-shadow:0 8px 32px rgba(0,0,0,.1);transform:translateY(-2px);}
+.product-card.discontinued{opacity:.5;}
+
+.product-img{width:100%;aspect-ratio:1;background:#f5f0ea;position:relative;overflow:hidden;}
+.product-img img{width:100%;height:100%;object-fit:cover;transition:transform .3s;}
+.product-card:hover .product-img img{transform:scale(1.04);}
+.product-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
+.product-img-placeholder svg{opacity:.12;}
+
+.status-badge{position:absolute;top:10px;right:10px;font-size:8px;letter-spacing:.16em;text-transform:uppercase;font-family:var(--fh);font-weight:700;padding:3px 8px;border-radius:2px;}
+.badge-active{background:var(--dark);color:#fff;}
+.badge-discontinued{background:rgba(0,0,0,.4);color:rgba(255,255,255,.6);}
+
+.product-info{padding:14px 16px 16px;}
+.product-modelo{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-family:var(--fh);margin-bottom:5px;}
+.product-name{font-family:var(--fh);font-size:14px;font-weight:800;color:var(--dark);line-height:1.25;margin-bottom:8px;}
+.product-price{font-family:var(--fh);font-size:16px;font-weight:700;color:var(--terra);margin-bottom:8px;}
+.product-sizes{display:flex;flex-wrap:wrap;gap:4px;}
+.size-tag{font-size:10px;font-family:var(--fh);font-weight:600;padding:3px 7px;border-radius:3px;background:#f0ece6;color:var(--dark);}
+.size-tag.active{background:var(--dark);color:#fff;}
+.size-tag.discontinued{background:#ede8e2;color:#bbb;text-decoration:line-through;}
+
+/* SKELETON */
+.sk{background:linear-gradient(90deg,#ede8e2 25%,#e4dfd8 50%,#ede8e2 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:3px;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skeleton-card{background:var(--cream);border-radius:10px;overflow:hidden;border:1px solid var(--line);}
+.skeleton-card .sk-img{aspect-ratio:1;background:#ede8e2;}
+.skeleton-card .sk-body{padding:14px 16px;}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:80px 20px;color:var(--muted);font-family:var(--fn);}
+.empty-title{font-family:var(--fh);font-size:16px;font-weight:700;margin-bottom:8px;color:var(--dark);}
+
+/* DATE TAG */
+.catalog-date{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-family:var(--fh);margin-left:auto;}
+
+@media(max-width:600px){
+  .topbar{padding:0 16px;}
+  .page{padding:16px 14px 40px;}
+  .catalog-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
+  .search-input{width:140px;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">BDG<span>·</span>PALACIO DE HIERRO</div>
+  <div class="topbar-right">
+    <span class="topbar-meta" id="catalogDate"></span>
+    <a class="back" href="/">← HQ</a>
+  </div>
+</div>
+
+<div class="page">
+
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="setFilter('all',this)">Todos</button>
+    <button class="filter-btn" onclick="setFilter('activo',this)">Activos</button>
+    <button class="filter-btn" onclick="setFilter('descontinuado',this)">Descontinuados</button>
+    <input class="search-input" id="searchInput" type="text" placeholder="Buscar modelo..." oninput="renderGrid()"/>
+    <span class="filter-count" id="filterCount"></span>
+  </div>
+
+  <div class="catalog-grid" id="catalogGrid">
+    <!-- Skeletons (replaced by JS) -->
+  </div>
+
+</div>
+
+<script>
+const FB = 'https://bdg-horarios-default-rtdb.firebaseio.com/bdg_horarios_v2';
+
+let _catalog   = {};  // { modelo: { nombre_base, precio_ph, variantes:{} } }
+let _shopifyImgs = {}; // { sku_prefix → image_url }
+let _filter    = 'all';
+
+// ── LOAD ──────────────────────────────────────────────────────────────────────
+async function init(){
+  // Show skeletons
+  const sk = '<div class="skeleton-card"><div class="sk sk-img"></div><div class="sk-body"><div class="sk" style="height:10px;width:50%;margin-bottom:8px;"></div><div class="sk" style="height:14px;width:80%;margin-bottom:8px;"></div><div class="sk" style="height:16px;width:40%;"></div></div></div>';
+  document.getElementById('catalogGrid').innerHTML = sk.repeat(12);
+
+  const [catRes, shopRes] = await Promise.all([
+    fetch(`${FB}/ph_catalog.json`),
+    fetch('/api/shopify?mode=products'),
+  ]);
+
+  const catData  = await catRes.json();
+  const shopData = await shopRes.json();
+
+  if(catData && catData.catalog){
+    _catalog = catData.catalog;
+    const d = catData.date || '';
+    if(d) document.getElementById('catalogDate').textContent = 'Al ' + d;
+  }
+
+  // Build Shopify image map: strip size suffix → first product image
+  for(const p of (shopData.products || [])){
+    const img = p.images?.[0]?.src;
+    if(!img) continue;
+    for(const v of (p.variants || [])){
+      const sku = v.sku || '';
+      // Strip trailing size + optional MX: e.g. BDGPENBR26MX → BDGPENBR
+      const prefixes = [
+        sku,                                  // exact match
+        sku.replace(/\d{2}MX$/,''),           // strip 2-digit+MX
+        sku.replace(/\d{2}$/,''),             // strip 2-digit
+      ];
+      for(const pr of prefixes){
+        if(pr && !_shopifyImgs[pr]) _shopifyImgs[pr] = img;
+      }
+    }
+  }
+
+  renderGrid();
+}
+
+// ── FILTER ────────────────────────────────────────────────────────────────────
+function setFilter(f, btn){
+  _filter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGrid();
+}
+
+function getStatus(variantes){
+  const vals = Object.values(variantes);
+  if(vals.some(v => v.estatus === 'Activo')) return 'activo';
+  return 'descontinuado';
+}
+
+function activeSizes(variantes){
+  return Object.values(variantes)
+    .filter(v => v.estatus === 'Activo')
+    .map(v => {
+      // Extract size from nombre: last 2 digits
+      const m = v.nombre.match(/(\d{2})\s*$/);
+      return m ? m[1] : null;
+    })
+    .filter(Boolean)
+    .sort((a,b) => parseInt(a)-parseInt(b));
+}
+
+function getImage(modelo){
+  // Try the modelo key itself and stripped variants
+  const attempts = [
+    modelo,
+    modelo.replace(/\d{2}(MX)?$/,''),
+    modelo.replace(/\d{2}MX$/,''),
+  ];
+  for(const a of attempts){
+    if(_shopifyImgs[a]) return _shopifyImgs[a];
+  }
+  // Try substring: find any shopify key that starts with modelo or vice versa
+  for(const [key, url] of Object.entries(_shopifyImgs)){
+    if(key.startsWith(modelo) || modelo.startsWith(key)) return url;
+  }
+  return null;
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function renderGrid(){
+  const query = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  const grid  = document.getElementById('catalogGrid');
+  const entries = Object.entries(_catalog);
+
+  const filtered = entries.filter(([modelo, data]) => {
+    const status = getStatus(data.variantes);
+    if(_filter === 'activo' && status !== 'activo') return false;
+    if(_filter === 'descontinuado' && status !== 'descontinuado') return false;
+    if(query && !modelo.toLowerCase().includes(query) && !data.nombre_base.toLowerCase().includes(query)) return false;
+    return true;
+  });
+
+  document.getElementById('filterCount').textContent = `${filtered.length} modelos`;
+
+  if(!filtered.length){
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1;"><div class="empty-title">Sin resultados</div>Intenta otro término de búsqueda.</div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(([modelo, data]) => {
+    const status  = getStatus(data.variantes);
+    const sizes   = activeSizes(data.variantes);
+    const imgSrc  = getImage(modelo);
+    const totalV  = Object.keys(data.variantes).length;
+
+    const imgHtml = imgSrc
+      ? `<img src="${imgSrc}" alt="${data.nombre_base}" loading="lazy"/>`
+      : `<div class="product-img-placeholder">
+           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+             <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+             <polyline points="21,15 16,10 5,21"/>
+           </svg>
+         </div>`;
+
+    const badgeClass = status === 'activo' ? 'badge-active' : 'badge-discontinued';
+    const badgeLabel = status === 'activo' ? 'Activo' : 'Descontinuado';
+
+    const sizeTags = sizes.length
+      ? sizes.map(s => `<span class="size-tag active">${s}</span>`).join('')
+      : `<span class="size-tag discontinued">Sin tallas activas</span>`;
+
+    return `<div class="product-card ${status === 'descontinuado' ? 'discontinued' : ''}">
+      <div class="product-img">
+        ${imgHtml}
+        <span class="status-badge ${badgeClass}">${badgeLabel}</span>
+      </div>
+      <div class="product-info">
+        <div class="product-modelo">${modelo}</div>
+        <div class="product-name">${capitalize(data.nombre_base)}</div>
+        <div class="product-price">$${data.precio_ph.toLocaleString('es-MX')}</div>
+        <div class="product-sizes">${sizeTags}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function capitalize(s){
+  return s.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+}
+
+init();
+</script>
+</body>
+</html>
