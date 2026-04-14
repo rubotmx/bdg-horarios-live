@@ -10,6 +10,7 @@
     { "source": "/pulse(.*)", "destination": "/public/pulse/index.html" },
     { "source": "/inventario(.*)", "destination": "/public/inventario/index.html" },
     { "source": "/catalogo(.*)", "destination": "/public/catalogo/index.html" },
+    { "source": "/diseno(.*)", "destination": "/public/diseno/index.html" },
     { "source": "/meta(.*)", "destination": "/public/meta/index.html" },
     { "source": "/(.*)", "destination": "/public/index.html" }
   ]

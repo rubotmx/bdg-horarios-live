@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="icon" href="/favicon.ico"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>BDG · Diseño</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;500;600;700&family=Archivo:wght@400;500;600;700;800;900&family=Jost:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --terra:#c16452;--dark:#171717;
+  --beige:#f0ece6;--cream:#fff;--line:#e8e2da;--muted:#9a9590;
+  --fn:'Archivo Narrow',sans-serif;--fh:'Archivo',sans-serif;--fl:'Jost',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--fn);background:var(--beige);color:var(--dark);min-height:100vh;}
+
+/* TOPBAR */
+.topbar{background:var(--dark);padding:0 28px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.topbar-logo{font-family:var(--fl);font-size:17px;font-weight:700;color:#fff;letter-spacing:.12em;}
+.topbar-logo span{color:var(--terra);}
+.topbar-right{display:flex;align-items:center;gap:14px;}
+.back{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);font-family:var(--fh);text-decoration:none;transition:color .12s;}
+.back:hover{color:#fff;}
+
+/* PAGE */
+.page{max-width:1280px;margin:0 auto;padding:32px 24px 100px;}
+
+/* ── SECTION BLOCK ───────────────────────────────────────────── */
+.section-block{margin-bottom:52px;}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap;}
+.section-name{font-family:var(--fh);font-size:22px;font-weight:900;color:var(--dark);letter-spacing:-.02em;}
+.section-meta{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-family:var(--fh);align-self:center;}
+.section-add{padding:5px 14px;background:var(--dark);color:#fff;border:none;border-radius:4px;font-family:var(--fh);font-size:10px;font-weight:700;letter-spacing:.08em;cursor:pointer;transition:opacity .12s;white-space:nowrap;}
+.section-add:hover{opacity:.75;}
+
+/* ── MOODBOARD MASONRY ───────────────────────────────────────── */
+.mood-grid{columns:5 160px;gap:10px;}
+.mood-item{break-inside:avoid;margin-bottom:10px;border-radius:7px;overflow:hidden;border:1px solid var(--line);background:var(--cream);cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative;group:true;}
+.mood-item:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(0,0,0,.1);}
+.mood-item img{width:100%;display:block;}
+.mood-item-bar{padding:7px 9px 9px;display:flex;align-items:center;justify-content:space-between;gap:4px;}
+.mood-item-title{font-family:var(--fh);font-size:10px;font-weight:700;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;}
+.mood-item-del{color:var(--muted);font-size:9px;cursor:pointer;flex-shrink:0;opacity:0;transition:opacity .1s;padding:2px 3px;}
+.mood-item:hover .mood-item-del{opacity:1;}
+.mood-item-del:hover{color:var(--terra);}
+.mood-board-tag{position:absolute;top:7px;left:7px;background:rgba(0,0,0,.5);color:#fff;font-size:7.5px;font-family:var(--fh);font-weight:700;letter-spacing:.1em;padding:2px 6px;border-radius:2px;text-transform:uppercase;}
+.mood-ph{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:#f5f0ea;}
+.mood-ph svg{opacity:.12;}
+
+/* ── MODELO / DESARROLLO CARDS ───────────────────────────────── */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;}
+.item-card{background:var(--cream);border-radius:9px;border:1px solid var(--line);overflow:hidden;transition:transform .15s,box-shadow .15s;}
+.item-card:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(0,0,0,.09);}
+.card-gal{aspect-ratio:4/3;background:#f5f0ea;position:relative;overflow:hidden;cursor:pointer;}
+.card-gal img{width:100%;height:100%;object-fit:cover;transition:transform .3s;}
+.item-card:hover .card-gal img{transform:scale(1.04);}
+.card-gal-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
+.card-gal-ph svg{opacity:.1;}
+.card-gal-cnt{position:absolute;bottom:7px;right:7px;background:rgba(0,0,0,.48);color:#fff;font-size:8px;font-family:var(--fh);font-weight:700;padding:2px 6px;border-radius:2px;}
+.card-body{padding:12px 14px;}
+.card-row{display:flex;align-items:center;gap:5px;margin-bottom:6px;}
+.sdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.slbl{font-size:8px;letter-spacing:.12em;text-transform:uppercase;font-family:var(--fh);font-weight:700;}
+.card-name{font-family:var(--fh);font-size:14px;font-weight:900;color:var(--dark);margin-bottom:3px;line-height:1.2;}
+.card-sub{font-size:10px;color:var(--muted);font-family:var(--fn);margin-bottom:6px;}
+.card-notes{font-size:10.5px;color:#7a7570;font-family:var(--fn);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid var(--line);}
+.card-date{font-size:9px;color:var(--muted);font-family:var(--fn);}
+.card-btns{display:flex;gap:10px;}
+.card-btn{font-size:9px;color:var(--muted);cursor:pointer;font-family:var(--fh);font-weight:700;transition:color .1s;}
+.card-btn:hover{color:var(--terra);}
+
+/* ETAPA */
+.etapa-bar{display:flex;gap:3px;margin:8px 0 3px;}
+.etapa-step{flex:1;height:3px;border-radius:2px;background:var(--line);}
+.etapa-step.done{background:var(--terra);}
+.etapa-name{font-size:8px;color:var(--muted);font-family:var(--fh);font-weight:700;letter-spacing:.06em;}
+
+/* STATUS */
+.s-concepto  {background:#c8c0b6;} .l-concepto  {color:#9a9590;}
+.s-muestra   {background:#e8c96e;} .l-muestra   {color:#b8950a;}
+.s-aprobado  {background:#6ecfa8;} .l-aprobado  {color:#1d8a62;}
+.s-produccion{background:#c16452;} .l-produccion{color:#c16452;}
+.s-cancelado {background:#e8e2da;} .l-cancelado {color:#bbb;}
+.s-activo    {background:#6ecfa8;} .l-activo    {color:#1d8a62;}
+.s-pausado   {background:#e8c96e;} .l-pausado   {color:#b8950a;}
+
+/* EMPTY */
+.empty-inline{padding:40px;text-align:center;background:var(--cream);border-radius:9px;border:2px dashed var(--line);}
+.empty-inline-icon{font-size:30px;margin-bottom:8px;opacity:.3;}
+.empty-inline-txt{font-size:12px;color:var(--muted);font-family:var(--fn);}
+
+/* SK */
+.sk{background:linear-gradient(90deg,#ede8e2 25%,#e4dfd8 50%,#ede8e2 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:4px;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ── MODAL ────────────────────────────────────────────────────── */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(5px);padding:16px;}
+.ov.show{display:flex;}
+.modal{background:var(--cream);border-radius:12px;width:100%;max-width:540px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.28);}
+.mhead{padding:18px 22px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
+.mtitle{font-family:var(--fh);font-size:14px;font-weight:800;color:var(--dark);}
+.mclose{color:var(--muted);font-size:22px;cursor:pointer;line-height:1;transition:color .1s;}
+.mclose:hover{color:var(--dark);}
+.mbody{padding:18px 22px 22px;display:flex;flex-direction:column;gap:13px;}
+.fg{display:flex;flex-direction:column;gap:4px;}
+.fl{font-size:9px;letter-spacing:.15em;text-transform:uppercase;font-family:var(--fh);font-weight:700;color:var(--muted);}
+.fi,.fs,.ft{padding:8px 11px;border:1px solid var(--line);border-radius:5px;font-family:var(--fn);font-size:13px;color:var(--dark);background:var(--cream);outline:none;transition:border-color .1s;width:100%;}
+.fi:focus,.fs:focus,.ft:focus{border-color:var(--terra);}
+.ft{min-height:72px;resize:vertical;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.drop-zone{border:2px dashed var(--line);border-radius:7px;padding:20px;text-align:center;cursor:pointer;transition:all .12s;background:#faf7f4;}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--terra);background:#fdf2ef;}
+.drop-lbl{font-size:11px;color:var(--muted);font-family:var(--fn);margin-top:5px;}
+.drop-lbl span{color:var(--terra);font-weight:700;}
+.prev-grid{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;}
+.prev-item{position:relative;width:68px;height:68px;border-radius:5px;overflow:hidden;border:1px solid var(--line);}
+.prev-item img{width:100%;height:100%;object-fit:cover;}
+.prev-del{position:absolute;inset:0;background:rgba(0,0,0,.48);display:none;align-items:center;justify-content:center;color:#fff;font-size:16px;cursor:pointer;}
+.prev-item:hover .prev-del{display:flex;}
+.mfooter{display:flex;gap:8px;justify-content:flex-end;padding-top:2px;}
+.bcancel{padding:8px 16px;border:1px solid var(--line);border-radius:5px;background:var(--cream);font-family:var(--fh);font-size:11px;font-weight:700;cursor:pointer;color:var(--muted);}
+.bsave{padding:8px 18px;background:var(--dark);color:#fff;border:none;border-radius:5px;font-family:var(--fh);font-size:11px;font-weight:700;cursor:pointer;transition:opacity .1s;}
+.bsave:hover{opacity:.8;} .bsave:disabled{opacity:.4;cursor:default;}
+
+/* ── LIGHTBOX ─────────────────────────────────────────────────── */
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:600;display:none;align-items:center;justify-content:center;}
+.lb.show{display:flex;}
+.lb img{max-width:92vw;max-height:88vh;object-fit:contain;border-radius:4px;}
+.lb-close{position:absolute;top:14px;right:18px;color:rgba(255,255,255,.38);font-size:28px;cursor:pointer;transition:color .1s;}
+.lb-close:hover{color:#fff;}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.3);font-size:36px;cursor:pointer;transition:color .1s;padding:8px;user-select:none;}
+.lb-nav:hover{color:#fff;}
+.lb-nav.prev{left:10px;} .lb-nav.next{right:10px;}
+
+@media(max-width:640px){
+  .topbar{padding:0 14px;}
+  .page{padding:20px 14px 60px;}
+  .mood-grid{columns:2 130px;}
+  .frow{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">BDG<span>·</span>DISEÑO</div>
+  <div class="topbar-right">
+    <a class="back" href="/">← HQ</a>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- MOODBOARD -->
+  <div class="section-block" id="sec-moodboard">
+    <div class="section-head">
+      <div class="section-name">Moodboard</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="section-meta" id="meta-moodboard">—</span>
+        <button class="section-add" onclick="openAdd('moodboard')">+ Agregar</button>
+      </div>
+    </div>
+    <div id="grid-moodboard"><div class="sk" style="height:200px;border-radius:9px;"></div></div>
+  </div>
+
+  <!-- MODELOS NUEVOS -->
+  <div class="section-block" id="sec-modelo">
+    <div class="section-head">
+      <div class="section-name">Modelos nuevos</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="section-meta" id="meta-modelo">—</span>
+        <button class="section-add" onclick="openAdd('modelo')">+ Agregar</button>
+      </div>
+    </div>
+    <div id="grid-modelo"><div class="sk" style="height:200px;border-radius:9px;"></div></div>
+  </div>
+
+  <!-- DESARROLLOS -->
+  <div class="section-block" id="sec-desarrollo">
+    <div class="section-head">
+      <div class="section-name">Desarrollos</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="section-meta" id="meta-desarrollo">—</span>
+        <button class="section-add" onclick="openAdd('desarrollo')">+ Agregar</button>
+      </div>
+    </div>
+    <div id="grid-desarrollo"><div class="sk" style="height:200px;border-radius:9px;"></div></div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="ov" id="ov" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="mhead">
+      <div class="mtitle" id="mtitle">Agregar</div>
+      <span class="mclose" onclick="closeModal()">×</span>
+    </div>
+    <div class="mbody" id="mbody"></div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lb" id="lb" onclick="if(event.target===this)closeLb()">
+  <span class="lb-close" onclick="closeLb()">×</span>
+  <span class="lb-nav prev" onclick="lbNav(-1)">‹</span>
+  <img id="lbImg" src="" alt=""/>
+  <span class="lb-nav next" onclick="lbNav(1)">›</span>
+</div>
+
+<script>
+const FB = 'https://bdg-horarios-default-rtdb.firebaseio.com/bdg_horarios_v2/diseno';
+
+let _items = [];
+let _editing = null;
+let _pendingImgs = [];
+let _addingTab = 'moodboard';
+let _lbImgs = [], _lbIdx = 0;
+
+const STATUS_MODELO = ['Concepto','Muestra','Aprobado','Producción','Cancelado'];
+const STATUS_DEV    = ['Activo','Pausado','Cancelado'];
+const ETAPAS_DEV    = ['Brief','Diseño','Muestra','Aprobación','Producción','Entrega'];
+
+function sk(s){ return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z]/g,''); }
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+async function init(){
+  try{
+    const res  = await fetch(`${FB}.json`);
+    const data = await res.json();
+    _items = [];
+    if(data) for(const [id,item] of Object.entries(data)) if(item?.tab) _items.push({id,...item});
+    _items.sort((a,b) => (b.fecha||'').localeCompare(a.fecha||''));
+  } catch(e){ console.error(e); }
+  renderAll();
+}
+
+function renderAll(){
+  renderSection('moodboard');
+  renderSection('modelo');
+  renderSection('desarrollo');
+}
+
+// ── RENDER SECTION ────────────────────────────────────────────────────────────
+function renderSection(tab){
+  const items = _items.filter(i=>i.tab===tab);
+  document.getElementById(`meta-${tab}`).textContent = items.length ? `${items.length} item${items.length>1?'s':''}` : '';
+
+  const el = document.getElementById(`grid-${tab}`);
+  if(!items.length){ el.innerHTML = emptyInline(tab); return; }
+
+  if(tab === 'moodboard') el.innerHTML = renderMoodboard(items);
+  else el.innerHTML = renderCards(items, tab);
+}
+
+// ── MOODBOARD ─────────────────────────────────────────────────────────────────
+function renderMoodboard(items){
+  return `<div class="mood-grid">${items.map(item=>{
+    const img = item.images?.[0];
+    return `<div class="mood-item" onclick="openLb('${item.id}')">
+      ${img ? `<img src="${img}" alt="${item.title||''}"/>` : `<div class="mood-ph"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg></div>`}
+      ${item.board&&item.board!=='General'?`<div class="mood-board-tag">${item.board}</div>`:''}
+      <div class="mood-item-bar">
+        <div class="mood-item-title">${item.title||item.board||''}</div>
+        <div class="mood-item-del" onclick="event.stopPropagation();del('${item.id}')">✕</div>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+// ── CARDS ─────────────────────────────────────────────────────────────────────
+function renderCards(items, tab){
+  return `<div class="cards-grid">${items.map(item=>{
+    const imgs = item.images||[];
+    const img  = imgs[0];
+    const s    = sk(item.status||'');
+    const etapa = tab==='desarrollo' ? `
+      <div class="etapa-bar">${ETAPAS_DEV.map((e,i)=>`<div class="etapa-step${ETAPAS_DEV.indexOf(item.etapa||'')>=i?' done':''}"></div>`).join('')}</div>
+      <div class="etapa-name">${item.etapa||'—'}</div>` : '';
+    return `<div class="item-card">
+      <div class="card-gal" onclick="openLb('${item.id}')">
+        ${img?`<img src="${img}" alt=""/>`:`<div class="card-gal-ph"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg></div>`}
+        ${imgs.length>1?`<div class="card-gal-cnt">+${imgs.length-1}</div>`:''}
+      </div>
+      <div class="card-body">
+        <div class="card-row"><div class="sdot s-${s}"></div><div class="slbl l-${s}">${item.status||''}</div></div>
+        <div class="card-name">${item.title||'Sin nombre'}</div>
+        <div class="card-sub">${[item.temporada,item.proveedor].filter(Boolean).join(' · ')}</div>
+        ${item.notas?`<div class="card-notes">${item.notas}</div>`:''}
+        ${etapa}
+        <div class="card-foot">
+          <div class="card-date">${fmtDate(item.fecha)}</div>
+          <div class="card-btns">
+            <span class="card-btn" onclick="edit('${item.id}')">Editar</span>
+            <span class="card-btn" onclick="del('${item.id}')">Eliminar</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function emptyInline(tab){
+  const icons={moodboard:'🎨',modelo:'👟',desarrollo:'📐'};
+  const hints={moodboard:'Sube referencias, paletas y fotos de inspiración.',modelo:'Registra modelos en desarrollo con fotos y estado.',desarrollo:'Lleva el avance de cada proyecto: etapa, proveedor y fechas.'};
+  return `<div class="empty-inline"><div class="empty-inline-icon">${icons[tab]}</div><div class="empty-inline-txt">${hints[tab]}</div></div>`;
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openAdd(tab){ _addingTab=tab; _editing=null; _pendingImgs=[]; buildModal(); document.getElementById('ov').classList.add('show'); }
+function edit(id){ _editing=_items.find(i=>i.id===id); _addingTab=_editing.tab; _pendingImgs=[...(_editing.images||[])]; buildModal(); document.getElementById('ov').classList.add('show'); }
+function closeModal(){ document.getElementById('ov').classList.remove('show'); _editing=null; _pendingImgs=[]; }
+
+function buildModal(){
+  const t=_addingTab, e=_editing;
+  const titles={moodboard:'imagen',modelo:'modelo',desarrollo:'desarrollo'};
+  document.getElementById('mtitle').textContent = (e?'Editar ':'Nuevo ')+titles[t];
+
+  let fields='';
+  if(t==='moodboard'){
+    fields=`
+      <div class="fg"><div class="fl">Título</div><input class="fi" id="fTitle" value="${e?.title||''}" placeholder="Referencia / descripción"/></div>
+      <div class="fg"><div class="fl">Board</div><input class="fi" id="fBoard" value="${e?.board||''}" placeholder="Ej. OI2026, Paleta, Inspiración..."/></div>`;
+  } else if(t==='modelo'){
+    fields=`
+      <div class="frow">
+        <div class="fg"><div class="fl">Nombre</div><input class="fi" id="fTitle" value="${e?.title||''}" placeholder="Ej. BALA PETRA"/></div>
+        <div class="fg"><div class="fl">Temporada</div><input class="fi" id="fTemporada" value="${e?.temporada||''}" placeholder="OI2026"/></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><div class="fl">Estado</div><select class="fs" id="fStatus">${STATUS_MODELO.map(s=>`<option${e?.status===s?' selected':''}>${s}</option>`).join('')}</select></div>
+        <div class="fg"><div class="fl">Proveedor</div><input class="fi" id="fProveedor" value="${e?.proveedor||''}" placeholder="FabricaH..."/></div>
+      </div>
+      <div class="fg"><div class="fl">Notas</div><textarea class="ft" id="fNotas" placeholder="Materiales, colores, detalles...">${e?.notas||''}</textarea></div>`;
+  } else {
+    fields=`
+      <div class="frow">
+        <div class="fg"><div class="fl">Nombre</div><input class="fi" id="fTitle" value="${e?.title||''}" placeholder="Desarrollo BOTA PETRA"/></div>
+        <div class="fg"><div class="fl">Estado</div><select class="fs" id="fStatus">${STATUS_DEV.map(s=>`<option${e?.status===s?' selected':''}>${s}</option>`).join('')}</select></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><div class="fl">Proveedor</div><input class="fi" id="fProveedor" value="${e?.proveedor||''}" placeholder="FabricaH..."/></div>
+        <div class="fg"><div class="fl">Etapa actual</div><select class="fs" id="fEtapa">${ETAPAS_DEV.map(s=>`<option${e?.etapa===s?' selected':''}>${s}</option>`).join('')}</select></div>
+      </div>
+      <div class="fg"><div class="fl">Notas</div><textarea class="ft" id="fNotas" placeholder="Fechas clave, materiales, comentarios...">${e?.notas||''}</textarea></div>`;
+  }
+
+  document.getElementById('mbody').innerHTML = `
+    ${fields}
+    <div class="fg">
+      <div class="fl">Imágenes</div>
+      <div class="drop-zone" id="dz" onclick="document.getElementById('fi').click()"
+        ondragover="event.preventDefault();this.classList.add('drag')"
+        ondragleave="this.classList.remove('drag')"
+        ondrop="handleDrop(event)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto;opacity:.2;display:block;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+        <div class="drop-lbl">Arrastra fotos o <span>selecciona desde tu computadora</span></div>
+      </div>
+      <input id="fi" type="file" multiple accept="image/*" style="display:none" onchange="addFiles(this.files)"/>
+      <div class="prev-grid" id="pg">${previews()}</div>
+    </div>
+    <div class="mfooter">
+      <button class="bcancel" onclick="closeModal()">Cancelar</button>
+      <button class="bsave" id="sb" onclick="save()">Guardar</button>
+    </div>`;
+}
+
+function previews(){
+  return _pendingImgs.map((u,i)=>`<div class="prev-item"><img src="${u}"/><div class="prev-del" onclick="rmImg(${i})">✕</div></div>`).join('');
+}
+function rmImg(i){ _pendingImgs.splice(i,1); document.getElementById('pg').innerHTML=previews(); }
+function handleDrop(e){ e.preventDefault(); document.getElementById('dz').classList.remove('drag'); addFiles(e.dataTransfer.files); }
+function addFiles(files){ [...files].forEach(f=>{ if(!f.type.startsWith('image/')) return; const r=new FileReader(); r.onload=ev=>{ const img=new Image(); img.onload=()=>{ const M=1200; let w=img.width,h=img.height; if(w>M){h=h*M/w;w=M;} if(h>M){w=w*M/h;h=M;} const c=document.createElement('canvas'); c.width=Math.round(w); c.height=Math.round(h); c.getContext('2d').drawImage(img,0,0,c.width,c.height); _pendingImgs.push(c.toDataURL('image/jpeg',.8)); document.getElementById('pg').innerHTML=previews(); }; img.src=ev.target.result; }; r.readAsDataURL(f); }); }
+
+// ── SAVE ──────────────────────────────────────────────────────────────────────
+async function save(){
+  const sb=document.getElementById('sb'); sb.disabled=true; sb.textContent='Guardando...';
+  const id = _editing?.id || (Date.now().toString(36)+Math.random().toString(36).slice(2,5));
+  const base = {tab:_addingTab, title:(document.getElementById('fTitle')?.value||'').trim(), fecha:new Date().toISOString().slice(0,10), images:_pendingImgs};
+  if(_addingTab==='moodboard') base.board=(document.getElementById('fBoard')?.value||'').trim()||'General';
+  else { base.status=document.getElementById('fStatus')?.value||''; base.proveedor=document.getElementById('fProveedor')?.value||''; base.notas=document.getElementById('fNotas')?.value||''; }
+  if(_addingTab==='modelo') base.temporada=document.getElementById('fTemporada')?.value||'';
+  if(_addingTab==='desarrollo') base.etapa=document.getElementById('fEtapa')?.value||'Brief';
+  await fetch(`${FB}/${id}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(base)});
+  closeModal(); await init();
+}
+
+async function del(id){ if(!confirm('¿Eliminar?')) return; await fetch(`${FB}/${id}.json`,{method:'DELETE'}); await init(); }
+
+// ── LIGHTBOX ──────────────────────────────────────────────────────────────────
+function openLb(id){ const item=_items.find(i=>i.id===id); if(!item?.images?.length) return; _lbImgs=item.images; _lbIdx=0; document.getElementById('lbImg').src=_lbImgs[0]; document.getElementById('lb').classList.add('show'); }
+function closeLb(){ document.getElementById('lb').classList.remove('show'); }
+function lbNav(d){ _lbIdx=(_lbIdx+d+_lbImgs.length)%_lbImgs.length; document.getElementById('lbImg').src=_lbImgs[_lbIdx]; }
+document.addEventListener('keydown',e=>{ const lb=document.getElementById('lb'); if(!lb.classList.contains('show')) return; if(e.key==='Escape') closeLb(); if(e.key==='ArrowRight') lbNav(1); if(e.key==='ArrowLeft') lbNav(-1); });
+
+function fmtDate(s){ if(!s) return ''; const [y,m,d]=s.split('-'); const M=['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']; return `${d} ${M[+m]} ${y}`; }
+
+init();
+</script>
+</body>
+</html>
