@@ -142,19 +142,19 @@ body{font-family:var(--fn);background:var(--dark);color:#e8e4de;min-height:100vh
   </div>
 </div>
 
-<div class="footer">© Bala Di Gala · Confidencial · Todos los derechos reservados</div>
+<div class="footer">
+  © Bala Di Gala · Confidencial · Todos los derechos reservados
+  <svg id="bootTrigger" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"
+    style="width:18px;height:18px;opacity:.12;cursor:pointer;margin-left:16px;vertical-align:middle;transition:opacity .2s;display:inline-block;"
+    onmouseenter="this.style.opacity='.22'" onmouseleave="this.style.opacity='.12'">
+    <path fill="currentColor" d="M54 46H30v-6l6-2V24c0-6-4-10-10-10H14c-2 0-4 2-4 4v28H8c-1.1 0-2 .9-2 2v2c0 1.1.9 2 2 2h46c1.1 0 2-.9 2-2v-2c0-1.1-.9-2-2-2zM20 18h6c2.2 0 4 1.8 4 4v14l-10 3V18z"/>
+  </svg>
+</div>
 
 <script>
-let _clicks = 0, _timer = null;
-document.getElementById('dot').addEventListener('click', () => {
-  _clicks++;
-  clearTimeout(_timer);
-  _timer = setTimeout(() => { _clicks = 0; }, 2000);
-  if (_clicks >= 5) {
-    _clicks = 0;
-    document.getElementById('overlay').classList.add('show');
-    setTimeout(() => document.getElementById('secretInput').focus(), 80);
-  }
+document.getElementById('bootTrigger').addEventListener('click', () => {
+  document.getElementById('overlay').classList.add('show');
+  setTimeout(() => document.getElementById('secretInput').focus(), 80);
 });
 function checkCode() {
   if (document.getElementById('secretInput').value.trim() === 'jorge2026') {
