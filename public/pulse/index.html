@@ -6,18 +6,13 @@
 <link rel="icon" href="/favicon.ico"/>
 <meta name="robots" content="noindex, nofollow"/>
 <title>BDG · Pulse</title>
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Archivo:wght@400;500;600;700;800&family=Jost:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;500;600;700&family=Archivo:wght@400;500;600;700;800&family=Jost:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{
-  --terra:#c16452;--terra2:#a85040;
-  --dark:#171717;--dark2:#2a2a2a;
-  --beige:#faf2e6;--cream:#fff;
-  --line:#ddd8d0;--muted:#9a9590;
-  --green:#3a9e6f;--red:#d94f3a;--blue:#3a72b8;--amber:#c18a32;
-  --fn:'Archivo Narrow',sans-serif;
-  --fh:'Archivo',sans-serif;
-  --fl:'Jost',sans-serif;
-  --r:4px;--r2:8px;
+  --terra:#c16452;--dark:#171717;--dark2:#1e1e1e;
+  --beige:#faf2e6;--cream:#fff;--line:#e8e2da;--muted:#9a9590;
+  --green:#3a9e6f;--red:#d94f3a;
+  --fn:'Archivo Narrow',sans-serif;--fh:'Archivo',sans-serif;--fl:'Jost',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:var(--fn);background:#f0ece6;color:var(--dark);min-height:100vh;}
@@ -29,77 +24,78 @@ body{font-family:var(--fn);background:#f0ece6;color:var(--dark);min-height:100vh
 .topbar-right{display:flex;align-items:center;gap:20px;}
 .back{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);font-family:var(--fh);text-decoration:none;transition:color .12s;}
 .back:hover{color:#fff;}
-.live-badge{display:flex;align-items:center;gap:6px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.5);font-family:var(--fh);}
-.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
 
-/* LAYOUT */
-.page{max-width:1200px;margin:0 auto;padding:28px 24px 48px;}
-.period-bar{display:flex;align-items:center;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
-.period-btn{padding:7px 16px;border-radius:20px;border:1px solid var(--line);background:var(--cream);font-family:var(--fn);font-size:12px;font-weight:600;cursor:pointer;transition:all .12s;color:var(--dark);}
+/* PAGE */
+.page{max-width:1400px;margin:0 auto;padding:24px 24px 56px;}
+
+/* PERIOD BAR */
+.period-bar{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.period-btn{padding:6px 16px;border-radius:20px;border:1px solid var(--line);background:var(--cream);font-family:var(--fn);font-size:12px;font-weight:600;cursor:pointer;transition:all .12s;color:var(--dark);}
 .period-btn.active,.period-btn:hover{background:var(--dark);color:#fff;border-color:var(--dark);}
-.refresh-btn{margin-left:auto;padding:7px 14px;border-radius:20px;border:1px solid var(--line);background:transparent;font-family:var(--fn);font-size:11px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .12s;}
+.refresh-btn{margin-left:auto;padding:6px 14px;border-radius:20px;border:1px solid var(--line);background:transparent;font-family:var(--fn);font-size:11px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:6px;}
 .refresh-btn:hover{color:var(--dark);}
 .spin{display:inline-block;}
 .spinning{animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
-.last-updated{font-size:10px;color:var(--muted);font-family:var(--fn);}
+.last-upd{font-size:10px;color:var(--muted);}
 
-/* KPI GRID */
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px;}
-.kpi-card{background:var(--cream);border-radius:var(--r2);padding:20px 22px;border:1px solid var(--line);}
-.kpi-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-family:var(--fh);margin-bottom:8px;}
-.kpi-value{font-family:var(--fh);font-size:28px;font-weight:800;letter-spacing:-.03em;color:var(--dark);line-height:1;}
-.kpi-value.terra{color:var(--terra);}
-.kpi-sub{font-size:11px;color:var(--muted);margin-top:6px;}
-.kpi-delta{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;font-family:var(--fh);margin-top:4px;}
-.kpi-delta.up{color:var(--green);}
-.kpi-delta.down{color:var(--red);}
+/* CHANNEL GRID */
+.channels-wrap{overflow-x:auto;margin-bottom:16px;}
+.channels-table{border-collapse:collapse;width:100%;min-width:900px;background:var(--cream);border-radius:8px;overflow:hidden;border:1px solid var(--line);}
+.ch-head th{padding:14px 16px;text-align:left;font-size:9px;letter-spacing:.18em;text-transform:uppercase;font-family:var(--fh);font-weight:600;color:var(--muted);border-bottom:1px solid var(--line);white-space:nowrap;background:var(--cream);}
+.ch-head th.tiktok-col{background:#fdf6f4;}
+.ch-body td{padding:0;vertical-align:top;border-right:1px solid var(--line);}
+.ch-body td:last-child{border-right:none;}
 
-/* GRID 2 COL */
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
-@media(max-width:720px){.grid2{grid-template-columns:1fr;}}
+/* Channel cell */
+.ch-cell{padding:16px 16px 14px;}
+.ch-amount{font-family:var(--fh);font-size:22px;font-weight:800;letter-spacing:-.03em;color:var(--dark);line-height:1;}
+.ch-amount.zero{color:#ccc;}
+.ch-source{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-family:var(--fh);margin-top:6px;display:flex;align-items:center;gap:4px;}
+.dot-auto{width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0;}
+.dot-manual{width:5px;height:5px;border-radius:50%;background:#c18a32;flex-shrink:0;}
 
-/* CARDS */
-.card{background:var(--cream);border-radius:var(--r2);padding:20px 22px;border:1px solid var(--line);}
-.card-title{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-family:var(--fh);margin-bottom:16px;font-weight:600;}
+/* Editable manual field */
+.ch-input-wrap{position:relative;}
+.ch-input{width:100%;background:transparent;border:none;border-bottom:1px dashed #d0cbc4;font-family:var(--fh);font-size:22px;font-weight:800;letter-spacing:-.03em;color:var(--dark);padding:0 0 2px;outline:none;transition:border-color .15s;}
+.ch-input:focus{border-bottom-color:var(--terra);}
+.ch-input::placeholder{color:#d0cbc4;}
+.ch-saving{font-size:9px;color:var(--terra);position:absolute;right:0;top:0;opacity:0;transition:opacity .2s;}
+.ch-saving.show{opacity:1;}
+
+/* TikTok sub-rows */
+.tiktok-cell{background:#fdf6f4;}
+.tiktok-sub{display:flex;flex-direction:column;gap:0;}
+.tiktok-row{padding:10px 16px;border-bottom:1px solid #f0e8e4;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.tiktok-row:last-child{border-bottom:none;}
+.tiktok-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;font-family:var(--fh);color:var(--muted);white-space:nowrap;}
+.tiktok-val{font-family:var(--fh);font-size:14px;font-weight:700;color:var(--dark);}
+.tiktok-val.zero{color:#ccc;}
+.tiktok-input{background:transparent;border:none;border-bottom:1px dashed #d0cbc4;font-family:var(--fh);font-size:14px;font-weight:700;color:var(--dark);width:90px;text-align:right;outline:none;}
+.tiktok-input:focus{border-bottom-color:var(--terra);}
+.tiktok-total-row{padding:10px 16px;background:rgba(193,100,82,.06);border-top:2px solid rgba(193,100,82,.2);}
+.tiktok-total-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;font-family:var(--fh);color:var(--terra);}
+.tiktok-total-val{font-family:var(--fh);font-size:16px;font-weight:800;color:var(--terra);}
+
+/* TOTAL BAR */
+.total-bar{background:var(--dark);border-radius:6px;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.total-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-family:var(--fh);color:rgba(255,255,255,.4);}
+.total-amount{font-family:var(--fh);font-size:32px;font-weight:800;letter-spacing:-.04em;color:#fff;}
+.total-period{font-size:11px;color:rgba(255,255,255,.3);font-family:var(--fn);}
 
 /* CHART */
-.chart-wrap{height:160px;position:relative;overflow:hidden;}
-svg.chart{width:100%;height:100%;}
+.card{background:var(--cream);border-radius:8px;padding:20px 22px;border:1px solid var(--line);margin-bottom:16px;}
+.card-title{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-family:var(--fh);margin-bottom:16px;font-weight:600;}
+.chart-wrap{height:140px;position:relative;}
 .chart-tooltip{position:absolute;background:var(--dark);color:#fff;font-size:11px;padding:5px 10px;border-radius:4px;pointer-events:none;opacity:0;transition:opacity .1s;font-family:var(--fn);white-space:nowrap;}
 
-/* CHANNEL BARS */
-.channel-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-.channel-row:last-child{margin-bottom:0;}
-.channel-name{font-size:12px;font-weight:600;width:90px;flex-shrink:0;font-family:var(--fh);}
-.channel-bar-wrap{flex:1;height:8px;background:#f0ece6;border-radius:4px;overflow:hidden;}
-.channel-bar{height:100%;border-radius:4px;transition:width .6s ease;}
-.channel-gmv{font-size:12px;font-family:var(--fh);font-weight:600;width:90px;text-align:right;flex-shrink:0;}
-.channel-orders{font-size:10px;color:var(--muted);width:60px;text-align:right;flex-shrink:0;}
-
-/* PRODUCTS TABLE */
-.prod-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #f0ece6;}
-.prod-row:last-child{border-bottom:none;}
-.prod-rank{font-size:10px;color:var(--muted);width:18px;flex-shrink:0;text-align:center;}
-.prod-name{flex:1;font-size:13px;font-weight:500;font-family:var(--fh);}
-.prod-units{font-size:11px;color:var(--muted);width:50px;text-align:right;}
-.prod-gmv{font-size:13px;font-weight:700;font-family:var(--fh);width:90px;text-align:right;}
-
 /* SKELETON */
-.skeleton{background:linear-gradient(90deg,#f0ece6 25%,#e8e4de 50%,#f0ece6 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:4px;}
+.sk{background:linear-gradient(90deg,#ede8e2 25%,#e4dfd8 50%,#ede8e2 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:3px;}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.sk-line{height:12px;margin-bottom:8px;}
-.sk-big{height:32px;width:60%;}
 
-/* EMPTY */
-.empty{text-align:center;padding:32px;color:var(--muted);font-size:13px;}
-
-@media(max-width:600px){
-  .page{padding:16px 14px 40px;}
-  .kpi-value{font-size:22px;}
-  .topbar{padding:0 16px;}
-}
+@media(max-width:600px){.topbar{padding:0 16px;}.page{padding:16px 14px 40px;}.total-amount{font-size:24px;}}
 </style>
 </head>
 <body>
@@ -107,367 +103,390 @@ svg.chart{width:100%;height:100%;}
 <div class="topbar">
   <div class="topbar-logo">BDG<span>·</span>PULSE</div>
   <div class="topbar-right">
-    <div class="live-badge"><div class="live-dot"></div><span id="liveLabel">En vivo</span></div>
+    <div class="live-dot"></div>
     <a class="back" href="/">← HQ</a>
   </div>
 </div>
 
 <div class="page">
 
-  <!-- Period selector -->
   <div class="period-bar">
-    <button class="period-btn" onclick="setPeriod('today')">Hoy</button>
-    <button class="period-btn active" onclick="setPeriod('week')">Esta semana</button>
-    <button class="period-btn" onclick="setPeriod('month')">Este mes</button>
-    <button class="period-btn" onclick="setPeriod('30d')">Últimos 30 días</button>
-    <button class="refresh-btn" onclick="load()"><span class="spin" id="spinIcon">↻</span> Actualizar</button>
-    <span class="last-updated" id="lastUpdated"></span>
+    <button class="period-btn" onclick="setPeriod('today',this)">Hoy</button>
+    <button class="period-btn active" onclick="setPeriod('week',this)">Esta semana</button>
+    <button class="period-btn" onclick="setPeriod('month',this)">Este mes</button>
+    <button class="period-btn" onclick="setPeriod('30d',this)">30 días</button>
+    <button class="refresh-btn" onclick="loadAll(true)"><span class="spin" id="spinIcon">↻</span> Actualizar</button>
+    <span class="last-upd" id="lastUpd"></span>
   </div>
 
-  <!-- KPIs -->
-  <div class="kpi-grid" id="kpiGrid">
-    <div class="kpi-card"><div class="skeleton sk-big"></div></div>
-    <div class="kpi-card"><div class="skeleton sk-big"></div></div>
-    <div class="kpi-card"><div class="skeleton sk-big"></div></div>
-    <div class="kpi-card"><div class="skeleton sk-big"></div></div>
-  </div>
-
-  <!-- Chart + Channels -->
-  <div class="grid2">
-    <div class="card">
-      <div class="card-title">GMV por día</div>
-      <div class="chart-wrap" id="chartWrap">
-        <div class="skeleton" style="width:100%;height:100%;border-radius:6px;"></div>
-      </div>
-      <div class="chart-tooltip" id="tooltip"></div>
+  <!-- TOTAL -->
+  <div class="total-bar">
+    <div>
+      <div class="total-label">GMV Total</div>
+      <div class="total-period" id="totalPeriod">—</div>
     </div>
-    <div class="card">
-      <div class="card-title">Ventas por canal</div>
-      <div id="channelsWrap"><div class="skeleton sk-line"></div><div class="skeleton sk-line"></div><div class="skeleton sk-line"></div></div>
-    </div>
+    <div class="total-amount" id="totalAmount">—</div>
   </div>
 
-  <!-- Top products -->
+  <!-- CHANNEL TABLE -->
+  <div class="channels-wrap">
+    <table class="channels-table">
+      <thead class="ch-head">
+        <tr>
+          <th>Tienda Online</th>
+          <th>Palacio de Hierro</th>
+          <th>MercadoLibre</th>
+          <th>BDG Outlet</th>
+          <th class="tiktok-col">TikTok</th>
+          <th>Comercializadora</th>
+          <th>Wholesale</th>
+          <th>Amazon</th>
+        </tr>
+      </thead>
+      <tbody class="ch-body" id="chBody">
+        <tr>
+          <td colspan="8" style="padding:32px;text-align:center;">
+            <div class="sk" style="height:28px;width:60%;margin:0 auto;"></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- TREND CHART -->
   <div class="card">
-    <div class="card-title">Top productos</div>
-    <div id="productsWrap"><div class="skeleton sk-line"></div><div class="skeleton sk-line"></div><div class="skeleton sk-line"></div></div>
+    <div class="card-title">Ventas diarias · Tienda Online</div>
+    <div class="chart-wrap" id="chartWrap">
+      <div class="sk" style="width:100%;height:100%;border-radius:6px;"></div>
+    </div>
+    <div class="chart-tooltip" id="tooltip"></div>
   </div>
 
 </div>
 
 <script>
-const CHANNEL_COLORS = {
-  web:        '#3a72b8',
-  tiktok:     '#c16452',
-  instagram:  '#9b59b6',
-  pos:        '#3a9e6f',
-  shopify_draft_order: '#c18a32',
-};
-const CHANNEL_LABELS = {
-  web:        'Tienda online',
-  tiktok:     'TikTok LIVE',
-  instagram:  'Instagram',
-  pos:        'Punto de venta',
-  shopify_draft_order: 'Draft Order',
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const FB_CH = 'https://bdg-horarios-default-rtdb.firebaseio.com/bdg_horarios_v2';
+
+// Shopify source_name → channel
+const SHOPIFY_MAP = {
+  web: 'tienda_online', '': 'tienda_online', null: 'tienda_online',
+  pos: 'bdg_outlet',
+  shopify_draft_order: 'wholesale',
+  draft_order: 'wholesale',
 };
 
 let _period  = 'week';
-let _data    = null;
-let _prevGMV = null;
+let _weekKey = '';
+let _shopify = {};  // { tienda_online: gmv, bdg_outlet: gmv, wholesale: gmv, by_day: {} }
+let _manual  = {};  // { palacio_hierro: gmv, meli: gmv, ... }
+let _tiktokLive = 0;
+let _saveTimer  = {};
 
-function setPeriod(p) {
-  _period = p;
-  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-  load();
-}
+// ── DATES ─────────────────────────────────────────────────────────────────────
+function pad(n){ return String(n).padStart(2,'0'); }
+function fmt(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function nowMX(){ return new Date(new Date().getTime() - 6*3600000); }
 
-function dateRange(period) {
-  const now   = new Date();
-  const pad   = n => String(n).padStart(2,'0');
-  const fmt   = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-  const mxNow = new Date(now.getTime() - 6*60*60*1000); // UTC-6 approx
-
+function dateRange(period){
+  const now = nowMX();
   let min, max;
-  if (period === 'today') {
-    const today = fmt(mxNow);
-    min = `${today}T00:00:00-06:00`;
-    max = `${today}T23:59:59-06:00`;
-  } else if (period === 'week') {
-    const d = new Date(mxNow);
-    // Semana Jueves→Miércoles: (día+3)%7 = días desde el jueves anterior
-    const daysSinceThursday = (d.getDay() + 3) % 7;
-    d.setDate(d.getDate() - daysSinceThursday);
-    min = `${fmt(d)}T00:00:00-06:00`;
-    max = `${fmt(mxNow)}T23:59:59-06:00`;
-  } else if (period === 'month') {
-    const d = new Date(mxNow.getFullYear(), mxNow.getMonth(), 1);
-    min = `${fmt(d)}T00:00:00-06:00`;
-    max = `${fmt(mxNow)}T23:59:59-06:00`;
-  } else { // 30d
-    const d = new Date(mxNow); d.setDate(d.getDate() - 29);
-    min = `${fmt(d)}T00:00:00-06:00`;
-    max = `${fmt(mxNow)}T23:59:59-06:00`;
+  if(period==='today'){
+    const t=fmt(now); min=`${t}T00:00:00-06:00`; max=`${t}T23:59:59-06:00`;
+  } else if(period==='week'){
+    const d=new Date(now);
+    d.setDate(d.getDate()-((d.getDay()+3)%7)); // Jueves anterior
+    min=`${fmt(d)}T00:00:00-06:00`; max=`${fmt(now)}T23:59:59-06:00`;
+    _weekKey=fmt(d);
+  } else if(period==='month'){
+    const d=new Date(now.getFullYear(),now.getMonth(),1);
+    min=`${fmt(d)}T00:00:00-06:00`; max=`${fmt(now)}T23:59:59-06:00`;
+    _weekKey=fmt(d);
+  } else {
+    const d=new Date(now); d.setDate(d.getDate()-29);
+    min=`${fmt(d)}T00:00:00-06:00`; max=`${fmt(now)}T23:59:59-06:00`;
+    _weekKey=fmt(d);
   }
-  return { min, max };
+  return {min,max};
 }
 
-function fmtMXN(n) {
-  if (n >= 1000000) return '$' + (n/1000000).toFixed(1) + 'M';
-  if (n >= 1000)    return '$' + (n/1000).toFixed(1) + 'k';
-  return '$' + n.toFixed(0);
+function periodLabel(){
+  const now=nowMX();
+  if(_period==='today') return fmt(now);
+  if(_period==='week'){
+    const d=new Date(now); d.setDate(d.getDate()-((d.getDay()+3)%7));
+    return `${fmt(d)} → ${fmt(now)}`;
+  }
+  if(_period==='month') return `${now.getFullYear()}-${pad(now.getMonth()+1)}`;
+  return 'Últimos 30 días';
 }
-function fmtFull(n) {
-  return n.toLocaleString('es-MX', { style:'currency', currency:'MXN', minimumFractionDigits:2 });
+
+// ── FORMAT ────────────────────────────────────────────────────────────────────
+function fmtMXN(n){
+  if(!n||n===0) return '—';
+  return '$'+Math.round(n).toLocaleString('es-MX');
+}
+function fmtFull(n){
+  return n.toLocaleString('es-MX',{style:'currency',currency:'MXN',minimumFractionDigits:0,maximumFractionDigits:0});
 }
 
-async function load(background = false) {
-  const spin = document.getElementById('spinIcon');
-  if (!background) spin.classList.add('spinning');
+// ── LOAD ──────────────────────────────────────────────────────────────────────
+function setPeriod(p,btn){
+  _period=p;
+  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  loadAll();
+}
 
-  const { min, max } = dateRange(_period);
-  const lsKey = `pulse_cache_${_period}`;
+async function loadAll(force=false){
+  document.getElementById('spinIcon').classList.add('spinning');
+  const {min,max}=dateRange(_period);
+  const lsKey=`pulse_${_period}`;
 
-  // Mostrar caché local al instante si existe
-  if (!background) {
-    const cached = localStorage.getItem(lsKey);
-    if (cached) {
-      try {
-        const { data, ts } = JSON.parse(cached);
-        render(data);
-        document.getElementById('lastUpdated').textContent =
-          'Caché · ' + new Date(ts).toLocaleTimeString('es-MX', {hour:'2-digit',minute:'2-digit'});
-      } catch(_) {}
-    }
+  // Mostrar caché local al instante
+  if(!force){
+    const cached=localStorage.getItem(lsKey);
+    if(cached){ try{ applyShopify(JSON.parse(cached)); }catch(_){} }
   }
 
   try {
-    const r = await fetch(`/api/shopify?date_min=${encodeURIComponent(min)}&date_max=${encodeURIComponent(max)}`);
-    _data = await r.json();
-    render(_data);
-    localStorage.setItem(lsKey, JSON.stringify({ data: _data, ts: Date.now() }));
-    document.getElementById('lastUpdated').textContent =
-      'Actualizado ' + new Date().toLocaleTimeString('es-MX', {hour:'2-digit',minute:'2-digit'});
-  } catch(e) {
-    if (!background)
-      document.getElementById('kpiGrid').innerHTML =
-        `<div class="kpi-card" style="grid-column:1/-1;color:#d94f3a;font-size:13px;">Error al cargar datos: ${e.message}</div>`;
+    const [shopRes, manRes, fbSlots] = await Promise.all([
+      fetch(`/api/shopify?date_min=${encodeURIComponent(min)}&date_max=${encodeURIComponent(max)}`),
+      fetch(`/api/channels?week=${_weekKey}`),
+      fetch(`${FB_CH}/slots.json`),
+    ]);
+    const shopData = await shopRes.json();
+    _manual = (await manRes.json()) || {};
+
+    // Calcular TikTok Live desde Firebase slots
+    const slots = await fbSlots.json() || [];
+    const {min:dMin, max:dMax} = dateRange(_period);
+    const minD=dMin.slice(0,10), maxD=dMax.slice(0,10);
+    _tiktokLive = slots
+      .filter(s=>s.date>=minD && s.date<=maxD)
+      .reduce((s,sl)=>s+(sl.gmv||0),0);
+
+    // Mapear Shopify por canal
+    _shopify={tienda_online:0,bdg_outlet:0,wholesale:0,by_day:shopData.by_day||{}};
+    for(const [src,v] of Object.entries(shopData.by_source||{})){
+      const ch=SHOPIFY_MAP[src];
+      if(ch && _shopify[ch]!==undefined) _shopify[ch]+=v.gmv;
+    }
+
+    localStorage.setItem(lsKey, JSON.stringify(_shopify));
+    renderChannels();
+    renderChart(_shopify.by_day||{});
+    document.getElementById('lastUpd').textContent =
+      'Actualizado '+new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+  } catch(e){
+    console.error(e);
   } finally {
-    spin.classList.remove('spinning');
+    document.getElementById('spinIcon').classList.remove('spinning');
   }
 }
 
-function render(d) {
-  if (d.error) {
-    document.getElementById('kpiGrid').innerHTML =
-      `<div class="kpi-card" style="grid-column:1/-1;color:#d94f3a;font-size:13px;">⚠ ${d.error}</div>`;
-    return;
-  }
-  const s = d.summary || {};
-  renderKPIs(s);
-  renderChart(d.by_day || {});
-  renderChannels(d.by_source || {});
-  renderProducts(d.top_products || []);
+function applyShopify(data){
+  _shopify=data;
+  renderChannels();
 }
 
-function renderKPIs(s) {
-  const aov = s.aov || 0;
-  document.getElementById('kpiGrid').innerHTML = `
-    <div class="kpi-card">
-      <div class="kpi-label">GMV Total</div>
-      <div class="kpi-value terra">${fmtFull(s.total_gmv || 0)}</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Órdenes</div>
-      <div class="kpi-value">${(s.total_orders || 0).toLocaleString()}</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Ticket Promedio</div>
-      <div class="kpi-value">${fmtMXN(aov)}</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Canales activos</div>
-      <div class="kpi-value">${Object.keys(_data.by_source || {}).length}</div>
-    </div>`;
+// ── RENDER CHANNELS ───────────────────────────────────────────────────────────
+function renderChannels(){
+  const m=_manual;
+  const ttVideo    = m.tiktok_video    || 0;
+  const ttAfil     = m.tiktok_afil     || 0;
+  const ttTotal    = (ttVideo + _tiktokLive + ttAfil);
+
+  const total =
+    (_shopify.tienda_online||0) +
+    (m.palacio_hierro||0) +
+    (m.meli||0) +
+    (_shopify.bdg_outlet||0) +
+    ttTotal +
+    (m.comercializadora||0) +
+    (_shopify.wholesale||0) +
+    (m.amazon||0);
+
+  document.getElementById('totalAmount').textContent  = fmtFull(total);
+  document.getElementById('totalPeriod').textContent  = periodLabel();
+
+  document.getElementById('chBody').innerHTML = `<tr>
+    ${autoCell(_shopify.tienda_online||0)}
+    ${manualCell('palacio_hierro', m.palacio_hierro)}
+    ${manualCell('meli', m.meli)}
+    ${autoCell(_shopify.bdg_outlet||0)}
+    <td class="tiktok-cell">
+      <div class="tiktok-sub">
+        <div class="tiktok-row">
+          <span class="tiktok-label">GMV Video</span>
+          <input class="tiktok-input" id="inp_tiktok_video"
+            value="${ttVideo||''}" placeholder="0"
+            oninput="schedSave('tiktok_video',this.value)"
+            type="number" min="0"/>
+        </div>
+        <div class="tiktok-row">
+          <span class="tiktok-label">GMV Live</span>
+          <span class="tiktok-val ${_tiktokLive?'':'zero'}">${fmtMXN(_tiktokLive)}</span>
+        </div>
+        <div class="tiktok-row">
+          <span class="tiktok-label">GMV Afiliados</span>
+          <input class="tiktok-input" id="inp_tiktok_afil"
+            value="${ttAfil||''}" placeholder="0"
+            oninput="schedSave('tiktok_afil',this.value)"
+            type="number" min="0"/>
+        </div>
+        <div class="tiktok-total-row" style="display:flex;justify-content:space-between;align-items:center;">
+          <span class="tiktok-total-label">Total</span>
+          <span class="tiktok-total-val">${fmtMXN(ttTotal)}</span>
+        </div>
+      </div>
+    </td>
+    ${manualCell('comercializadora', m.comercializadora)}
+    ${autoCell(_shopify.wholesale||0)}
+    ${manualCell('amazon', m.amazon)}
+  </tr>`;
 }
 
-function renderChart(byDay) {
-  const days = Object.keys(byDay).sort();
-  const wrap = document.getElementById('chartWrap');
+function autoCell(gmv){
+  return `<td>
+    <div class="ch-cell">
+      <div class="ch-amount ${gmv?'':'zero'}">${fmtMXN(gmv)}</div>
+      <div class="ch-source"><span class="dot-auto"></span> Shopify</div>
+    </div>
+  </td>`;
+}
 
-  if (days.length === 0) {
-    wrap.innerHTML = `<div class="empty">Sin datos para este período</div>`;
-    return;
-  }
+function manualCell(key, gmv){
+  return `<td>
+    <div class="ch-cell">
+      <div class="ch-input-wrap">
+        <input class="ch-input" id="inp_${key}"
+          value="${gmv||''}" placeholder="—"
+          oninput="schedSave('${key}',this.value)"
+          type="number" min="0"/>
+        <span class="ch-saving" id="sav_${key}">✓ Guardado</span>
+      </div>
+      <div class="ch-source"><span class="dot-manual"></span> Manual</div>
+    </div>
+  </td>`;
+}
 
-  const vals   = days.map(d => byDay[d].gmv);
-  const maxVal = Math.max(...vals, 1);
-  const W = 600, H = 140, PAD = 20;
-  const step = (W - PAD*2) / Math.max(days.length - 1, 1);
+// ── SAVE MANUAL ───────────────────────────────────────────────────────────────
+function schedSave(key, val){
+  _manual[key]=parseFloat(val)||0;
+  renderTotal();
+  clearTimeout(_saveTimer[key]);
+  _saveTimer[key]=setTimeout(()=>saveChannel(key,_manual[key]),800);
+}
 
-  const points = vals.map((v, i) => ({
-    x: PAD + i * step,
-    y: H - PAD - (v / maxVal) * (H - PAD*2),
-    gmv: v,
-    day: days[i],
-  }));
+function renderTotal(){
+  const m=_manual;
+  const ttTotal=(m.tiktok_video||0)+_tiktokLive+(m.tiktok_afil||0);
+  const total=(_shopify.tienda_online||0)+(m.palacio_hierro||0)+(m.meli||0)+
+    (_shopify.bdg_outlet||0)+ttTotal+(m.comercializadora||0)+
+    (_shopify.wholesale||0)+(m.amazon||0);
+  document.getElementById('totalAmount').textContent=fmtFull(total);
+  // update tiktok total display
+  const ttEl=document.querySelector('.tiktok-total-val');
+  if(ttEl) ttEl.textContent=fmtMXN(ttTotal);
+}
 
-  const path  = points.map((p,i) => `${i===0?'M':'L'}${p.x},${p.y}`).join(' ');
-  const area  = path + ` L${points[points.length-1].x},${H} L${points[0].x},${H} Z`;
+async function saveChannel(key, gmv){
+  const savEl=document.getElementById(`sav_${key}`);
+  if(savEl) savEl.classList.add('show');
+  try {
+    await fetch('/api/channels',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({week:_weekKey,channel:key,gmv})
+    });
+  } catch(_){}
+  setTimeout(()=>savEl?.classList.remove('show'),1500);
+}
 
-  // X-axis labels (show first, middle, last)
-  const labelIdxs = days.length <= 7
-    ? days.map((_,i)=>i)
-    : [0, Math.floor(days.length/2), days.length-1];
-
-  const labels = labelIdxs.map(i =>
-    `<text x="${points[i].x}" y="${H+4}" text-anchor="middle" font-size="9" fill="#9a9590" font-family="Archivo Narrow">${days[i].slice(5)}</text>`
-  ).join('');
-
-  const dots = points.map((p,i) =>
-    `<circle class="dot" cx="${p.x}" cy="${p.y}" r="3" fill="#c16452" stroke="#fff" stroke-width="1.5"
-      data-day="${p.day}" data-gmv="${p.gmv}" data-i="${i}"/>`
-  ).join('');
-
-  wrap.innerHTML = `
-    <svg class="chart" viewBox="0 0 ${W} ${H+12}" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#c16452" stop-opacity=".18"/>
-          <stop offset="100%" stop-color="#c16452" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
+// ── CHART ─────────────────────────────────────────────────────────────────────
+function renderChart(byDay){
+  const days=Object.keys(byDay).sort();
+  const wrap=document.getElementById('chartWrap');
+  if(!days.length){wrap.innerHTML=`<div style="padding:32px;text-align:center;color:var(--muted);font-size:12px;">Sin datos para este período</div>`;return;}
+  const vals=days.map(d=>byDay[d].gmv);
+  const maxV=Math.max(...vals,1);
+  const W=600,H=120,P=16;
+  const step=(W-P*2)/Math.max(days.length-1,1);
+  const pts=vals.map((v,i)=>({x:P+i*step,y:H-P-(v/maxV)*(H-P*2),gmv:v,day:days[i]}));
+  const path=pts.map((p,i)=>`${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const area=path+` L${pts[pts.length-1].x},${H} L${pts[0].x},${H} Z`;
+  const labelIdxs=days.length<=7?days.map((_,i)=>i):[0,Math.floor(days.length/2),days.length-1];
+  const labels=labelIdxs.map(i=>`<text x="${pts[i].x.toFixed(1)}" y="${H+4}" text-anchor="middle" font-size="9" fill="#9a9590" font-family="Archivo Narrow">${days[i].slice(5)}</text>`).join('');
+  const dots=pts.map(p=>`<circle class="dot" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" fill="#c16452" stroke="#fff" stroke-width="1.5" data-day="${p.day}" data-gmv="${p.gmv}"/>`).join('');
+  wrap.innerHTML=`
+    <svg viewBox="0 0 ${W} ${H+12}" preserveAspectRatio="none" style="width:100%;height:${H+12}px;">
+      <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#c16452" stop-opacity=".15"/>
+        <stop offset="100%" stop-color="#c16452" stop-opacity="0"/>
+      </linearGradient></defs>
       <path d="${area}" fill="url(#g)"/>
       <path d="${path}" fill="none" stroke="#c16452" stroke-width="2" stroke-linejoin="round"/>
-      ${dots}
-      ${labels}
+      ${dots}${labels}
     </svg>
     <div class="chart-tooltip" id="tooltip"></div>`;
-
-  // Tooltip
-  wrap.querySelectorAll('.dot').forEach(dot => {
-    dot.addEventListener('mouseenter', e => {
-      const tt  = document.getElementById('tooltip');
-      const gmv = parseFloat(e.target.dataset.gmv);
-      const day = e.target.dataset.day;
-      tt.textContent = `${day} · ${fmtFull(gmv)}`;
-      tt.style.opacity = 1;
-      tt.style.left = (e.offsetX + 10) + 'px';
-      tt.style.top  = (e.offsetY - 28) + 'px';
+  wrap.querySelectorAll('.dot').forEach(d=>{
+    d.addEventListener('mouseenter',e=>{
+      const tt=document.getElementById('tooltip');
+      tt.textContent=`${e.target.dataset.day} · $${parseFloat(e.target.dataset.gmv).toLocaleString('es-MX')}`;
+      tt.style.opacity=1;tt.style.left=(e.offsetX+10)+'px';tt.style.top=(e.offsetY-28)+'px';
     });
-    dot.addEventListener('mouseleave', () => {
-      document.getElementById('tooltip').style.opacity = 0;
-    });
+    d.addEventListener('mouseleave',()=>{document.getElementById('tooltip').style.opacity=0;});
   });
 }
 
-function renderChannels(bySource) {
-  const entries = Object.entries(bySource).sort((a,b) => b[1].gmv - a[1].gmv);
-  const maxGMV  = Math.max(...entries.map(e => e[1].gmv), 1);
-
-  if (entries.length === 0) {
-    document.getElementById('channelsWrap').innerHTML = `<div class="empty">Sin datos</div>`;
-    return;
-  }
-
-  document.getElementById('channelsWrap').innerHTML = entries.map(([src, v]) => {
-    const color  = CHANNEL_COLORS[src] || '#9a9590';
-    const label  = CHANNEL_LABELS[src] || src;
-    const pct    = (v.gmv / maxGMV * 100).toFixed(1);
-    return `<div class="channel-row">
-      <div class="channel-name" style="font-size:12px;">${label}</div>
-      <div class="channel-bar-wrap"><div class="channel-bar" style="width:${pct}%;background:${color};"></div></div>
-      <div class="channel-gmv">${fmtMXN(v.gmv)}</div>
-      <div class="channel-orders">${v.orders} órd.</div>
-    </div>`;
-  }).join('');
-}
-
-function renderProducts(products) {
-  if (products.length === 0) {
-    document.getElementById('productsWrap').innerHTML = `<div class="empty">Sin datos de productos</div>`;
-    return;
-  }
-  document.getElementById('productsWrap').innerHTML = products.map((p, i) => `
-    <div class="prod-row">
-      <div class="prod-rank">${i+1}</div>
-      <div class="prod-name">${p.title}</div>
-      <div class="prod-units">${p.units} uds.</div>
-      <div class="prod-gmv">${fmtMXN(p.gmv)}</div>
-    </div>`).join('');
-}
-
-// Auto-refresh cada 5 minutos
-setInterval(load, 5 * 60 * 1000);
-
 // ── AUTH GATE ─────────────────────────────────────────────────────────────────
-const ALLOWED = ['ruben2026'];
-const AUTH_KEY = 'pulse_auth';
+const ALLOWED=['ruben2026'];
+const AUTH_KEY='pulse_auth';
 
-function checkAuth() {
-  return ALLOWED.includes(localStorage.getItem(AUTH_KEY));
-}
+function checkAuth(){ return ALLOWED.includes(localStorage.getItem(AUTH_KEY)); }
 
-function showGate() {
-  document.body.style.overflow = 'hidden';
-  const gate = document.createElement('div');
-  gate.id = 'authGate';
-  gate.style.cssText = `
-    position:fixed;inset:0;background:#0a0a0a;z-index:9999;
-    display:flex;align-items:center;justify-content:center;
-    font-family:'Archivo',sans-serif;
-  `;
-  gate.innerHTML = `
+function showGate(){
+  document.body.style.overflow='hidden';
+  const gate=document.createElement('div');
+  gate.id='authGate';
+  gate.style.cssText='position:fixed;inset:0;background:#0a0a0a;z-index:9999;display:flex;align-items:center;justify-content:center;font-family:\'Archivo\',sans-serif;';
+  gate.innerHTML=`
     <div style="text-align:center;width:320px;">
-      <div style="font-family:'Jost',sans-serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:.1em;margin-bottom:4px;">
-        BDG<span style="color:#c16452;">·</span>PULSE
-      </div>
-      <div style="font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-bottom:36px;">
-        Acceso restringido
-      </div>
+      <div style="font-family:'Jost',sans-serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:.1em;margin-bottom:4px;">BDG<span style="color:#c16452;">·</span>PULSE</div>
+      <div style="font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-bottom:36px;">Acceso restringido</div>
       <input id="gateInput" type="password" placeholder="••••••••••" autocomplete="off" maxlength="30"
-        style="width:100%;background:#141414;border:1px solid rgba(255,255,255,.1);border-radius:5px;
-          padding:14px 16px;font-family:'Archivo',sans-serif;font-size:16px;color:#fff;
-          letter-spacing:.2em;text-align:center;outline:none;transition:border-color .15s;"
+        style="width:100%;background:#141414;border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:14px 16px;font-family:'Archivo',sans-serif;font-size:16px;color:#fff;letter-spacing:.2em;text-align:center;outline:none;transition:border-color .15s;"
         onkeydown="if(event.key==='Enter')submitGate()"
         onfocus="this.style.borderColor='#c16452'"
         onblur="this.style.borderColor='rgba(255,255,255,.1)'"/>
-      <div id="gateError" style="height:18px;margin-top:10px;font-size:11px;color:#d94f3a;opacity:0;transition:opacity .2s;">
-        Código incorrecto
-      </div>
-      <a href="/" style="display:block;margin-top:20px;font-size:10px;letter-spacing:.16em;
-        text-transform:uppercase;color:rgba(255,255,255,.18);text-decoration:none;transition:color .12s;"
-        onmouseover="this.style.color='rgba(255,255,255,.5)'"
-        onmouseout="this.style.color='rgba(255,255,255,.18)'">← Volver al HQ</a>
+      <div id="gateError" style="height:18px;margin-top:10px;font-size:11px;color:#d94f3a;opacity:0;transition:opacity .2s;">Código incorrecto</div>
+      <a href="/" style="display:block;margin-top:20px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.18);text-decoration:none;">← Volver al HQ</a>
     </div>`;
   document.body.appendChild(gate);
-  setTimeout(() => document.getElementById('gateInput')?.focus(), 80);
+  setTimeout(()=>document.getElementById('gateInput')?.focus(),80);
 }
 
-function submitGate() {
-  const val = document.getElementById('gateInput')?.value.trim();
-  if (ALLOWED.includes(val)) {
-    localStorage.setItem(AUTH_KEY, val);
+function submitGate(){
+  const val=document.getElementById('gateInput')?.value.trim();
+  if(ALLOWED.includes(val)){
+    localStorage.setItem(AUTH_KEY,val);
     document.getElementById('authGate')?.remove();
-    document.body.style.overflow = '';
-    load();
+    document.body.style.overflow='';
+    loadAll();
   } else {
-    const inp = document.getElementById('gateInput');
-    const err = document.getElementById('gateError');
-    inp.style.borderColor = '#d94f3a';
-    inp.style.animation = 'none';
-    inp.value = '';
-    if (err) { err.style.opacity = 1; setTimeout(() => { err.style.opacity = 0; }, 2000); }
-    setTimeout(() => { inp.style.borderColor='rgba(255,255,255,.1)'; }, 600);
+    const inp=document.getElementById('gateInput');
+    const err=document.getElementById('gateError');
+    inp.style.borderColor='#d94f3a'; inp.value='';
+    if(err){err.style.opacity=1;setTimeout(()=>{err.style.opacity=0;},2000);}
+    setTimeout(()=>{inp.style.borderColor='rgba(255,255,255,.1)';},600);
   }
 }
 
-// Init
-if (checkAuth()) {
-  load();
-} else {
-  showGate();
-}
+// Auto-refresh cada 5 min
+setInterval(()=>loadAll(true),5*60*1000);
+
+if(checkAuth()){ loadAll(); } else { showGate(); }
 </script>
 </body>
 </html>
