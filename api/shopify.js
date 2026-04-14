@@ -124,7 +124,7 @@ export default async function handler(req, res) {
 async function handleProducts(req, res) {
   try {
     const products = [];
-    let url = `https://${STORE}/admin/api/2024-01/products.json?limit=250&fields=id,title,variants,product_type,status`;
+    let url = `https://${STORE}/admin/api/2024-01/products.json?limit=250&fields=id,title,variants,images,product_type,status`;
 
     while (url) {
       const r = await fetch(url, { headers: { "X-Shopify-Access-Token": TOKEN } });

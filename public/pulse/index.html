@@ -69,6 +69,12 @@ body{font-family:var(--fn);background:#f0ece6;color:var(--dark);min-height:100vh
 .report-dismiss-btn{width:30px;height:30px;border:none;background:transparent;font-size:18px;color:var(--muted);cursor:pointer;border-radius:4px;display:flex;align-items:center;justify-content:center;}
 .report-dismiss-btn:hover{background:rgba(0,0,0,.06);}
 .report-error{color:var(--red);}
+.report-form{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;}
+.report-form-row{display:flex;flex-direction:column;gap:4px;}
+.report-form-label{font-size:9px;letter-spacing:.16em;text-transform:uppercase;font-family:var(--fh);color:var(--muted);}
+.report-form-input{padding:8px 12px;border:1px solid var(--line);border-radius:5px;font-family:var(--fn);font-size:13px;color:var(--dark);background:var(--cream);outline:none;transition:border-color .12s;}
+.report-form-input:focus{border-color:var(--terra);}
+select.report-form-input{min-width:160px;cursor:pointer;}
 
 /* CHANNEL GRID */
 .channels-wrap{overflow-x:auto;margin-bottom:16px;}
@@ -214,14 +220,35 @@ body{font-family:var(--fn);background:#f0ece6;color:var(--dark);min-height:100vh
     <input type="file" id="fileInput" accept=".xlsx,.xls,.pdf" style="display:none" onchange="handleReportFile(this.files[0]);this.value=''"/>
 
     <div class="report-result" id="reportResult">
-      <div class="report-result-info">
-        <div class="report-result-source" id="reportSource"></div>
-        <div class="report-result-gmv" id="reportGMV"></div>
-        <div class="report-result-sub" id="reportSub"></div>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
-        <button class="report-apply-btn" id="applyBtn" onclick="applyReport()">Aplicar</button>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+        <div class="report-result-info">
+          <div class="report-result-source" id="reportSource"></div>
+          <div class="report-result-gmv" id="reportGMV"></div>
+          <div class="report-result-sub" id="reportSub"></div>
+        </div>
         <button class="report-dismiss-btn" onclick="dismissReport()">×</button>
+      </div>
+      <div class="report-form" id="reportForm">
+        <div class="report-form-row">
+          <label class="report-form-label">Canal</label>
+          <select class="report-form-input" id="reportChannel">
+            <option value="meli">MercadoLibre</option>
+            <option value="palacio_hierro">Palacio de Hierro</option>
+            <option value="comercializadora">Comercializadora</option>
+            <option value="amazon">Amazon</option>
+            <option value="tiktok_video">TikTok Video</option>
+            <option value="tiktok_afil">TikTok Afiliados</option>
+          </select>
+        </div>
+        <div class="report-form-row">
+          <label class="report-form-label">Desde</label>
+          <input type="date" class="report-form-input" id="reportDateFrom"/>
+        </div>
+        <div class="report-form-row">
+          <label class="report-form-label">Hasta</label>
+          <input type="date" class="report-form-input" id="reportDateTo"/>
+        </div>
+        <button class="report-apply-btn" id="applyBtn" onclick="applyReport()">Guardar →</button>
       </div>
     </div>
   </div>
@@ -766,8 +793,9 @@ async function parseXLSXReport(file){
   if(colSale < 0 || colGMV < 0) return { error: 'Columnas requeridas no encontradas' };
 
   const seen   = new Set();
-  const byWeek = {}; // { '2026-04-10': { gmv, orders, units } }
+  const byWeek = {};
   let totalGMV = 0, totalUnits = 0, orderCount = 0;
+  let dateMin = null, dateMax = null;
 
   for(let i = headerIdx + 1; i < rows.length; i++){
     const row    = rows[i];
@@ -790,6 +818,8 @@ async function parseXLSXReport(file){
     seen.add(saleId);
     totalGMV += gmv;
     orderCount++;
+    if(!dateMin || date < dateMin) dateMin = new Date(date);
+    if(!dateMax || date > dateMax) dateMax = new Date(date);
     const u = parseFloat(colUnits >= 0 ? row[colUnits] : NaN);
     if(!isNaN(u)){ totalUnits += u; byWeek[wk].units = (byWeek[wk].units||0)+u; }
   }
@@ -803,6 +833,8 @@ async function parseXLSXReport(file){
     orders:  orderCount,
     units:   totalUnits,
     byWeek,
+    dateMin: dateMin ? fmt(dateMin) : null,
+    dateMax: dateMax ? fmt(dateMax) : null,
   };
 }
 
@@ -812,6 +844,7 @@ function showReportResult(result, filename){
   const gmv = document.getElementById('reportGMV');
   const sub = document.getElementById('reportSub');
   const btn = document.getElementById('applyBtn');
+  const form = document.getElementById('reportForm');
 
   if(result.error){
     src.textContent = 'Error';
@@ -819,21 +852,25 @@ function showReportResult(result, filename){
     gmv.textContent = result.error;
     sub.textContent = filename;
     if(btn) btn.style.display = 'none';
+    if(form) form.style.display = 'none';
   } else {
-    src.textContent = result.label + ' · ' + filename;
+    src.textContent = filename;
     gmv.className   = 'report-result-gmv';
     gmv.textContent = fmtFull(result.gmv);
+    sub.textContent = `${result.orders} ventas detectadas`;
 
-    // Desglose por semana
-    const weeks = Object.entries(result.byWeek||{}).sort(([a],[b])=>a.localeCompare(b));
-    const weekLines = weeks.map(([wk, d]) => {
-      const thu = new Date(wk+'T12:00:00');
-      const wed = new Date(thu); wed.setDate(wed.getDate()+6);
-      return `Sem ${fmt(thu).slice(5)}→${fmt(wed).slice(5)}: ${fmtFull(d.gmv)} (${d.orders} ventas)`;
-    });
-    sub.innerHTML = weekLines.join('<br>');
+    // Pre-llenar canal
+    const chSel = document.getElementById('reportChannel');
+    if(chSel) chSel.value = result.channel || 'meli';
 
-    if(btn){ btn.style.display = ''; btn.textContent = `Guardar ${weeks.length > 1 ? weeks.length+' semanas' : '1 semana'} →`; btn.disabled = false; }
+    // Pre-llenar fechas detectadas
+    const fromEl = document.getElementById('reportDateFrom');
+    const toEl   = document.getElementById('reportDateTo');
+    if(fromEl) fromEl.value = result.dateMin || '';
+    if(toEl)   toEl.value   = result.dateMax || '';
+
+    if(btn){ btn.style.display = ''; btn.textContent = 'Guardar →'; btn.disabled = false; }
+    if(form) form.style.display = '';
   }
   el.classList.add('show');
 }
@@ -845,24 +882,49 @@ function dismissReport(){
 
 async function applyReport(){
   if(!_reportData || _reportData.error) return;
-  const { channel, byWeek } = _reportData;
+
+  const channel  = document.getElementById('reportChannel')?.value;
+  const dateFrom = document.getElementById('reportDateFrom')?.value;
+  const dateTo   = document.getElementById('reportDateTo')?.value;
+
+  if(!channel){ alert('Selecciona el canal'); return; }
+  if(!dateFrom || !dateTo){ alert('Ingresa el rango de fechas'); return; }
+
   const btn = document.getElementById('applyBtn');
   if(btn){ btn.textContent = 'Guardando...'; btn.disabled = true; }
 
-  // Guardar cada semana en Firebase
-  await Promise.all(Object.entries(byWeek).map(([wk, d]) =>
+  // Recalcular semanas según las fechas que ingresó el usuario
+  const from = new Date(dateFrom+'T12:00:00');
+  const to   = new Date(dateTo+'T12:00:00');
+  const weekGMV = {}; // { weekKey → gmv }
+
+  // Distribuir el GMV total proporcionalmente entre las semanas del rango
+  // Si el reporte ya tiene desglose por semana dentro del rango, usarlo
+  const byWeek = _reportData.byWeek || {};
+  let covered = {};
+  for(const [wk, d] of Object.entries(byWeek)){
+    const wkDate = new Date(wk+'T12:00:00');
+    const wkEnd  = new Date(wkDate); wkEnd.setDate(wkEnd.getDate()+6);
+    if(wkDate <= to && wkEnd >= from) covered[wk] = d.gmv;
+  }
+  // Si no hay desglose, guardar todo el GMV en la semana de la fecha inicio
+  if(!Object.keys(covered).length){
+    covered[getWeekKeyForDate(from)] = _reportData.gmv;
+  }
+
+  await Promise.all(Object.entries(covered).map(([wk, gmv]) =>
     fetch('/api/channels',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ week: wk, channel, gmv: d.gmv })
+      body: JSON.stringify({ week: wk, channel, gmv })
     })
   ));
 
-  // Si la semana actual está en el reporte, actualizar el campo visible
-  if(byWeek[_weekKey]){
-    _manual[channel] = byWeek[_weekKey].gmv;
+  // Actualizar campo visible si la semana actual está en el rango
+  if(covered[_weekKey]){
+    _manual[channel] = covered[_weekKey];
     const inp = document.getElementById(`inp_${channel}`);
-    if(inp) inp.value = byWeek[_weekKey].gmv;
+    if(inp) inp.value = covered[_weekKey];
     renderTotal();
   }
 
