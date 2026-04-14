@@ -208,10 +208,10 @@ body{font-family:var(--fn);background:#f0ece6;color:var(--dark);min-height:100vh
       <div class="drop-zone-body">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.3;margin-bottom:10px;display:block;margin-left:auto;margin-right:auto;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9,15 12,12 15,15"/></svg>
         <div class="drop-zone-label" id="dropLabel">Arrastra tu reporte o haz clic para seleccionar</div>
-        <div class="drop-zone-sub">MercadoLibre · Palacio de Hierro · Amazon (.xlsx)</div>
+        <div class="drop-zone-sub">MercadoLibre · Palacio de Hierro · Amazon (.xlsx, .pdf)</div>
       </div>
     </div>
-    <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" onchange="handleReportFile(this.files[0]);this.value=''"/>
+    <input type="file" id="fileInput" accept=".xlsx,.xls,.pdf" style="display:none" onchange="handleReportFile(this.files[0]);this.value=''"/>
 
     <div class="report-result" id="reportResult">
       <div class="report-result-info">
@@ -573,24 +573,181 @@ async function handleReportFile(file){
   const lbl = document.getElementById('dropLabel');
   lbl.textContent = 'Procesando...';
   try {
-    await ensureXLSX();
-    const result = await parseXLSXReport(file);
+    const isPDF  = file.name.toLowerCase().endsWith('.pdf');
+    const isXLSX = /\.(xlsx|xls)$/i.test(file.name);
+    let result;
+    if(isPDF){
+      await ensurePDFJS();
+      result = await parsePDFReport(file);
+    } else if(isXLSX){
+      await ensureXLSX();
+      result = await parseXLSXReport(file);
+    } else {
+      result = { error: 'Formato no soportado. Usa .xlsx o .pdf' };
+    }
     _reportData = result;
     showReportResult(result, file.name);
   } catch(e) {
+    console.error(e);
     showReportResult({ error: 'No se pudo leer el archivo' }, file.name);
   }
   lbl.textContent = 'Arrastra tu reporte o haz clic para seleccionar';
 }
 
-async function parseXLSXReport(file){
+async function ensurePDFJS(){
+  if(window.pdfjsLib) return;
+  await new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload = () => {
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      res();
+    };
+    s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+
+async function parsePDFReport(file){
   const buf = await file.arrayBuffer();
-  const wb  = XLSX.read(buf, { type: 'array' });
-  const ws  = wb.Sheets[wb.SheetNames[0]];
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+
+  // Extraer todos los ítems de texto con posición X,Y de todas las páginas
+  const allItems = [];
+  for(let p = 1; p <= pdf.numPages; p++){
+    const page     = await pdf.getPage(p);
+    const vp       = page.getViewport({ scale: 1 });
+    const content  = await page.getTextContent();
+    for(const item of content.items){
+      if(!item.str.trim()) continue;
+      const x = item.transform[4];
+      const y = vp.height - item.transform[5]; // flip Y → top-down
+      allItems.push({ str: item.str.trim(), x, y });
+    }
+  }
+
+  // Agrupar por fila (misma Y ± tolerancia de 4pt)
+  allItems.sort((a, b) => a.y - b.y || a.x - b.x);
+  const rows = [];
+  let i = 0;
+  while(i < allItems.length){
+    const baseY = allItems[i].y;
+    const rowItems = [];
+    while(i < allItems.length && Math.abs(allItems[i].y - baseY) <= 4){
+      rowItems.push(allItems[i++]);
+    }
+    rowItems.sort((a, b) => a.x - b.x);
+    rows.push({ cells: rowItems.map(it => it.str), xs: rowItems.map(it => it.x) });
+  }
+
+  // Buscar la fila de encabezados
+  let headerIdx = -1, headerXs = [], headers = [];
+  for(let r = 0; r < Math.min(rows.length, 40); r++){
+    const joined = rows[r].cells.join(' ');
+    if(joined.includes('# de venta') || joined.includes('Ingresos por productos')){
+      // Puede que el encabezado esté en varias filas consecutivas — unirlas
+      headers = rows[r].cells;
+      headerXs = rows[r].xs;
+      headerIdx = r;
+      break;
+    }
+  }
+  if(headerIdx === -1) return { error: 'Formato PDF no reconocido. Verifica que sea un reporte de MercadoLibre.' };
+
+  // Localizar columnas por posición X más cercana al encabezado
+  function colX(label){
+    // Buscar en las filas de encabezado combinadas
+    for(let r = headerIdx; r <= Math.min(headerIdx+3, rows.length-1); r++){
+      for(let c = 0; c < rows[r].cells.length; c++){
+        if(rows[r].cells[c].includes(label)) return rows[r].xs[c];
+      }
+    }
+    return null;
+  }
+
+  const xSale  = colX('# de venta');
+  const xGMV   = colX('Ingresos por productos') ?? colX('Ingresos por');
+  const xDate  = colX('Fecha de venta') ?? colX('Fecha');
+
+  if(xSale == null || xGMV == null) return { error: 'No se encontraron las columnas necesarias en el PDF.' };
+
+  // Función para obtener el valor de la celda más cercana a una X en una fila
+  function cellAt(row, targetX){
+    let best = null, bestDist = Infinity;
+    for(let c = 0; c < row.cells.length; c++){
+      const d = Math.abs(row.xs[c] - targetX);
+      if(d < bestDist){ bestDist = d; best = row.cells[c]; }
+    }
+    return bestDist < 40 ? best : null; // tolerancia de 40pt
+  }
+
+  const seen   = new Set();
+  const byWeek = {};
+  let totalGMV = 0, orderCount = 0;
+
+  for(let r = headerIdx + 1; r < rows.length; r++){
+    const row    = rows[r];
+    const saleId = (cellAt(row, xSale) || '').replace(/\s/g,'');
+    if(!saleId || !/^\d{10,}$/.test(saleId)) continue;
+    if(seen.has(saleId)) continue;
+
+    const gmvStr = cellAt(row, xGMV) || '';
+    const gmv    = parseFloat(gmvStr.replace(/,/g,'.'));
+    if(isNaN(gmv) || gmv <= 0) continue;
+
+    const dateStr = xDate != null ? (cellAt(row, xDate) || '') : '';
+    const date    = parseMLDate(dateStr);
+    if(!date) continue;
+
+    const wk = getWeekKeyForDate(date);
+    if(!byWeek[wk]) byWeek[wk] = { gmv:0, orders:0, units:0 };
+    byWeek[wk].gmv    += gmv;
+    byWeek[wk].orders++;
+    seen.add(saleId);
+    totalGMV += gmv;
+    orderCount++;
+  }
+
+  for(const wk of Object.keys(byWeek)) byWeek[wk].gmv = Math.round(byWeek[wk].gmv*100)/100;
+
+  if(!orderCount) return { error: 'No se detectaron ventas en el PDF. Verifica que sea el reporte correcto.' };
+
+  return {
+    channel: 'meli',
+    label:   'MercadoLibre',
+    gmv:     Math.round(totalGMV*100)/100,
+    orders:  orderCount,
+    units:   0,
+    byWeek,
+  };
+}
+
+// ── Helpers de fecha ─────────────────────────────────────────────────────────
+const MESES = {
+  'enero':1,'febrero':2,'marzo':3,'abril':4,'mayo':5,'junio':6,
+  'julio':7,'agosto':8,'septiembre':9,'octubre':10,'noviembre':11,'diciembre':12
+};
+function parseMLDate(str){
+  const m = String(str).match(/(\d{1,2}) de (\w+) de (\d{4})/);
+  if(!m) return null;
+  const month = MESES[m[2].toLowerCase()];
+  if(!month) return null;
+  return new Date(parseInt(m[3]), month-1, parseInt(m[1]));
+}
+function getWeekKeyForDate(date){
+  const d = new Date(date);
+  d.setDate(d.getDate() - ((d.getDay()+3)%7));
+  return fmt(d);
+}
+
+async function parseXLSXReport(file){
+  const buf  = await file.arrayBuffer();
+  const wb   = XLSX.read(buf, { type: 'array' });
+  const ws   = wb.Sheets[wb.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
 
-  // ── Detectar tipo de reporte ──────────────────────────────────────────────
-  // MercadoLibre: buscar fila con "# de venta" e "Ingresos por productos"
+  // Detectar fila de encabezados MercadoLibre
   let headerIdx = -1;
   for(let i = 0; i < Math.min(rows.length, 15); i++){
     const r = rows[i].map(c => String(c));
@@ -598,41 +755,54 @@ async function parseXLSXReport(file){
       headerIdx = i; break;
     }
   }
-
   if(headerIdx === -1) return { error: 'Formato no reconocido. Por ahora se soportan reportes de MercadoLibre.' };
 
   const headers  = rows[headerIdx].map(c => String(c).trim());
   const colSale  = headers.indexOf('# de venta');
   const colGMV   = headers.findIndex(h => h.includes('Ingresos por productos'));
+  const colDate  = headers.indexOf('Fecha de venta');
   const colUnits = headers.indexOf('Unidades');
 
   if(colSale < 0 || colGMV < 0) return { error: 'Columnas requeridas no encontradas' };
 
-  const seen = new Set();
+  const seen   = new Set();
+  const byWeek = {}; // { '2026-04-10': { gmv, orders, units } }
   let totalGMV = 0, totalUnits = 0, orderCount = 0;
 
   for(let i = headerIdx + 1; i < rows.length; i++){
     const row    = rows[i];
     const saleId = String(row[colSale] || '').trim();
-    if(!saleId || !/^\d{10,}$/.test(saleId)) continue; // solo IDs numéricos de venta
-    if(seen.has(saleId)) continue;                      // sin duplicados
+    if(!saleId || !/^\d{10,}$/.test(saleId)) continue;
+    if(seen.has(saleId)) continue;
 
     const gmv = parseFloat(row[colGMV]);
     if(isNaN(gmv) || gmv <= 0) continue;
 
+    // Asignar a la semana correcta según la fecha de venta
+    const date = colDate >= 0 ? parseMLDate(row[colDate]) : null;
+    if(!date) continue; // omitir filas sin fecha válida
+
+    const wk = getWeekKeyForDate(date);
+    if(!byWeek[wk]) byWeek[wk] = { gmv:0, orders:0, units:0 };
+    byWeek[wk].gmv    += gmv;
+    byWeek[wk].orders++;
+
     seen.add(saleId);
-    totalGMV   += gmv;
+    totalGMV += gmv;
     orderCount++;
-    const u = parseFloat(row[colUnits]);
-    if(!isNaN(u)) totalUnits += u;
+    const u = parseFloat(colUnits >= 0 ? row[colUnits] : NaN);
+    if(!isNaN(u)){ totalUnits += u; byWeek[wk].units = (byWeek[wk].units||0)+u; }
   }
+
+  for(const wk of Object.keys(byWeek)) byWeek[wk].gmv = Math.round(byWeek[wk].gmv*100)/100;
 
   return {
     channel: 'meli',
     label:   'MercadoLibre',
-    gmv:     Math.round(totalGMV * 100) / 100,
+    gmv:     Math.round(totalGMV*100)/100,
     orders:  orderCount,
     units:   totalUnits,
+    byWeek,
   };
 }
 
@@ -653,8 +823,17 @@ function showReportResult(result, filename){
     src.textContent = result.label + ' · ' + filename;
     gmv.className   = 'report-result-gmv';
     gmv.textContent = fmtFull(result.gmv);
-    sub.textContent = `${result.orders} ventas · ${result.units} piezas`;
-    if(btn){ btn.style.display = ''; btn.textContent = 'Aplicar →'; btn.disabled = false; }
+
+    // Desglose por semana
+    const weeks = Object.entries(result.byWeek||{}).sort(([a],[b])=>a.localeCompare(b));
+    const weekLines = weeks.map(([wk, d]) => {
+      const thu = new Date(wk+'T12:00:00');
+      const wed = new Date(thu); wed.setDate(wed.getDate()+6);
+      return `Sem ${fmt(thu).slice(5)}→${fmt(wed).slice(5)}: ${fmtFull(d.gmv)} (${d.orders} ventas)`;
+    });
+    sub.innerHTML = weekLines.join('<br>');
+
+    if(btn){ btn.style.display = ''; btn.textContent = `Guardar ${weeks.length > 1 ? weeks.length+' semanas' : '1 semana'} →`; btn.disabled = false; }
   }
   el.classList.add('show');
 }
@@ -664,16 +843,30 @@ function dismissReport(){
   _reportData = null;
 }
 
-function applyReport(){
+async function applyReport(){
   if(!_reportData || _reportData.error) return;
-  const { channel, gmv } = _reportData;
-  _manual[channel] = gmv;
-  const inp = document.getElementById(`inp_${channel}`);
-  if(inp) inp.value = gmv;
-  schedSave(channel, gmv);
-  renderTotal();
+  const { channel, byWeek } = _reportData;
   const btn = document.getElementById('applyBtn');
-  if(btn){ btn.textContent = '✓ Aplicado'; btn.disabled = true; }
+  if(btn){ btn.textContent = 'Guardando...'; btn.disabled = true; }
+
+  // Guardar cada semana en Firebase
+  await Promise.all(Object.entries(byWeek).map(([wk, d]) =>
+    fetch('/api/channels',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ week: wk, channel, gmv: d.gmv })
+    })
+  ));
+
+  // Si la semana actual está en el reporte, actualizar el campo visible
+  if(byWeek[_weekKey]){
+    _manual[channel] = byWeek[_weekKey].gmv;
+    const inp = document.getElementById(`inp_${channel}`);
+    if(inp) inp.value = byWeek[_weekKey].gmv;
+    renderTotal();
+  }
+
+  if(btn){ btn.textContent = '✓ Guardado'; }
 }
 
 // ── AUTH GATE ─────────────────────────────────────────────────────────────────
