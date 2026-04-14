@@ -646,13 +646,16 @@ async function parsePDFReport(file){
   const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
 
   // Extraer todos los ítems de texto con posición X,Y de todas las páginas
+  // rawParts incluye espacios para reconstruir texto real (PDFs con encoding por carácter)
   const allItems = [];
-  const allText  = []; // lista plana de strings para detección de formato
+  const allText  = [];
+  const rawParts = []; // SIN filtrar espacios → permite reconstruir "Ventas Reporte"
   for(let p = 1; p <= pdf.numPages; p++){
     const page     = await pdf.getPage(p);
     const vp       = page.getViewport({ scale: 1 });
     const content  = await page.getTextContent();
     for(const item of content.items){
+      rawParts.push(item.str); // incluye espacios explícitos del PDF
       if(!item.str.trim()) continue;
       const x = item.transform[4];
       const y = vp.height - item.transform[5]; // flip Y → top-down
@@ -662,9 +665,10 @@ async function parsePDFReport(file){
   }
 
   // ── Detección: Palacio de Hierro "Ventas Reporte" ────────────────────────
-  const flatText = allText.join(' ');
-  if(allText.some(t => t === 'Ventas Reporte') || flatText.includes('Ventas Reporte')){
-    if(flatText.includes('Venta Neta') || flatText.includes('Grand Total')){
+  // Usar rawParts (preserva espacios) para que PDFs con chars individuales funcionen
+  const flatText = rawParts.join('');
+  if(flatText.includes('Ventas Reporte') || flatText.includes('VentasReporte')){
+    if(flatText.includes('Venta Neta') || flatText.includes('Grand Total') || flatText.includes('GrandTotal')){
       return parsePHVentasReporte(allText, flatText);
     }
   }
@@ -769,29 +773,46 @@ async function parsePDFReport(file){
 // Reporte sin fechas por venta. Extrae el Grand Total (Venta Neta s/Cupones a Rtl).
 // El usuario debe ingresar el rango de fechas manualmente.
 function parsePHVentasReporte(allText, flatText){
-  // Buscar "Grand Total" + siguiente número (unidades) + GMV
-  // Formato: "Grand Total 41.00 92,836.27 ..."
-  const m = flatText.match(/Grand\s+Total\s+([\d,.]+)\s+([\d,]+\.\d{2})/);
+  // flatText es rawParts.join('') — puede tener chars individuales o texto agrupado.
+  // Normalizar: colapsar secuencias de dígitos/puntuación numérica separadas por chars sueltos.
+  // Estrategia: buscar el patrón "Grand Total" (con o sin espacio) + dos números.
   let gmv = 0;
-  if(m){
-    // m[1] = unidades, m[2] = Venta Neta s/Cupones a Rtl
-    gmv = parseFloat(m[2].replace(/,/g,''));
-  } else {
-    // Fallback: recorrer allText buscando "Grand Total" o "Grand"+"Total"
+
+  // Regex flexible: "Grand" seguido opcionalmente de espacio/chars sueltos + "Total"
+  // luego unidades y GMV (ej: "41.00" "92,836.27" o "4" "1" "." "0" "0" ...)
+  // Mejor: extraer todos los números del flatText después de "GrandTotal"
+  const gtIdx = flatText.search(/Grand\s*Total/);
+  if(gtIdx >= 0){
+    // Tomar el texto a partir de "Grand Total" y extraer números
+    const after = flatText.slice(gtIdx);
+    const nums  = [];
+    // Reconstruir números: secuencias de dígitos, comas y puntos pegadas (sin espacios)
+    // En PDF de chars individuales: "4","1",".","0","0" → al join quedó "41.00"
+    const numRe = /[\d][\d,.]*/g;
+    let nm;
+    while((nm = numRe.exec(after)) !== null && nums.length < 2){
+      const val = parseFloat(nm[0].replace(/,/g,''));
+      if(!isNaN(val) && val > 0) nums.push(val);
+    }
+    // nums[0] = unidades (~41), nums[1] = GMV (~92836)
+    if(nums.length >= 2) gmv = nums[1];
+  }
+
+  // Fallback: recorrer allText buscando "Grand" + "Total" como ítems separados
+  if(!gmv){
     for(let i = 0; i < allText.length; i++){
       const cur = allText[i];
       const isGT = cur === 'Grand Total' ||
                    (cur === 'Grand' && i+1 < allText.length && allText[i+1] === 'Total');
       if(!isGT) continue;
       const offset = cur === 'Grand Total' ? 1 : 2;
-      // Primer número = unidades (menor), segundo = GMV (mayor)
       const nums = [];
-      for(let j = i + offset; j < Math.min(i + offset + 6, allText.length); j++){
+      for(let j = i + offset; j < Math.min(i + offset + 10, allText.length); j++){
         const n = parseFloat(allText[j].replace(/,/g,''));
-        if(!isNaN(n)) nums.push(n);
+        if(!isNaN(n) && n > 0) nums.push(n);
         if(nums.length >= 2) break;
       }
-      if(nums.length >= 2) gmv = nums[1]; // segundo valor = Venta Neta
+      if(nums.length >= 2) gmv = nums[1];
       break;
     }
   }

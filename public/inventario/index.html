@@ -6,36 +6,253 @@
 <link rel="icon" href="/favicon.ico"/>
 <meta name="robots" content="noindex, nofollow"/>
 <title>BDG · Inventario</title>
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&family=Jost:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;500;600;700&family=Archivo:wght@400;500;600;700;800;900&family=Jost:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
-:root{--terra:#c16452;--dark:#171717;--dark2:#3a3a3a;--body-txt:#5c5c5c;--beige:#faf2e6;--cream:#ffffff;--line:#ddd8d0;--line2:#cbc5bc;--muted:#9a9590;--fn:'Archivo Narrow',sans-serif;--fh:'Archivo',sans-serif;--fl:'Jost',sans-serif;--r:3px;}
+:root{
+  --terra:#c16452;--dark:#171717;--dark2:#1e1e1e;
+  --beige:#f0ece6;--cream:#fff;--line:#e8e2da;--muted:#9a9590;
+  --green:#3a9e6f;--red:#d94f3a;--orange:#e08240;
+  --fn:'Archivo Narrow',sans-serif;--fh:'Archivo',sans-serif;--fl:'Jost',sans-serif;
+}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:var(--fn);background:var(--beige);color:var(--dark);min-height:100vh;display:flex;flex-direction:column;}
-.topbar{background:var(--dark);padding:0 32px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-.topbar-logo{font-family:var(--fl);font-size:18px;font-weight:700;color:#fff;letter-spacing:.12em;}
+body{font-family:var(--fn);background:var(--beige);color:var(--dark);min-height:100vh;}
+
+/* TOPBAR */
+.topbar{background:var(--dark);padding:0 28px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.topbar-logo{font-family:var(--fl);font-size:17px;font-weight:700;color:#fff;letter-spacing:.12em;}
 .topbar-logo span{color:var(--terra);}
-.back{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.45);font-family:var(--fh);text-decoration:none;display:flex;align-items:center;gap:8px;transition:color .12s;}
+.topbar-right{display:flex;align-items:center;gap:20px;}
+.back{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);font-family:var(--fh);text-decoration:none;transition:color .12s;}
 .back:hover{color:#fff;}
-.main{flex:1;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:80px 40px;}
-.eyebrow{font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;font-family:var(--fh);}
-.title{font-family:var(--fh);font-size:56px;font-weight:700;letter-spacing:-.03em;color:var(--dark);line-height:1;margin-bottom:16px;}
-.desc{font-size:15px;color:var(--body-txt);line-height:1.6;max-width:380px;margin-bottom:32px;}
-.badge{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border:1px solid var(--line2);background:var(--cream);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-family:var(--fh);font-weight:600;color:var(--muted);border-radius:var(--r);}
-.footer{padding:24px 40px;font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-family:var(--fh);border-top:1px solid var(--line);}
-@media(max-width:600px){.topbar{padding:0 20px;}.main{padding:48px 20px;}.title{font-size:36px;}.footer{padding:20px;}}
+
+/* PAGE */
+.page{max-width:960px;margin:0 auto;padding:24px 20px 60px;}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.toggle-group{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--cream);}
+.toggle-btn{padding:7px 16px;font-family:var(--fh);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:none;background:transparent;cursor:pointer;color:var(--muted);transition:all .12s;white-space:nowrap;}
+.toggle-btn.active{background:var(--dark);color:#fff;}
+.toggle-btn:not(:last-child){border-right:1px solid var(--line);}
+.search-input{padding:7px 14px;border-radius:6px;border:1px solid var(--line);background:var(--cream);font-family:var(--fn);font-size:12px;color:var(--dark);outline:none;width:200px;transition:border-color .12s;}
+.search-input:focus{border-color:var(--terra);}
+.toolbar-meta{margin-left:auto;font-size:10px;color:var(--muted);font-family:var(--fn);}
+
+/* SUMMARY CHIPS */
+.summary-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.sum-chip{padding:8px 14px;border-radius:6px;background:var(--cream);border:1px solid var(--line);display:flex;flex-direction:column;gap:2px;min-width:100px;}
+.sum-chip .sc-val{font-family:var(--fh);font-size:22px;font-weight:900;color:var(--dark);line-height:1;}
+.sum-chip .sc-lbl{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-family:var(--fh);}
+.sum-chip.hi .sc-val{color:var(--terra);}
+
+/* PRODUCT LIST */
+.product-list{display:flex;flex-direction:column;gap:2px;}
+
+.product-row{background:var(--cream);border-radius:8px;border:1px solid var(--line);overflow:hidden;transition:box-shadow .15s;}
+.product-row:hover{box-shadow:0 2px 12px rgba(0,0,0,.07);}
+
+.product-header{display:flex;align-items:center;gap:14px;padding:12px 16px;cursor:pointer;user-select:none;}
+.product-thumb{width:44px;height:44px;border-radius:4px;object-fit:cover;background:#f0ece6;flex-shrink:0;}
+.product-thumb-placeholder{width:44px;height:44px;border-radius:4px;background:#ede8e2;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.product-thumb-placeholder svg{opacity:.2;}
+.product-name{font-family:var(--fh);font-size:13px;font-weight:800;color:var(--dark);flex:1;line-height:1.2;}
+.product-type{font-size:10px;color:var(--muted);font-family:var(--fn);margin-top:2px;}
+.product-stock-total{font-family:var(--fh);font-size:20px;font-weight:900;color:var(--dark);min-width:44px;text-align:right;flex-shrink:0;}
+.product-stock-total.neg{color:var(--red);}
+.product-stock-total.zero{color:var(--muted);}
+.product-stock-total.low{color:var(--orange);}
+.chevron{font-size:10px;color:var(--muted);transition:transform .18s;flex-shrink:0;margin-left:4px;}
+.product-row.open .chevron{transform:rotate(180deg);}
+
+/* SIZE GRID */
+.size-grid-wrap{display:none;padding:0 16px 14px 74px;gap:0;}
+.product-row.open .size-grid-wrap{display:block;}
+.size-grid{display:flex;flex-wrap:wrap;gap:6px;padding-top:2px;}
+.size-chip{display:flex;flex-direction:column;align-items:center;padding:6px 8px 5px;border-radius:5px;border:1px solid var(--line);background:#faf7f4;min-width:52px;gap:1px;}
+.size-chip .sz-label{font-size:9px;font-family:var(--fh);font-weight:700;color:var(--muted);letter-spacing:.06em;}
+.size-chip .sz-qty{font-size:16px;font-family:var(--fh);font-weight:900;color:var(--dark);line-height:1;}
+.size-chip.positive{border-color:rgba(58,158,111,.3);background:#f0faf5;}
+.size-chip.positive .sz-qty{color:var(--green);}
+.size-chip.negative{border-color:rgba(217,79,58,.25);background:#fdf3f1;}
+.size-chip.negative .sz-qty{color:var(--red);}
+.size-chip.zero{opacity:.5;}
+.size-chip .sz-raw{font-size:8px;color:var(--muted);font-family:var(--fn);line-height:1;}
+
+/* SKELETON */
+.sk{background:linear-gradient(90deg,#ede8e2 25%,#e4dfd8 50%,#ede8e2 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:4px;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* EMPTY */
+.empty{text-align:center;padding:60px 20px;color:var(--muted);font-family:var(--fn);}
+.empty-title{font-family:var(--fh);font-size:15px;font-weight:700;margin-bottom:6px;color:var(--dark);}
+
+@media(max-width:600px){
+  .topbar{padding:0 16px;}
+  .page{padding:16px 12px 40px;}
+  .size-grid-wrap{padding-left:16px;}
+  .search-input{width:140px;}
+}
 </style>
 </head>
 <body>
+
 <div class="topbar">
-  <div class="topbar-logo">BDG<span>·</span>HQ</div>
-  <a class="back" href="/">← Volver al HQ</a>
+  <div class="topbar-logo">BDG<span>·</span>INVENTARIO</div>
+  <div class="topbar-right">
+    <a class="back" href="/">← HQ</a>
+  </div>
 </div>
-<div class="main">
-  <div class="eyebrow">Módulo 03 · Bala Di Gala</div>
-  <div class="title">Inventario</div>
-  <div class="desc">Consulta de stock en tiempo real. Catálogo Shopify con tallas y colores.</div>
-  <div class="badge">⏳ &nbsp;Próximamente</div>
+
+<div class="page">
+
+  <div class="toolbar">
+    <div class="toggle-group">
+      <button class="toggle-btn active" id="btnPos" onclick="setMode('positive',this)">Sin negativos</button>
+      <button class="toggle-btn" id="btnAll" onclick="setMode('all',this)">Con negativos</button>
+    </div>
+    <input class="search-input" id="searchInput" type="text" placeholder="Buscar producto..." oninput="renderList()"/>
+    <span class="toolbar-meta" id="toolbarMeta"></span>
+  </div>
+
+  <div class="summary-row" id="summaryRow"></div>
+
+  <div class="product-list" id="productList">
+    <!-- Skeletons -->
+    <div style="display:flex;flex-direction:column;gap:2px;" id="skeletons"></div>
+  </div>
+
 </div>
-<div class="footer">© Bala Di Gala · Confidencial</div>
+
+<script>
+let _products = [];
+let _mode = 'positive'; // 'positive' = floor at 0 | 'all' = include negatives
+
+function setMode(m, btn){
+  _mode = m;
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+function effectiveQty(qty){
+  return _mode === 'positive' ? Math.max(0, qty) : qty;
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+async function init(){
+  // Skeletons
+  const skHtml = Array(8).fill(0).map(() =>
+    `<div style="background:#fff;border-radius:8px;border:1px solid #e8e2da;padding:12px 16px;display:flex;gap:14px;align-items:center;">
+      <div class="sk" style="width:44px;height:44px;border-radius:4px;flex-shrink:0;"></div>
+      <div style="flex:1;"><div class="sk" style="height:13px;width:60%;margin-bottom:6px;"></div><div class="sk" style="height:10px;width:35%;"></div></div>
+      <div class="sk" style="width:36px;height:24px;border-radius:4px;"></div>
+    </div>`
+  ).join('');
+  document.getElementById('skeletons').innerHTML = skHtml;
+
+  const res  = await fetch('/api/shopify?mode=products');
+  const data = await res.json();
+  _products = (data.products || []).filter(p => p.status === 'active');
+  // Sort alphabetically
+  _products.sort((a,b) => a.title.localeCompare(b.title));
+  document.getElementById('skeletons').innerHTML = '';
+  renderList();
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function renderList(){
+  const query = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  const list  = document.getElementById('productList');
+
+  const filtered = _products.filter(p =>
+    !query || p.title.toLowerCase().includes(query)
+  );
+
+  document.getElementById('toolbarMeta').textContent = `${filtered.length} modelos`;
+
+  // Summary totals
+  let totalUnits = 0, totalNeg = 0, totalSkus = 0;
+  for(const p of filtered){
+    for(const v of (p.variants || [])){
+      const q = v.inventory_quantity ?? 0;
+      totalUnits += effectiveQty(q);
+      if(q < 0) totalNeg++;
+      totalSkus++;
+    }
+  }
+
+  document.getElementById('summaryRow').innerHTML = `
+    <div class="sum-chip hi"><div class="sc-val">${totalUnits.toLocaleString('es-MX')}</div><div class="sc-lbl">Unidades total</div></div>
+    <div class="sum-chip"><div class="sc-val">${filtered.length}</div><div class="sc-lbl">Modelos</div></div>
+    <div class="sum-chip"><div class="sc-val">${totalSkus}</div><div class="sc-lbl">SKUs</div></div>
+    ${totalNeg > 0 ? `<div class="sum-chip"><div class="sc-val" style="color:var(--red)">${totalNeg}</div><div class="sc-lbl">SKUs negativos</div></div>` : ''}
+  `;
+
+  if(!filtered.length){
+    list.innerHTML = `<div class="empty"><div class="empty-title">Sin resultados</div>Intenta otro término.</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map((p, idx) => {
+    const variants = p.variants || [];
+    const img      = p.images?.[0]?.src;
+    const total    = variants.reduce((s, v) => s + effectiveQty(v.inventory_quantity ?? 0), 0);
+    const hasNeg   = variants.some(v => (v.inventory_quantity ?? 0) < 0);
+
+    const totalClass = total <= 0 ? 'zero' : total <= 5 ? 'low' : hasNeg && _mode === 'all' ? 'neg' : '';
+
+    const imgHtml = img
+      ? `<img class="product-thumb" src="${img}" loading="lazy" alt="${p.title}"/>`
+      : `<div class="product-thumb-placeholder"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg></div>`;
+
+    // Size chips
+    const sizeChips = variants.map(v => {
+      const raw = v.inventory_quantity ?? 0;
+      const eff = effectiveQty(raw);
+      const cls = eff > 0 ? 'positive' : eff < 0 ? 'negative' : 'zero';
+      const sizeLabel = extractSize(v.title, v.option1);
+      const rawNote = (raw < 0 && _mode === 'positive') ? `<div class="sz-raw">(real: ${raw})</div>` : '';
+      return `<div class="size-chip ${cls}">
+        <div class="sz-label">${sizeLabel}</div>
+        <div class="sz-qty">${eff}</div>
+        ${rawNote}
+      </div>`;
+    }).join('');
+
+    return `<div class="product-row" id="pr_${idx}">
+      <div class="product-header" onclick="toggleRow(${idx})">
+        ${imgHtml}
+        <div style="flex:1;min-width:0;">
+          <div class="product-name">${p.title}</div>
+          ${p.product_type ? `<div class="product-type">${p.product_type}</div>` : ''}
+        </div>
+        <div class="product-stock-total ${totalClass}">${total}</div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="size-grid-wrap">
+        <div class="size-grid">${sizeChips}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleRow(idx){
+  const row = document.getElementById(`pr_${idx}`);
+  if(row) row.classList.toggle('open');
+}
+
+function extractSize(variantTitle, option1){
+  // Try to get a clean size label from variant title or option1
+  const src = option1 || variantTitle || '';
+  // If it's just a number or "22 MX" style
+  const m = src.match(/^(\d{2})\s*(MX|mx)?$/);
+  if(m) return m[1];
+  // Return as-is if short enough
+  if(src.length <= 6) return src;
+  return src.slice(0, 6);
+}
+
+init();
+</script>
 </body>
 </html>
