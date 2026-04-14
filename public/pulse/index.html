@@ -381,8 +381,74 @@ function renderProducts(products) {
 // Auto-refresh cada 5 minutos
 setInterval(load, 5 * 60 * 1000);
 
-// Carga inicial
-load();
+// ── AUTH GATE ─────────────────────────────────────────────────────────────────
+const ALLOWED = ['ruben2026'];
+const AUTH_KEY = 'pulse_auth';
+
+function checkAuth() {
+  return ALLOWED.includes(localStorage.getItem(AUTH_KEY));
+}
+
+function showGate() {
+  document.body.style.overflow = 'hidden';
+  const gate = document.createElement('div');
+  gate.id = 'authGate';
+  gate.style.cssText = `
+    position:fixed;inset:0;background:#0a0a0a;z-index:9999;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Archivo',sans-serif;
+  `;
+  gate.innerHTML = `
+    <div style="text-align:center;width:320px;">
+      <div style="font-family:'Jost',sans-serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:.1em;margin-bottom:4px;">
+        BDG<span style="color:#c16452;">·</span>PULSE
+      </div>
+      <div style="font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-bottom:36px;">
+        Acceso restringido
+      </div>
+      <input id="gateInput" type="password" placeholder="••••••••••" autocomplete="off" maxlength="30"
+        style="width:100%;background:#141414;border:1px solid rgba(255,255,255,.1);border-radius:5px;
+          padding:14px 16px;font-family:'Archivo',sans-serif;font-size:16px;color:#fff;
+          letter-spacing:.2em;text-align:center;outline:none;transition:border-color .15s;"
+        onkeydown="if(event.key==='Enter')submitGate()"
+        onfocus="this.style.borderColor='#c16452'"
+        onblur="this.style.borderColor='rgba(255,255,255,.1)'"/>
+      <div id="gateError" style="height:18px;margin-top:10px;font-size:11px;color:#d94f3a;opacity:0;transition:opacity .2s;">
+        Código incorrecto
+      </div>
+      <a href="/" style="display:block;margin-top:20px;font-size:10px;letter-spacing:.16em;
+        text-transform:uppercase;color:rgba(255,255,255,.18);text-decoration:none;transition:color .12s;"
+        onmouseover="this.style.color='rgba(255,255,255,.5)'"
+        onmouseout="this.style.color='rgba(255,255,255,.18)'">← Volver al HQ</a>
+    </div>`;
+  document.body.appendChild(gate);
+  setTimeout(() => document.getElementById('gateInput')?.focus(), 80);
+}
+
+function submitGate() {
+  const val = document.getElementById('gateInput')?.value.trim();
+  if (ALLOWED.includes(val)) {
+    localStorage.setItem(AUTH_KEY, val);
+    document.getElementById('authGate')?.remove();
+    document.body.style.overflow = '';
+    load();
+  } else {
+    const inp = document.getElementById('gateInput');
+    const err = document.getElementById('gateError');
+    inp.style.borderColor = '#d94f3a';
+    inp.style.animation = 'none';
+    inp.value = '';
+    if (err) { err.style.opacity = 1; setTimeout(() => { err.style.opacity = 0; }, 2000); }
+    setTimeout(() => { inp.style.borderColor='rgba(255,255,255,.1)'; }, 600);
+  }
+}
+
+// Init
+if (checkAuth()) {
+  load();
+} else {
+  showGate();
+}
 </script>
 </body>
 </html>
