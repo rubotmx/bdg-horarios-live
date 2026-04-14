@@ -647,6 +647,7 @@ async function parsePDFReport(file){
 
   // Extraer todos los ítems de texto con posición X,Y de todas las páginas
   const allItems = [];
+  const allText  = []; // lista plana de strings para detección de formato
   for(let p = 1; p <= pdf.numPages; p++){
     const page     = await pdf.getPage(p);
     const vp       = page.getViewport({ scale: 1 });
@@ -656,10 +657,19 @@ async function parsePDFReport(file){
       const x = item.transform[4];
       const y = vp.height - item.transform[5]; // flip Y → top-down
       allItems.push({ str: item.str.trim(), x, y });
+      allText.push(item.str.trim());
     }
   }
 
-  // Agrupar por fila (misma Y ± tolerancia de 4pt)
+  // ── Detección: Palacio de Hierro "Ventas Reporte" ────────────────────────
+  const flatText = allText.join(' ');
+  if(allText.some(t => t === 'Ventas Reporte') || flatText.includes('Ventas Reporte')){
+    if(flatText.includes('Venta Neta') || flatText.includes('Grand Total')){
+      return parsePHVentasReporte(allText, flatText);
+    }
+  }
+
+  // Agrupar por fila (misma Y ± tolerancia de 4pt) — usado por ML
   allItems.sort((a, b) => a.y - b.y || a.x - b.x);
   const rows = [];
   let i = 0;
@@ -673,7 +683,7 @@ async function parsePDFReport(file){
     rows.push({ cells: rowItems.map(it => it.str), xs: rowItems.map(it => it.x) });
   }
 
-  // Buscar la fila de encabezados
+  // Buscar la fila de encabezados MercadoLibre
   let headerIdx = -1, headerXs = [], headers = [];
   for(let r = 0; r < Math.min(rows.length, 40); r++){
     const joined = rows[r].cells.join(' ');
@@ -685,7 +695,7 @@ async function parsePDFReport(file){
       break;
     }
   }
-  if(headerIdx === -1) return { error: 'Formato PDF no reconocido. Verifica que sea un reporte de MercadoLibre.' };
+  if(headerIdx === -1) return { error: 'Formato PDF no reconocido. Soportados: MercadoLibre y Palacio de Hierro.' };
 
   // Localizar columnas por posición X más cercana al encabezado
   function colX(label){
@@ -752,6 +762,50 @@ async function parsePDFReport(file){
     orders:  orderCount,
     units:   0,
     byWeek,
+  };
+}
+
+// ── Palacio de Hierro: "Ventas Reporte" ──────────────────────────────────────
+// Reporte sin fechas por venta. Extrae el Grand Total (Venta Neta s/Cupones a Rtl).
+// El usuario debe ingresar el rango de fechas manualmente.
+function parsePHVentasReporte(allText, flatText){
+  // Buscar "Grand Total" + siguiente número (unidades) + GMV
+  // Formato: "Grand Total 41.00 92,836.27 ..."
+  const m = flatText.match(/Grand\s+Total\s+([\d,.]+)\s+([\d,]+\.\d{2})/);
+  let gmv = 0;
+  if(m){
+    // m[1] = unidades, m[2] = Venta Neta s/Cupones a Rtl
+    gmv = parseFloat(m[2].replace(/,/g,''));
+  } else {
+    // Fallback: recorrer allText buscando "Grand Total" o "Grand"+"Total"
+    for(let i = 0; i < allText.length; i++){
+      const cur = allText[i];
+      const isGT = cur === 'Grand Total' ||
+                   (cur === 'Grand' && i+1 < allText.length && allText[i+1] === 'Total');
+      if(!isGT) continue;
+      const offset = cur === 'Grand Total' ? 1 : 2;
+      // Primer número = unidades (menor), segundo = GMV (mayor)
+      const nums = [];
+      for(let j = i + offset; j < Math.min(i + offset + 6, allText.length); j++){
+        const n = parseFloat(allText[j].replace(/,/g,''));
+        if(!isNaN(n)) nums.push(n);
+        if(nums.length >= 2) break;
+      }
+      if(nums.length >= 2) gmv = nums[1]; // segundo valor = Venta Neta
+      break;
+    }
+  }
+
+  if(!gmv || gmv <= 0) return { error: 'No se encontró el Grand Total en el reporte de Palacio de Hierro.' };
+
+  return {
+    channel:  'palacio_hierro',
+    label:    'Palacio de Hierro',
+    gmv:      Math.round(gmv * 100) / 100,
+    orders:   null, // PH report no tiene conteo de órdenes individuales
+    units:    0,
+    byWeek:   {}, // sin fechas → usar rango ingresado por el usuario
+    subtitle: 'Reporte Ventas PH · sin desglose por orden',
   };
 }
 
@@ -860,11 +914,13 @@ function showReportResult(result, filename){
     src.textContent = filename;
     gmv.className   = 'report-result-gmv';
     gmv.textContent = fmtFull(result.gmv);
-    sub.textContent = `${result.orders} ventas detectadas`;
+    sub.textContent = result.subtitle || (result.orders != null ? `${result.orders} ventas detectadas` : 'Total del período');
 
     // Pre-llenar canal y fechas si el usuario no las ha ingresado ya
+    const chanEl = document.getElementById('reportChannel');
     const fromEl = document.getElementById('reportDateFrom');
     const toEl   = document.getElementById('reportDateTo');
+    if(chanEl && result.channel) chanEl.value = result.channel;
     if(fromEl && !fromEl.value && result.dateMin) fromEl.value = result.dateMin;
     if(toEl   && !toEl.value   && result.dateMax) toEl.value   = result.dateMax;
 
