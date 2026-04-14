@@ -1028,6 +1028,8 @@ function initFirebaseAuth(){
 }
 
 function checkAuth(){
+  // Acepta sesión activa del HQ (PIN jorge2026 ingresado en el HQ)
+  if(sessionStorage.getItem('bdg_hq_access')==='1') return true;
   const v=localStorage.getItem(AUTH_KEY);
   return ALLOWED_PINS.includes(v) || ALLOWED_EMAILS.includes(v);
 }

@@ -7,156 +7,181 @@
 <meta name="robots" content="noindex, nofollow"/>
 <meta name="googlebot" content="noindex, nofollow"/>
 <title>BDG · HQ</title>
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;500;600;700&family=Archivo:wght@400;500;600;700;800;900&family=Jost:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;900&family=Jost:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{
   --terra:#c16452;
-  --dark:#0e0e0e;--dark2:#141414;--dark3:#1a1a1a;
-  --line:rgba(255,255,255,.06);--muted:rgba(255,255,255,.25);
-  --fn:'Archivo Narrow',sans-serif;--fh:'Archivo',sans-serif;--fl:'Jost',sans-serif;
+  --dark:#0e0e0e;--dark2:#161616;--dark3:#1c1c1c;
+  --line:rgba(255,255,255,.07);--muted:rgba(255,255,255,.22);
+  --fh:'Archivo',sans-serif;--fl:'Jost',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;overflow:hidden;}
-body{font-family:var(--fn);background:var(--dark);color:#e8e4de;display:flex;flex-direction:column;}
+body{font-family:var(--fh);background:var(--dark);color:#e8e4de;display:flex;flex-direction:column;}
 
 /* TOPBAR */
-.topbar{height:52px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);flex-shrink:0;}
-.logo{font-family:var(--fl);font-size:16px;font-weight:700;color:#fff;letter-spacing:.14em;}
+.topbar{height:48px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);flex-shrink:0;}
+.logo{font-family:var(--fl);font-size:14px;font-weight:700;color:#fff;letter-spacing:.18em;}
 .logo span{color:var(--terra);}
-.topbar-meta{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.18);font-family:var(--fh);}
+.topbar-sub{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.14);font-family:var(--fh);}
 
-/* GRID — fills remaining height */
-.grid{flex:1;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;grid-template-rows:1fr 1fr;min-height:0;}
+/* GRID */
+.grid{flex:1;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:1fr 1fr;min-height:0;}
 
 /* CARD */
-.card{position:relative;overflow:hidden;text-decoration:none;display:flex;flex-direction:column;justify-content:flex-end;padding:32px 30px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);transition:background .18s;}
-.card:nth-child(4n){border-right:none;}
-.card:nth-child(n+5){border-bottom:none;}
-.card:not(.disabled):hover{background:rgba(255,255,255,.025);}
-.card.disabled{opacity:.38;pointer-events:none;}
+.card{position:relative;overflow:hidden;text-decoration:none;display:flex;flex-direction:column;justify-content:flex-end;padding:28px 26px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);transition:background .15s;cursor:pointer;}
+.card:nth-child(3n){border-right:none;}
+.card:nth-child(n+4){border-bottom:none;}
+.card.disabled{opacity:.3;pointer-events:none;}
+.card:not(.disabled):hover{background:rgba(255,255,255,.03);}
 
-/* Big number watermark */
-.card-bg-num{position:absolute;top:-10px;left:20px;font-family:var(--fh);font-size:160px;font-weight:900;color:rgba(255,255,255,.025);line-height:1;pointer-events:none;letter-spacing:-.05em;user-select:none;}
+/* Lock glow on hover */
+.card.locked:not(.disabled):hover::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 100%,rgba(193,100,82,.06) 0%,transparent 70%);
+  pointer-events:none;
+}
 
-/* Active top accent */
-.card.active::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--terra);}
+/* Active line */
+.card.active::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--terra);}
 
-.card-label{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.2);font-family:var(--fh);margin-bottom:10px;}
-.card-title{font-family:var(--fh);font-size:36px;font-weight:900;color:#fff;letter-spacing:-.04em;line-height:.95;margin-bottom:14px;}
-.card-desc{font-size:11.5px;color:rgba(255,255,255,.3);line-height:1.65;max-width:260px;margin-bottom:20px;}
+.card-label{font-size:8px;letter-spacing:.26em;text-transform:uppercase;color:rgba(255,255,255,.18);margin-bottom:10px;}
+.card-title{font-size:32px;font-weight:900;color:#fff;letter-spacing:-.03em;line-height:.95;margin-bottom:10px;}
+.card-desc{font-size:11px;color:rgba(255,255,255,.25);line-height:1.6;max-width:240px;margin-bottom:18px;}
 .card-footer{display:flex;align-items:center;justify-content:space-between;}
-.badge{font-size:8px;letter-spacing:.2em;text-transform:uppercase;font-family:var(--fh);font-weight:700;padding:4px 10px;border-radius:2px;}
+
+/* Badges */
+.badge{font-size:8px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;padding:3px 9px;border-radius:2px;}
 .badge.live{background:var(--terra);color:#fff;}
-.badge.soon{border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.2);}
-.arrow{font-size:20px;color:var(--terra);opacity:0;transition:opacity .15s,transform .18s;transform:translateX(-8px);}
+.badge.soon{border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.18);}
+.badge.free{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);}
+
+/* Lock badge */
+.lock-badge{font-size:10px;color:rgba(255,255,255,.15);transition:color .15s;}
+.card.locked:hover .lock-badge{color:rgba(193,100,82,.7);}
+
+.arrow{font-size:16px;color:var(--terra);opacity:0;transition:opacity .12s,transform .15s;transform:translateX(-6px);}
 .card:not(.disabled):hover .arrow{opacity:1;transform:translateX(0);}
 
-/* FOOTER STRIP */
-.footer-strip{height:36px;border-top:1px solid var(--line);display:flex;align-items:center;padding:0 32px;flex-shrink:0;gap:8px;}
-.footer-txt{font-size:9px;color:rgba(255,255,255,.1);letter-spacing:.14em;text-transform:uppercase;font-family:var(--fh);}
-.boot-icon{width:14px;height:14px;opacity:.1;cursor:pointer;transition:opacity .2s;flex-shrink:0;}
-.boot-icon:hover{opacity:.25;}
+/* FOOTER */
+.footer-strip{height:32px;border-top:1px solid var(--line);display:flex;align-items:center;padding:0 28px;flex-shrink:0;gap:8px;}
+.footer-txt{font-size:8px;color:rgba(255,255,255,.08);letter-spacing:.14em;text-transform:uppercase;}
+.boot-icon{width:12px;height:12px;opacity:.08;cursor:pointer;transition:opacity .18s;flex-shrink:0;}
+.boot-icon:hover{opacity:.2;}
 
-/* MODAL */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
+/* PIN MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(10px);}
 .overlay.show{display:flex;}
-.secret-box{background:#0a0a0a;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:48px 40px;width:340px;text-align:center;position:relative;}
-.secret-logo{font-family:var(--fl);font-size:36px;font-weight:700;color:#fff;letter-spacing:.06em;margin-bottom:4px;}
-.secret-logo span{color:var(--terra);}
-.secret-sub{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.18);font-family:var(--fh);margin-bottom:32px;}
-.secret-input{width:100%;background:#111;border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:14px 16px;font-family:var(--fh);font-size:18px;color:#fff;letter-spacing:.25em;text-align:center;outline:none;transition:border-color .15s;}
-.secret-input:focus{border-color:var(--terra);}
-.secret-input.err{border-color:#d94f3a;animation:shake .3s ease;}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-.secret-hint{font-size:10px;color:rgba(255,255,255,.12);margin-top:12px;font-family:var(--fn);}
-.secret-close{position:absolute;top:14px;right:18px;color:rgba(255,255,255,.15);font-size:22px;cursor:pointer;transition:color .12s;}
-.secret-close:hover{color:rgba(255,255,255,.5);}
+.pin-box{background:#0a0a0a;border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:44px 36px;width:320px;text-align:center;position:relative;}
+.pin-logo{font-family:var(--fl);font-size:13px;font-weight:700;color:rgba(255,255,255,.25);letter-spacing:.18em;margin-bottom:28px;text-transform:uppercase;}
+.pin-title{font-size:14px;font-weight:700;color:rgba(255,255,255,.6);margin-bottom:6px;letter-spacing:.04em;}
+.pin-sub{font-size:10px;color:rgba(255,255,255,.18);margin-bottom:24px;font-size:10px;}
+.pin-input{width:100%;background:#111;border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:13px 16px;font-family:var(--fh);font-size:22px;color:#fff;letter-spacing:.3em;text-align:center;outline:none;transition:border-color .14s;}
+.pin-input:focus{border-color:var(--terra);}
+.pin-input.err{border-color:#d94f3a;animation:shake .28s ease;}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.pin-hint{font-size:9px;color:rgba(255,255,255,.1);margin-top:12px;}
+.pin-close{position:absolute;top:12px;right:16px;color:rgba(255,255,255,.12);font-size:20px;cursor:pointer;transition:color .12s;line-height:1;}
+.pin-close:hover{color:rgba(255,255,255,.4);}
 
-@media(max-width:900px){
+@media(max-width:860px){
   html,body{overflow:auto;}
   .grid{grid-template-columns:1fr 1fr;grid-template-rows:auto;}
   .card:nth-child(2n){border-right:none;}
-  .card:nth-child(n+5){border-bottom:1px solid var(--line);}
-  .card:nth-child(4n){border-right:1px solid var(--line);}
+  .card:nth-child(3n){border-right:1px solid var(--line);}
   .card:nth-child(2n){border-right:none;}
-  .card:last-child,.card:nth-last-child(-n+2):nth-child(odd){border-bottom:none;}
+  .card:nth-child(n+5){border-bottom:1px solid var(--line);}
+  .card:last-child{border-bottom:none;}
 }
 @media(max-width:520px){
-  .grid{grid-template-columns:1fr;grid-template-rows:auto;}
-  .card{border-right:none!important;min-height:200px;}
+  .grid{grid-template-columns:1fr;}
+  .card{border-right:none!important;min-height:160px;}
   .card:last-child{border-bottom:none;}
-  .card-bg-num{font-size:110px;}
-  .card-title{font-size:28px;}
+  .card-title{font-size:26px;}
 }
 </style>
 </head>
 <body>
 
 <div class="overlay" id="overlay">
-  <div class="secret-box">
-    <span class="secret-close" onclick="closeSecret()">×</span>
-    <div class="secret-logo">50<span>M</span></div>
-    <div class="secret-sub">Acceso restringido</div>
-    <input class="secret-input" id="secretInput" type="password" placeholder="••••••••••"
-      maxlength="20" autocomplete="off" onkeydown="if(event.key==='Enter')checkCode()"/>
-    <div class="secret-hint">Ingresa tu código de acceso</div>
+  <div class="pin-box">
+    <span class="pin-close" onclick="closePin()">×</span>
+    <div class="pin-logo">BDG · HQ</div>
+    <div class="pin-title" id="pinModuleName">Acceso restringido</div>
+    <div class="pin-sub">Ingresa tu PIN para continuar</div>
+    <input class="pin-input" id="pinInput" type="password" placeholder="••••••••"
+      maxlength="20" autocomplete="off" onkeydown="if(event.key==='Enter')checkPin()"/>
+    <div class="pin-hint">Contacta a tu administrador si no tienes acceso</div>
   </div>
 </div>
 
 <div class="topbar">
   <div class="logo">BDG<span>·</span>HQ</div>
-  <div class="topbar-meta">Bala Di Gala · Suite interna</div>
+  <div class="topbar-sub">Bala Di Gala · Suite interna</div>
 </div>
 
 <div class="grid">
 
-  <a class="card active" href="/pulse/">
-    <div class="card-bg-num">01</div>
+  <!-- 01 Pulse — LOCKED -->
+  <div class="card active locked" onclick="gatedNav('/pulse/','Pulse')">
     <div class="card-label">Módulo 01</div>
     <div class="card-title">Pulse</div>
-    <div class="card-desc">Dashboard de ventas. KPIs y métricas del negocio en tiempo real.</div>
-    <div class="card-footer"><div class="badge live">Activo</div><div class="arrow">→</div></div>
-  </a>
+    <div class="card-desc">Dashboard de ventas. KPIs y métricas del negocio.</div>
+    <div class="card-footer">
+      <div class="badge live">Activo</div>
+      <span class="lock-badge">🔒</span>
+    </div>
+  </div>
 
+  <!-- 02 TikTok — LIBRE -->
   <a class="card active" href="/tiktok/">
-    <div class="card-bg-num">02</div>
     <div class="card-label">Módulo 02</div>
     <div class="card-title">TikTok</div>
-    <div class="card-desc">Horarios LIVE. Confirmaciones, GMV por sesión y ranking del equipo.</div>
-    <div class="card-footer"><div class="badge live">Activo</div><div class="arrow">→</div></div>
+    <div class="card-desc">Horarios LIVE. GMV por sesión y ranking del equipo.</div>
+    <div class="card-footer">
+      <div class="badge live">Activo</div>
+      <div class="arrow">→</div>
+    </div>
   </a>
 
+  <!-- 03 Inventario — LIBRE -->
   <a class="card active" href="/inventario/">
-    <div class="card-bg-num">03</div>
     <div class="card-label">Módulo 03</div>
     <div class="card-title">Inventario</div>
-    <div class="card-desc">Stock en tiempo real. Catálogo Shopify con tallas y disponibilidad.</div>
-    <div class="card-footer"><div class="badge live">Activo</div><div class="arrow">→</div></div>
+    <div class="card-desc">Stock Shopify por talla. Filtro con y sin negativos.</div>
+    <div class="card-footer">
+      <div class="badge live">Activo</div>
+      <div class="arrow">→</div>
+    </div>
   </a>
 
-  <a class="card disabled" href="/meta/">
-    <div class="card-bg-num">04</div>
+  <!-- 04 Meta — DISABLED -->
+  <div class="card disabled">
     <div class="card-label">Módulo 04</div>
     <div class="card-title">Meta</div>
-    <div class="card-desc">Objetivos y metas del equipo. Progreso mensual y cierre de resultados.</div>
-    <div class="card-footer"><div class="badge soon">Próximamente</div></div>
-  </a>
+    <div class="card-desc">Objetivos y metas del equipo. Progreso mensual.</div>
+    <div class="card-footer">
+      <div class="badge soon">Próximamente</div>
+    </div>
+  </div>
 
-  <a class="card active" href="/pulse/" style="grid-column:span 2;">
-    <div class="card-bg-num" style="font-size:220px;top:-30px;left:30px;color:rgba(193,100,82,.04);">BDG</div>
-    <div class="card-label">Centro de operaciones</div>
-    <div class="card-title" style="font-size:48px;">Bala Di Gala.</div>
-    <div class="card-desc">Suite interna del equipo. Acceso confidencial.</div>
-    <div class="card-footer"><div class="badge live">bdghq.com</div></div>
-  </a>
-
-  <a class="card active" href="/catalogo/" style="grid-column:span 2;">
-    <div class="card-bg-num">05</div>
+  <!-- 05 Palacio de Hierro — LOCKED -->
+  <div class="card active locked" onclick="gatedNav('/catalogo/','Palacio de Hierro')">
     <div class="card-label">Módulo 05</div>
-    <div class="card-title">Palacio de Hierro</div>
-    <div class="card-desc">Catálogo con fotos, tallas activas y precios de venta.</div>
-    <div class="card-footer"><div class="badge live">Activo</div><div class="arrow">→</div></div>
-  </a>
+    <div class="card-title">Palacio<br>de Hierro</div>
+    <div class="card-desc">Catálogo con fotos, tallas, stock por tienda y precios.</div>
+    <div class="card-footer">
+      <div class="badge live">Activo</div>
+      <span class="lock-badge">🔒</span>
+    </div>
+  </div>
+
+  <!-- 06 50M — LOCKED (hidden trigger) -->
+  <div class="card active locked" onclick="gatedNav('/50m/','50M')" id="card50m" style="display:none;">
+    <div class="card-label">Acceso especial</div>
+    <div class="card-title">50M</div>
+    <div class="card-footer"><div class="badge live">Activo</div><span class="lock-badge">🔒</span></div>
+  </div>
 
 </div>
 
@@ -168,25 +193,48 @@ body{font-family:var(--fn);background:var(--dark);color:#e8e4de;display:flex;fle
 </div>
 
 <script>
-document.getElementById('bootTrigger').addEventListener('click', () => {
+const PIN       = 'jorge2026';
+const SESSION_KEY = 'bdg_hq_access';
+let _pendingUrl = null;
+
+// If already authenticated this session, skip PIN for gated cards
+function hasAccess(){ return sessionStorage.getItem(SESSION_KEY) === '1'; }
+function grantSession(){ sessionStorage.setItem(SESSION_KEY, '1'); }
+
+function gatedNav(url, name){
+  if(hasAccess()){ window.location.href = url; return; }
+  _pendingUrl = url;
+  document.getElementById('pinModuleName').textContent = name;
   document.getElementById('overlay').classList.add('show');
-  setTimeout(() => document.getElementById('secretInput').focus(), 80);
-});
-function checkCode() {
-  if (document.getElementById('secretInput').value.trim() === 'jorge2026') {
-    window.location.href = '/50m/';
+  setTimeout(() => document.getElementById('pinInput').focus(), 80);
+}
+
+function checkPin(){
+  const val = document.getElementById('pinInput').value.trim();
+  if(val === PIN){
+    grantSession();
+    closePin();
+    if(_pendingUrl) window.location.href = _pendingUrl;
   } else {
-    const inp = document.getElementById('secretInput');
+    const inp = document.getElementById('pinInput');
     inp.classList.add('err'); inp.value = '';
-    setTimeout(() => inp.classList.remove('err'), 400);
+    setTimeout(() => inp.classList.remove('err'), 350);
   }
 }
-function closeSecret() {
+
+function closePin(){
   document.getElementById('overlay').classList.remove('show');
-  document.getElementById('secretInput').value = '';
+  document.getElementById('pinInput').value = '';
+  _pendingUrl = null;
 }
+
 document.getElementById('overlay').addEventListener('click', e => {
-  if (e.target === document.getElementById('overlay')) closeSecret();
+  if(e.target === document.getElementById('overlay')) closePin();
+});
+
+// Boot trigger (hidden) → show 50M card
+document.getElementById('bootTrigger').addEventListener('click', () => {
+  document.getElementById('card50m').style.display = '';
 });
 </script>
 </body>
