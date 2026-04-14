@@ -195,7 +195,9 @@ function dateRange(period) {
     max = `${today}T23:59:59-06:00`;
   } else if (period === 'week') {
     const d = new Date(mxNow);
-    d.setDate(d.getDate() - d.getDay()); // Sunday
+    // Semana Jueves→Miércoles: (día+3)%7 = días desde el jueves anterior
+    const daysSinceThursday = (d.getDay() + 3) % 7;
+    d.setDate(d.getDate() - daysSinceThursday);
     min = `${fmt(d)}T00:00:00-06:00`;
     max = `${fmt(mxNow)}T23:59:59-06:00`;
   } else if (period === 'month') {
