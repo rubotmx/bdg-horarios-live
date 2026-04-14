@@ -7,81 +7,86 @@
 <meta name="robots" content="noindex, nofollow"/>
 <meta name="googlebot" content="noindex, nofollow"/>
 <title>BDG · HQ</title>
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;500;600;700&family=Archivo:wght@400;500;600;700;800&family=Jost:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;500;600;700&family=Archivo:wght@400;500;600;700;800;900&family=Jost:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{
-  --terra:#c16452;--terra2:#a85040;--terra-l:rgba(193,100,82,.1);
-  --dark:#111;--dark2:#1a1a1a;--dark3:#222;--dark4:#2e2e2e;
-  --beige:#faf2e6;--beige2:#f1ece4;--cream:#fff;
-  --line:#e8e2da;--line2:#d8d1c8;--muted:#9a9590;
+  --terra:#c16452;
+  --dark:#0e0e0e;--dark2:#141414;--dark3:#1a1a1a;
+  --line:rgba(255,255,255,.06);--muted:rgba(255,255,255,.25);
   --fn:'Archivo Narrow',sans-serif;--fh:'Archivo',sans-serif;--fl:'Jost',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;}
-body{font-family:var(--fn);background:var(--dark);color:#e8e4de;min-height:100vh;display:flex;flex-direction:column;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:var(--fn);background:var(--dark);color:#e8e4de;display:flex;flex-direction:column;}
 
 /* TOPBAR */
-.topbar{background:var(--dark);border-bottom:1px solid rgba(255,255,255,.06);padding:0 36px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:100;}
-.topbar-logo{font-family:var(--fl);font-size:17px;font-weight:700;color:#fff;letter-spacing:.14em;}
-.topbar-logo span{color:var(--terra);}
-.topbar-right{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.2);font-family:var(--fh);}
+.topbar{height:52px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);flex-shrink:0;}
+.logo{font-family:var(--fl);font-size:16px;font-weight:700;color:#fff;letter-spacing:.14em;}
+.logo span{color:var(--terra);}
+.topbar-meta{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.18);font-family:var(--fh);}
 
-/* HERO */
-.hero{padding:72px 36px 56px;max-width:1100px;width:100%;}
-.hero-eyebrow{font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:20px;font-family:var(--fh);}
-.hero-title{font-family:var(--fh);font-size:52px;font-weight:800;letter-spacing:-.04em;color:#fff;line-height:.96;margin-bottom:16px;}
-.hero-title em{color:var(--terra);font-style:normal;}
-.hero-sub{font-size:14px;color:rgba(255,255,255,.35);line-height:1.6;max-width:360px;}
-
-/* GRID */
-.sections{max-width:1100px;width:100%;padding:0 36px 72px;flex:1;}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;border-radius:6px;overflow:hidden;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);}
+/* GRID — fills remaining height */
+.grid{flex:1;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;grid-template-rows:1fr 1fr;min-height:0;}
 
 /* CARD */
-.card{background:var(--dark2);padding:36px 28px 28px;text-decoration:none;display:flex;flex-direction:column;transition:background .15s;min-height:280px;position:relative;overflow:hidden;}
-.card::before{content:'';position:absolute;bottom:-20px;right:-10px;font-family:var(--fl);font-size:120px;font-weight:700;color:rgba(255,255,255,.025);line-height:1;pointer-events:none;}
-.card:nth-child(1)::before{content:'01';}
-.card:nth-child(2)::before{content:'02';}
-.card:nth-child(3)::before{content:'03';}
-.card:nth-child(4)::before{content:'04';}
-.card:not(.disabled):hover{background:var(--dark3);}
-.card.active{border-top:2px solid var(--terra);}
-.card.disabled{cursor:default;opacity:.55;}
+.card{position:relative;overflow:hidden;text-decoration:none;display:flex;flex-direction:column;justify-content:flex-end;padding:32px 30px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);transition:background .18s;}
+.card:nth-child(4n){border-right:none;}
+.card:nth-child(n+5){border-bottom:none;}
+.card:not(.disabled):hover{background:rgba(255,255,255,.025);}
+.card.disabled{opacity:.38;pointer-events:none;}
 
-.card-num{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-bottom:24px;font-family:var(--fh);}
-.card-title{font-family:var(--fh);font-size:28px;font-weight:800;color:#fff;letter-spacing:-.03em;margin-bottom:12px;line-height:1;}
-.card-divider{width:20px;height:1px;background:var(--terra);margin-bottom:16px;opacity:.6;}
-.card-desc{font-size:12px;color:rgba(255,255,255,.35);line-height:1.7;flex:1;}
-.card-footer{margin-top:24px;display:flex;align-items:center;justify-content:space-between;}
+/* Big number watermark */
+.card-bg-num{position:absolute;top:-10px;left:20px;font-family:var(--fh);font-size:160px;font-weight:900;color:rgba(255,255,255,.025);line-height:1;pointer-events:none;letter-spacing:-.05em;user-select:none;}
 
-.badge{font-size:8px;letter-spacing:.18em;text-transform:uppercase;font-family:var(--fh);font-weight:700;padding:4px 10px;border-radius:2px;}
+/* Active top accent */
+.card.active::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--terra);}
+
+.card-label{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.2);font-family:var(--fh);margin-bottom:10px;}
+.card-title{font-family:var(--fh);font-size:36px;font-weight:900;color:#fff;letter-spacing:-.04em;line-height:.95;margin-bottom:14px;}
+.card-desc{font-size:11.5px;color:rgba(255,255,255,.3);line-height:1.65;max-width:260px;margin-bottom:20px;}
+.card-footer{display:flex;align-items:center;justify-content:space-between;}
+.badge{font-size:8px;letter-spacing:.2em;text-transform:uppercase;font-family:var(--fh);font-weight:700;padding:4px 10px;border-radius:2px;}
 .badge.live{background:var(--terra);color:#fff;}
-.badge.soon{background:rgba(255,255,255,.06);color:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.08);}
-.arrow{font-size:18px;color:var(--terra);opacity:0;transition:opacity .12s,transform .15s;transform:translateX(-6px);}
+.badge.soon{border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.2);}
+.arrow{font-size:20px;color:var(--terra);opacity:0;transition:opacity .15s,transform .18s;transform:translateX(-8px);}
 .card:not(.disabled):hover .arrow{opacity:1;transform:translateX(0);}
 
-/* FOOTER */
-.footer{padding:20px 36px;font-size:9px;color:rgba(255,255,255,.12);letter-spacing:.14em;text-transform:uppercase;font-family:var(--fh);border-top:1px solid rgba(255,255,255,.04);}
+/* FOOTER STRIP */
+.footer-strip{height:36px;border-top:1px solid var(--line);display:flex;align-items:center;padding:0 32px;flex-shrink:0;gap:8px;}
+.footer-txt{font-size:9px;color:rgba(255,255,255,.1);letter-spacing:.14em;text-transform:uppercase;font-family:var(--fh);}
+.boot-icon{width:14px;height:14px;opacity:.1;cursor:pointer;transition:opacity .2s;flex-shrink:0;}
+.boot-icon:hover{opacity:.25;}
 
-/* 50M MODAL */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
 .overlay.show{display:flex;}
-.secret-box{background:#0d0d0d;border:1px solid #222;border-radius:8px;padding:44px 40px;width:340px;text-align:center;position:relative;}
-.secret-logo{font-family:var(--fl);font-size:32px;font-weight:700;color:#fff;letter-spacing:.08em;margin-bottom:4px;}
+.secret-box{background:#0a0a0a;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:48px 40px;width:340px;text-align:center;position:relative;}
+.secret-logo{font-family:var(--fl);font-size:36px;font-weight:700;color:#fff;letter-spacing:.06em;margin-bottom:4px;}
 .secret-logo span{color:var(--terra);}
-.secret-sub{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.2);font-family:var(--fh);margin-bottom:32px;}
-.secret-input{width:100%;background:#161616;border:1px solid #2a2a2a;border-radius:4px;padding:13px 16px;font-family:var(--fh);font-size:18px;color:#fff;letter-spacing:.2em;text-align:center;outline:none;transition:border-color .15s;}
+.secret-sub{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.18);font-family:var(--fh);margin-bottom:32px;}
+.secret-input{width:100%;background:#111;border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:14px 16px;font-family:var(--fh);font-size:18px;color:#fff;letter-spacing:.25em;text-align:center;outline:none;transition:border-color .15s;}
 .secret-input:focus{border-color:var(--terra);}
 .secret-input.err{border-color:#d94f3a;animation:shake .3s ease;}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-.secret-hint{font-size:10px;color:rgba(255,255,255,.15);margin-top:12px;font-family:var(--fn);}
-.secret-close{position:absolute;top:14px;right:18px;color:rgba(255,255,255,.15);font-size:20px;cursor:pointer;line-height:1;transition:color .12s;}
+.secret-hint{font-size:10px;color:rgba(255,255,255,.12);margin-top:12px;font-family:var(--fn);}
+.secret-close{position:absolute;top:14px;right:18px;color:rgba(255,255,255,.15);font-size:22px;cursor:pointer;transition:color .12s;}
 .secret-close:hover{color:rgba(255,255,255,.5);}
 
-@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:560px){
-  .topbar{padding:0 20px;}.hero{padding:48px 20px 36px;}.hero-title{font-size:36px;}
-  .sections{padding:0 20px 48px;}.grid{grid-template-columns:1fr;}.footer{padding:16px 20px;}
+@media(max-width:900px){
+  html,body{overflow:auto;}
+  .grid{grid-template-columns:1fr 1fr;grid-template-rows:auto;}
+  .card:nth-child(2n){border-right:none;}
+  .card:nth-child(n+5){border-bottom:1px solid var(--line);}
+  .card:nth-child(4n){border-right:1px solid var(--line);}
+  .card:nth-child(2n){border-right:none;}
+  .card:last-child,.card:nth-last-child(-n+2):nth-child(odd){border-bottom:none;}
+}
+@media(max-width:520px){
+  .grid{grid-template-columns:1fr;grid-template-rows:auto;}
+  .card{border-right:none!important;min-height:200px;}
+  .card:last-child{border-bottom:none;}
+  .card-bg-num{font-size:110px;}
+  .card-title{font-size:28px;}
 }
 </style>
 </head>
@@ -99,54 +104,65 @@ body{font-family:var(--fn);background:var(--dark);color:#e8e4de;min-height:100vh
 </div>
 
 <div class="topbar">
-  <div class="topbar-logo">BDG<span id="dot" style="cursor:default;">·</span>HQ</div>
-  <div class="topbar-right">Bala Di Gala · Suite interna</div>
+  <div class="logo">BDG<span>·</span>HQ</div>
+  <div class="topbar-meta">Bala Di Gala · Suite interna</div>
 </div>
 
-<div class="hero">
-  <div class="hero-eyebrow">Centro de operaciones · Uso interno · Confidencial</div>
-  <div class="hero-title">Bienvenida al<br><em>cuartel general.</em></div>
-  <div class="hero-sub">Acceso a las herramientas del equipo Bala Di Gala.</div>
+<div class="grid">
+
+  <a class="card active" href="/pulse/">
+    <div class="card-bg-num">01</div>
+    <div class="card-label">Módulo 01</div>
+    <div class="card-title">Pulse</div>
+    <div class="card-desc">Dashboard de ventas. KPIs y métricas del negocio en tiempo real.</div>
+    <div class="card-footer"><div class="badge live">Activo</div><div class="arrow">→</div></div>
+  </a>
+
+  <a class="card active" href="/tiktok/">
+    <div class="card-bg-num">02</div>
+    <div class="card-label">Módulo 02</div>
+    <div class="card-title">TikTok</div>
+    <div class="card-desc">Horarios LIVE. Confirmaciones, GMV por sesión y ranking del equipo.</div>
+    <div class="card-footer"><div class="badge live">Activo</div><div class="arrow">→</div></div>
+  </a>
+
+  <a class="card active" href="/inventario/">
+    <div class="card-bg-num">03</div>
+    <div class="card-label">Módulo 03</div>
+    <div class="card-title">Inventario</div>
+    <div class="card-desc">Stock en tiempo real. Catálogo Shopify con tallas y disponibilidad.</div>
+    <div class="card-footer"><div class="badge live">Activo</div><div class="arrow">→</div></div>
+  </a>
+
+  <a class="card disabled" href="/meta/">
+    <div class="card-bg-num">04</div>
+    <div class="card-label">Módulo 04</div>
+    <div class="card-title">Meta</div>
+    <div class="card-desc">Objetivos y metas del equipo. Progreso mensual y cierre de resultados.</div>
+    <div class="card-footer"><div class="badge soon">Próximamente</div></div>
+  </a>
+
+  <a class="card active" href="/pulse/" style="grid-column:span 2;">
+    <div class="card-bg-num" style="font-size:220px;top:-30px;left:30px;color:rgba(193,100,82,.04);">BDG</div>
+    <div class="card-label">Centro de operaciones</div>
+    <div class="card-title" style="font-size:48px;">Bala Di Gala.</div>
+    <div class="card-desc">Suite interna del equipo. Acceso confidencial.</div>
+    <div class="card-footer"><div class="badge live">bdghq.com</div></div>
+  </a>
+
+  <a class="card disabled" href="/meta/" style="grid-column:span 2;">
+    <div class="card-bg-num">05</div>
+    <div class="card-label">Módulo 05</div>
+    <div class="card-title">Próximamente</div>
+    <div class="card-desc">Nuevas herramientas en desarrollo para el equipo.</div>
+    <div class="card-footer"><div class="badge soon">En construcción</div></div>
+  </a>
+
 </div>
 
-<div class="sections">
-  <div class="grid">
-    <a class="card active" href="/pulse/">
-      <div class="card-num">Módulo 01</div>
-      <div class="card-title">Pulse</div>
-      <div class="card-divider"></div>
-      <div class="card-desc">Dashboard general del negocio. KPIs, métricas y resumen ejecutivo en tiempo real.</div>
-      <div class="card-footer"><div class="badge live">Activo</div><div class="arrow">→</div></div>
-    </a>
-    <a class="card active" href="/tiktok/">
-      <div class="card-num">Módulo 02</div>
-      <div class="card-title">TikTok</div>
-      <div class="card-divider"></div>
-      <div class="card-desc">Gestión de horarios LIVE. Calendario semanal, confirmaciones, reportes de GMV y ranking del equipo.</div>
-      <div class="card-footer"><div class="badge live">Activo</div><div class="arrow">→</div></div>
-    </a>
-    <a class="card active" href="/inventario/">
-      <div class="card-num">Módulo 03</div>
-      <div class="card-title">Inventario</div>
-      <div class="card-divider"></div>
-      <div class="card-desc">Consulta de stock en tiempo real. Catálogo Shopify con tallas, colores y disponibilidad actual.</div>
-      <div class="card-footer"><div class="badge live">Activo</div><div class="arrow">→</div></div>
-    </a>
-    <a class="card disabled" href="/meta/">
-      <div class="card-num">Módulo 04</div>
-      <div class="card-title">Meta</div>
-      <div class="card-divider"></div>
-      <div class="card-desc">Seguimiento de objetivos y metas del equipo. Progreso mensual, targets y cierre de resultados.</div>
-      <div class="card-footer"><div class="badge soon">Próximamente</div></div>
-    </a>
-  </div>
-</div>
-
-<div class="footer">
-  © Bala Di Gala · Confidencial · Todos los derechos reservados
-  <svg id="bootTrigger" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"
-    style="width:18px;height:18px;opacity:.12;cursor:pointer;margin-left:16px;vertical-align:middle;transition:opacity .2s;display:inline-block;"
-    onmouseenter="this.style.opacity='.22'" onmouseleave="this.style.opacity='.12'">
+<div class="footer-strip">
+  <span class="footer-txt">© Bala Di Gala · Confidencial</span>
+  <svg id="bootTrigger" class="boot-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
     <path fill="currentColor" d="M54 46H30v-6l6-2V24c0-6-4-10-10-10H14c-2 0-4 2-4 4v28H8c-1.1 0-2 .9-2 2v2c0 1.1.9 2 2 2h46c1.1 0 2-.9 2-2v-2c0-1.1-.9-2-2-2zM20 18h6c2.2 0 4 1.8 4 4v14l-10 3V18z"/>
   </svg>
 </div>
@@ -161,8 +177,7 @@ function checkCode() {
     window.location.href = '/50m/';
   } else {
     const inp = document.getElementById('secretInput');
-    inp.classList.add('err');
-    inp.value = '';
+    inp.classList.add('err'); inp.value = '';
     setTimeout(() => inp.classList.remove('err'), 400);
   }
 }
