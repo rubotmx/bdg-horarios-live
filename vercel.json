@@ -1,4 +1,7 @@
 {
+  "crons": [
+    { "path": "/api/remind", "schedule": "0 14 * * *" }
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/tiktok(.*)", "destination": "/public/tiktok/index.html" },
