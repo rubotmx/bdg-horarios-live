@@ -3,6 +3,7 @@
     { "path": "/api/remind", "schedule": "0 14 * * *" }
   ],
   "rewrites": [
+    { "source": "/favicon.ico", "destination": "/public/favicon.ico" },
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/50m(.*)", "destination": "/public/50m/index.html" },
     { "source": "/tiktok(.*)", "destination": "/public/tiktok/index.html" },
