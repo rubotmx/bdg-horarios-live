@@ -467,10 +467,14 @@ td{padding:10px 14px;vertical-align:middle;}
 .wa-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:#25D366;color:#fff;border:none;border-radius:2px;font-size:10px;font-family:var(--fn);font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;text-decoration:none;white-space:nowrap;}
 .wa-btn:hover{background:#1db954;}
 .wa-btn.no-phone{background:var(--surface3);color:var(--muted);cursor:default;}
+.google-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:11px 16px;background:#fff;border:1px solid var(--line2);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;letter-spacing:.06em;color:var(--text);cursor:pointer;transition:border-color .15s,box-shadow .15s;}
+.google-btn:hover{border-color:#4285F4;box-shadow:0 2px 8px rgba(66,133,244,.15);}
+.google-email-chip{display:inline-flex;align-items:center;gap:6px;background:var(--pos-l);color:var(--pos);font-size:10px;padding:3px 8px;border-radius:2px;font-weight:600;}
 </style>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <!-- SheetJS para exportar Excel -->
 <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -631,6 +635,29 @@ td{padding:10px 14px;vertical-align:middle;}
       <button class="btn primary" onclick="submitAccess()">Entrar</button>
       <button class="btn ghost" onclick="closeModal('accessModal')">Cancelar</button>
     </div>
+    <div id="googleSignInWrap" style="display:none;margin-top:14px;border-top:1px solid var(--line);padding-top:14px;">
+      <button class="google-btn" onclick="signInWithGoogle()">
+        <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continuar con Google
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── VINCULAR GOOGLE MODAL ── -->
+<div class="modal-overlay" id="vincularModal" style="display:none;">
+  <div class="modal" style="max-width:360px;">
+    <h2>Vincular cuenta</h2>
+    <p class="modal-sub" id="vincularSub">Primera vez entrando con Google. Ingresa tu código para vincular tu cuenta.</p>
+    <div class="field">
+      <label>Tu código personal</label>
+      <input type="text" id="vincularCode" placeholder="ej. ANA01" style="text-transform:uppercase;" onkeydown="if(event.key==='Enter')submitVincular()"/>
+    </div>
+    <div class="modal-err" id="vincularErr"></div>
+    <div class="modal-actions">
+      <button class="btn primary" onclick="submitVincular()">Vincular y entrar</button>
+      <button class="btn ghost" onclick="cancelVincular()">Cancelar</button>
+    </div>
   </div>
 </div>
 
@@ -772,6 +799,8 @@ let _db = null;           // referencia Firebase Database
 let _fbReady = false;     // true cuando Firebase está conectado
 let _fbWriting = false;   // true mientras nosotros escribimos (evita re-render propio)
 let currentAdminTab = "equipo"; // tab activo en vista admin
+
+let _googleUser = null; // usuario Google pendiente de vincular
 
 function initFirebase(){
   try {
@@ -1040,12 +1069,14 @@ function openAccess(role){
     document.getElementById("modalSub").textContent   = "Ingresa tu contraseña personal (Miranda, Jackie o Rubén)";
     document.getElementById("adminPassField").style.display = "block";
     document.getElementById("codeField").style.display      = "none";
+    document.getElementById("googleSignInWrap").style.display = "block";
     setTimeout(()=>document.getElementById("adminPass").focus(),100);
   } else {
     document.getElementById("modalTitle").textContent = role === "anfitriona" ? "Anfitriona" : "Staff Backend";
     document.getElementById("modalSub").textContent   = "Ingresa tu código personal";
     document.getElementById("adminPassField").style.display = "none";
     document.getElementById("codeField").style.display      = "block";
+    document.getElementById("googleSignInWrap").style.display = "block";
     setTimeout(()=>document.getElementById("memberCode").focus(),100);
   }
   document.getElementById("accessModal").style.display="flex";
@@ -1076,8 +1107,96 @@ function submitAccess(){
 
 function doLogout(){
   SESSION = { role:null, code:null, name:null };
+  if(firebase.auth) firebase.auth().signOut().catch(()=>{});
   document.getElementById("app").style.display    = "none";
   document.getElementById("landing").style.display = "block";
+}
+
+// ── GOOGLE AUTH ───────────────────────────────────────────────────────────────
+function signInWithGoogle(){
+  const provider = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(provider).then(result => {
+    const user  = result.user;
+    const email = user.email;
+    // Buscar miembro o admin vinculado a este email
+    const linkedMember = STATE.members.find(m => m.googleEmail === email);
+    const linkedAdmin  = getAdmins().find(a => a.googleEmail === email);
+    if(linkedMember){
+      SESSION = { role: linkedMember.role, code: linkedMember.code, name: linkedMember.name };
+      closeModal("accessModal");
+      renderApp();
+    } else if(linkedAdmin){
+      SESSION = { role: "admin", code: linkedAdmin.code, name: linkedAdmin.name };
+      closeModal("accessModal");
+      renderApp();
+    } else {
+      // Primera vez — pedir código/contraseña para vincular
+      _googleUser = { email, displayName: user.displayName };
+      document.getElementById("vincularSub").textContent =
+        `Entrando como ${email}. Ingresa tu código o contraseña de admin para vincular tu cuenta.`;
+      document.getElementById("vincularCode").value = "";
+      document.getElementById("vincularErr").style.display = "none";
+      closeModal("accessModal");
+      document.getElementById("vincularModal").style.display = "flex";
+      setTimeout(() => document.getElementById("vincularCode").focus(), 100);
+    }
+  }).catch(err => {
+    const errEl = document.getElementById("accessErr");
+    errEl.style.display = "block";
+    errEl.textContent = "Error al iniciar sesión con Google. Intenta de nuevo.";
+    console.warn("Google Auth error:", err);
+  });
+}
+
+function submitVincular(){
+  const input  = document.getElementById("vincularCode").value.trim();
+  const code   = input.toUpperCase();
+  const errEl  = document.getElementById("vincularErr");
+
+  // Intentar como admin primero (por contraseña)
+  const admin = getAdmins().find(a => a.pass === input);
+  if(admin){
+    if(admin.googleEmail && admin.googleEmail !== _googleUser.email){
+      errEl.style.display = "block";
+      errEl.textContent   = "Esta cuenta de admin ya está vinculada a otro correo Google.";
+      return;
+    }
+    // Vincular admin
+    if(!STATE.admins || !STATE.admins.length) STATE.admins = [...ADMINS];
+    const idx = STATE.admins.findIndex(a => a.code === admin.code);
+    if(idx >= 0) STATE.admins[idx].googleEmail = _googleUser.email;
+    save();
+    SESSION = { role: "admin", code: admin.code, name: admin.name };
+    _googleUser = null;
+    closeModal("vincularModal");
+    renderApp();
+    return;
+  }
+
+  // Intentar como miembro (por código)
+  const member = STATE.members.find(m => m.code === code);
+  if(!member){
+    errEl.style.display = "block";
+    errEl.textContent   = "Código no encontrado. Si eres admin ingresa tu contraseña.";
+    return;
+  }
+  if(member.googleEmail && member.googleEmail !== _googleUser.email){
+    errEl.style.display = "block";
+    errEl.textContent   = "Este código ya está vinculado a otro correo Google.";
+    return;
+  }
+  member.googleEmail = _googleUser.email;
+  save();
+  SESSION = { role: member.role, code: member.code, name: member.name };
+  _googleUser = null;
+  closeModal("vincularModal");
+  renderApp();
+}
+
+function cancelVincular(){
+  _googleUser = null;
+  if(firebase.auth) firebase.auth().signOut().catch(()=>{});
+  closeModal("vincularModal");
 }
 
 // ── APP SHELL ─────────────────────────────────────────────────────────────────
@@ -1154,14 +1273,16 @@ function renderAdminEquipo(){
     ${STATE.members.length === 0
       ? `<div class="empty-state"><div class="empty-icon">👥</div>Aún no hay personas registradas.<br>Agrega a tu equipo arriba.</div>`
       : `<div class="table-wrap"><table>
-          <thead><tr><th>Nombre</th><th>Código</th><th>Rol</th><th>Límite diario</th><th></th></tr></thead>
+          <thead><tr><th>Nombre</th><th>Código</th><th>Rol</th><th>Google</th><th></th></tr></thead>
           <tbody>${STATE.members.map(m=>{
-            const lim = memberLimit(m.role);
+            const googleChip = m.googleEmail
+              ? `<span class="google-email-chip"><svg width="10" height="10" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>${m.googleEmail}</span>`
+              : `<span style="font-size:10px;color:var(--muted);">Sin vincular</span>`;
             return `<tr>
               <td style="display:flex;align-items:center;gap:10px;">${avatarHtml(m.code,"md")}<strong>${m.name}</strong></td>
               <td><span class="code-badge">${m.code}</span></td>
               <td><span class="role-pill ${m.role}">${m.role==="anfitriona"?"Anfitriona":"Backend"}</span></td>
-              <td style="color:var(--text2);">${lim} ses/día</td>
+              <td>${googleChip}</td>
               <td style="display:flex;gap:6px;align-items:center;">
                 <button class="avatar-upload-btn" onclick="uploadPhoto('${m.code}',()=>renderAdmin('equipo'))">📷 Foto</button>
                 <button class="btn danger" onclick="removeMember('${m.code}')">Eliminar</button>
@@ -2685,12 +2806,16 @@ function renderAdminCuentas(){
   const list = getAdmins();
 
   const rows = list.map((a,i) => {
-    const isDefault = !STATE.admins.length; // usando defaults hardcoded
+    const isDefault = !STATE.admins.length;
     const canRemove = list.length > 1;
+    const googleChip = a.googleEmail
+      ? `<span class="google-email-chip"><svg width="10" height="10" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>${a.googleEmail}</span>`
+      : `<span style="font-size:10px;color:var(--muted);">Sin vincular</span>`;
     return `<tr>
       <td><span class="code-badge">${a.code}</span></td>
       <td style="font-size:13px;font-weight:500;">${a.name}</td>
       <td style="font-size:12px;color:var(--muted);">${"•".repeat(a.pass.length)}</td>
+      <td>${googleChip}</td>
       <td>
         <button class="btn ghost" style="font-size:11px;padding:5px 10px;" onclick="editAdminPass(${i})">Cambiar contraseña</button>
         ${canRemove&&!isDefault?`<button class="btn danger" style="margin-left:6px;" onclick="removeAdmin(${i})">Eliminar</button>`:""}
@@ -2705,7 +2830,7 @@ function renderAdminCuentas(){
       </div>
       <p style="font-size:12px;color:var(--muted);margin-bottom:20px;">Solo tú puedes agregar, eliminar o cambiar contraseñas de administradoras.</p>
       <div class="table-wrap" style="margin-bottom:28px;">
-        <table><thead><tr><th>Código</th><th>Nombre</th><th>Contraseña</th><th>Acciones</th></tr></thead>
+        <table><thead><tr><th>Código</th><th>Nombre</th><th>Contraseña</th><th>Google</th><th>Acciones</th></tr></thead>
         <tbody>${rows}</tbody></table>
       </div>
       <div class="add-form">
