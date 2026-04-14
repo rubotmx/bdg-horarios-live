@@ -2,6 +2,19 @@
 const STORE = "baladigalamx.myshopify.com";
 const TOKEN = process.env.SHOPIFY_TOKEN;
 
+// In-memory cache (vive mientras la instancia serverless esté caliente)
+const _cache = new Map();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+
+function getCached(key) {
+  const entry = _cache.get(key);
+  if (entry && Date.now() < entry.expiry) return entry.data;
+  return null;
+}
+function setCache(key, data) {
+  _cache.set(key, { data, expiry: Date.now() + CACHE_TTL });
+}
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
@@ -15,6 +28,14 @@ export default async function handler(req, res) {
 
   if (!date_min || !date_max) {
     return res.status(400).json({ error: "date_min y date_max requeridos" });
+  }
+
+  // Devolver desde caché si está fresco
+  const cacheKey = `${mode}_${date_min}_${date_max}`;
+  const hit = getCached(cacheKey);
+  if (hit) {
+    res.setHeader("X-Cache", "HIT");
+    return res.status(200).json(hit);
   }
 
   try {
@@ -81,16 +102,19 @@ export default async function handler(req, res) {
       .sort((a, b) => b.gmv - a.gmv)
       .slice(0, 10);
 
-    return res.status(200).json({
+    const result = {
       summary: {
         total_orders: totalOrders,
         total_gmv:    Math.round(totalGMV * 100) / 100,
         aov:          Math.round(aov * 100) / 100,
       },
-      by_source:   bySource,
-      by_day:      byDay,
+      by_source:    bySource,
+      by_day:       byDay,
       top_products: topProducts,
-    });
+    };
+    setCache(cacheKey, result);
+    res.setHeader("X-Cache", "MISS");
+    return res.status(200).json(result);
 
   } catch (e) {
     return res.status(500).json({ error: e.message });

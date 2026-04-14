@@ -221,20 +221,37 @@ function fmtFull(n) {
   return n.toLocaleString('es-MX', { style:'currency', currency:'MXN', minimumFractionDigits:2 });
 }
 
-async function load() {
+async function load(background = false) {
   const spin = document.getElementById('spinIcon');
-  spin.classList.add('spinning');
+  if (!background) spin.classList.add('spinning');
 
   const { min, max } = dateRange(_period);
+  const lsKey = `pulse_cache_${_period}`;
+
+  // Mostrar caché local al instante si existe
+  if (!background) {
+    const cached = localStorage.getItem(lsKey);
+    if (cached) {
+      try {
+        const { data, ts } = JSON.parse(cached);
+        render(data);
+        document.getElementById('lastUpdated').textContent =
+          'Caché · ' + new Date(ts).toLocaleTimeString('es-MX', {hour:'2-digit',minute:'2-digit'});
+      } catch(_) {}
+    }
+  }
+
   try {
     const r = await fetch(`/api/shopify?date_min=${encodeURIComponent(min)}&date_max=${encodeURIComponent(max)}`);
     _data = await r.json();
     render(_data);
+    localStorage.setItem(lsKey, JSON.stringify({ data: _data, ts: Date.now() }));
     document.getElementById('lastUpdated').textContent =
       'Actualizado ' + new Date().toLocaleTimeString('es-MX', {hour:'2-digit',minute:'2-digit'});
   } catch(e) {
-    document.getElementById('kpiGrid').innerHTML =
-      `<div class="kpi-card" style="grid-column:1/-1;color:#d94f3a;font-size:13px;">Error al cargar datos: ${e.message}</div>`;
+    if (!background)
+      document.getElementById('kpiGrid').innerHTML =
+        `<div class="kpi-card" style="grid-column:1/-1;color:#d94f3a;font-size:13px;">Error al cargar datos: ${e.message}</div>`;
   } finally {
     spin.classList.remove('spinning');
   }
