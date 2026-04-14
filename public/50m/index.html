@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>50M · Bala Di Gala</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;500;600;700&family=Archivo:wght@400;500;600;700;800&family=Jost:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --terra:#c16452;--terra-d:#a85040;--terra-l:rgba(193,100,82,.12);
+  --dark:#0d0d0d;--dark2:#161616;--dark3:#1e1e1e;--dark4:#2a2a2a;
+  --line:#252525;--line2:#2e2e2e;--muted:#5a5a5a;--muted2:#7a7a7a;
+  --cream:#f5f0e8;--gold:#c18a32;--green:#3a9e6f;--red:#d94f3a;
+  --fn:'Archivo Narrow',sans-serif;--fh:'Archivo',sans-serif;--fl:'Jost',sans-serif;
+  --r:4px;--r2:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--fn);background:var(--dark);color:#e8e4de;min-height:100vh;}
+
+/* TOPBAR */
+.topbar{background:rgba(13,13,13,.95);border-bottom:1px solid var(--line);padding:0 28px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(8px);}
+.logo{font-family:var(--fl);font-size:20px;font-weight:700;color:#fff;letter-spacing:.06em;}
+.logo span{color:var(--terra);}
+.topbar-right{display:flex;align-items:center;gap:20px;}
+.owner-name{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted2);font-family:var(--fh);}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.back{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-family:var(--fh);text-decoration:none;transition:color .12s;}
+.back:hover{color:#fff;}
+
+/* PAGE */
+.page{max-width:1100px;margin:0 auto;padding:32px 24px 60px;}
+
+/* GOAL HERO */
+.goal-hero{background:var(--dark2);border:1px solid var(--line2);border-radius:var(--r2);padding:32px 36px;margin-bottom:20px;position:relative;overflow:hidden;}
+.goal-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;background:radial-gradient(circle,rgba(193,100,82,.08) 0%,transparent 70%);}
+.goal-eyebrow{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted2);font-family:var(--fh);margin-bottom:12px;}
+.goal-amount{font-family:var(--fh);font-size:52px;font-weight:800;letter-spacing:-.04em;color:#fff;line-height:1;}
+.goal-amount span{color:var(--terra);}
+.goal-meta{font-size:12px;color:var(--muted2);margin-top:8px;}
+.progress-wrap{margin-top:24px;}
+.progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted2);font-family:var(--fh);margin-bottom:8px;}
+.progress-track{height:6px;background:var(--dark4);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--terra-d),var(--terra));border-radius:3px;transition:width 1.2s cubic-bezier(.4,0,.2,1);}
+.progress-pct{font-family:var(--fh);font-size:13px;font-weight:700;color:var(--terra);margin-top:8px;}
+
+/* PERIOD */
+.period-bar{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.period-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--line2);background:transparent;font-family:var(--fn);font-size:11px;font-weight:600;cursor:pointer;transition:all .12s;color:var(--muted2);}
+.period-btn.active,.period-btn:hover{background:var(--terra);color:#fff;border-color:var(--terra);}
+.refresh-btn{margin-left:auto;padding:6px 14px;border-radius:20px;border:1px solid var(--line2);background:transparent;font-family:var(--fn);font-size:11px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .12s;}
+.refresh-btn:hover{color:#fff;}
+.spin{display:inline-block;}
+.spinning{animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.last-upd{font-size:10px;color:var(--muted);}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:20px;}
+.kpi{background:var(--dark2);border:1px solid var(--line2);border-radius:var(--r2);padding:18px 20px;}
+.kpi-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted2);font-family:var(--fh);margin-bottom:8px;}
+.kpi-val{font-family:var(--fh);font-size:26px;font-weight:800;letter-spacing:-.03em;color:#fff;}
+.kpi-val.terra{color:var(--terra);}
+.kpi-val.gold{color:var(--gold);}
+.kpi-sub{font-size:10px;color:var(--muted);margin-top:5px;}
+
+/* GRID 2 */
+.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:12px;margin-bottom:12px;}
+@media(max-width:760px){.grid2{grid-template-columns:1fr;}}
+
+/* CARD */
+.card{background:var(--dark2);border:1px solid var(--line2);border-radius:var(--r2);padding:22px 22px;}
+.card-title{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-family:var(--fh);margin-bottom:18px;font-weight:600;}
+
+/* CHART */
+.chart-wrap{height:150px;position:relative;}
+svg.chart{width:100%;height:100%;}
+.chart-tooltip{position:absolute;background:#fff;color:var(--dark);font-size:11px;padding:5px 10px;border-radius:4px;pointer-events:none;opacity:0;transition:opacity .1s;font-family:var(--fn);white-space:nowrap;}
+
+/* CHANNEL */
+.ch-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.ch-row:last-child{margin-bottom:0;}
+.ch-name{font-size:11px;font-weight:600;width:90px;flex-shrink:0;color:#e8e4de;font-family:var(--fh);}
+.ch-bar-wrap{flex:1;height:6px;background:var(--dark4);border-radius:3px;overflow:hidden;}
+.ch-bar{height:100%;border-radius:3px;transition:width .8s ease;}
+.ch-gmv{font-size:11px;font-family:var(--fh);font-weight:700;color:#fff;width:80px;text-align:right;flex-shrink:0;}
+.ch-ord{font-size:10px;color:var(--muted2);width:52px;text-align:right;flex-shrink:0;}
+
+/* PRODUCTS */
+.prod-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);}
+.prod-row:last-child{border:none;}
+.prod-rank{font-size:10px;color:var(--muted);width:18px;text-align:center;flex-shrink:0;}
+.prod-name{flex:1;font-size:12px;font-weight:500;color:#e8e4de;font-family:var(--fh);}
+.prod-units{font-size:10px;color:var(--muted2);width:48px;text-align:right;}
+.prod-gmv{font-size:12px;font-weight:700;color:#fff;font-family:var(--fh);width:86px;text-align:right;}
+
+/* SKELETON */
+.sk{background:linear-gradient(90deg,var(--dark3) 25%,var(--dark4) 50%,var(--dark3) 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:4px;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.sk-line{height:11px;margin-bottom:8px;}
+.sk-big{height:28px;width:55%;}
+.empty{padding:24px;text-align:center;color:var(--muted);font-size:12px;}
+
+@media(max-width:600px){
+  .topbar{padding:0 16px;}.page{padding:20px 14px 48px;}
+  .goal-hero{padding:24px 20px;}.goal-amount{font-size:36px;}
+  .kpi-val{font-size:22px;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">50<span>M</span></div>
+  <div class="topbar-right">
+    <div class="live-dot"></div>
+    <div class="owner-name">Jorge Plascencia</div>
+    <a class="back" href="/">← HQ</a>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- Meta 50M -->
+  <div class="goal-hero">
+    <div class="goal-eyebrow">Meta anual · Bala Di Gala</div>
+    <div class="goal-amount">$<span id="currentGMV">—</span></div>
+    <div class="goal-meta">de <strong>$50,000,000 MXN</strong> · Año <span id="currentYear"></span></div>
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>Avance</span>
+        <span id="progressPct">—</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- Period selector -->
+  <div class="period-bar">
+    <button class="period-btn" onclick="setPeriod('today',this)">Hoy</button>
+    <button class="period-btn" onclick="setPeriod('week',this)">Semana</button>
+    <button class="period-btn active" onclick="setPeriod('month',this)">Este mes</button>
+    <button class="period-btn" onclick="setPeriod('30d',this)">30 días</button>
+    <button class="period-btn" onclick="setPeriod('year',this)">Año</button>
+    <button class="refresh-btn" onclick="loadAll()"><span class="spin" id="spinIcon">↻</span> Actualizar</button>
+    <span class="last-upd" id="lastUpd"></span>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid" id="kpiGrid">
+    <div class="kpi"><div class="sk sk-big"></div></div>
+    <div class="kpi"><div class="sk sk-big"></div></div>
+    <div class="kpi"><div class="sk sk-big"></div></div>
+    <div class="kpi"><div class="sk sk-big"></div></div>
+  </div>
+
+  <!-- Chart + Channels -->
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Ventas diarias</div>
+      <div class="chart-wrap" id="chartWrap">
+        <div class="sk" style="width:100%;height:100%;border-radius:6px;"></div>
+      </div>
+      <div class="chart-tooltip" id="tooltip"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Por canal</div>
+      <div id="channelsWrap">
+        <div class="sk sk-line"></div><div class="sk sk-line"></div><div class="sk sk-line"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top products -->
+  <div class="card">
+    <div class="card-title">Top productos</div>
+    <div id="productsWrap">
+      <div class="sk sk-line"></div><div class="sk sk-line"></div><div class="sk sk-line"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const GOAL        = 50_000_000;
+const CHANNEL_COLORS = { web:'#3a72b8', tiktok:'#c16452', instagram:'#9b59b6', pos:'#3a9e6f', shopify_draft_order:'#c18a32' };
+const CHANNEL_LABELS = { web:'Tienda online', tiktok:'TikTok LIVE', instagram:'Instagram', pos:'Punto de venta', shopify_draft_order:'Draft Order' };
+
+let _period = 'month';
+
+document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+function setPeriod(p, btn) {
+  _period = p;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadPeriod();
+}
+
+function dateRange(period) {
+  const pad = n => String(n).padStart(2,'0');
+  const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const now  = new Date(new Date().getTime() - 6*3600000);
+  let min, max;
+  if (period === 'today') {
+    const t = fmt(now);
+    min = `${t}T00:00:00-06:00`; max = `${t}T23:59:59-06:00`;
+  } else if (period === 'week') {
+    const d = new Date(now); d.setDate(d.getDate() - d.getDay());
+    min = `${fmt(d)}T00:00:00-06:00`; max = `${fmt(now)}T23:59:59-06:00`;
+  } else if (period === 'month') {
+    const d = new Date(now.getFullYear(), now.getMonth(), 1);
+    min = `${fmt(d)}T00:00:00-06:00`; max = `${fmt(now)}T23:59:59-06:00`;
+  } else if (period === '30d') {
+    const d = new Date(now); d.setDate(d.getDate() - 29);
+    min = `${fmt(d)}T00:00:00-06:00`; max = `${fmt(now)}T23:59:59-06:00`;
+  } else { // year
+    const d = new Date(now.getFullYear(), 0, 1);
+    min = `${fmt(d)}T00:00:00-06:00`; max = `${fmt(now)}T23:59:59-06:00`;
+  }
+  return { min, max };
+}
+
+function fmtMXN(n) {
+  if (n >= 1_000_000) return '$' + (n/1_000_000).toFixed(2) + 'M';
+  if (n >= 1_000)     return '$' + (n/1_000).toFixed(1) + 'k';
+  return '$' + n.toFixed(0);
+}
+function fmtFull(n) {
+  return n.toLocaleString('es-MX',{style:'currency',currency:'MXN',minimumFractionDigits:2});
+}
+
+async function loadYear() {
+  const now = new Date(new Date().getTime() - 6*3600000);
+  const y   = now.getFullYear();
+  const min = `${y}-01-01T00:00:00-06:00`;
+  const max = `${y}-12-31T23:59:59-06:00`;
+  try {
+    const r = await fetch(`/api/shopify?date_min=${encodeURIComponent(min)}&date_max=${encodeURIComponent(max)}`);
+    const d = await r.json();
+    const gmv = d.summary?.total_gmv || 0;
+    document.getElementById('currentGMV').textContent =
+      gmv.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const pct = Math.min((gmv / GOAL) * 100, 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressPct').textContent = pct.toFixed(1) + '%';
+  } catch(e) {}
+}
+
+async function loadPeriod() {
+  document.getElementById('spinIcon').classList.add('spinning');
+  const { min, max } = dateRange(_period);
+  try {
+    const r = await fetch(`/api/shopify?date_min=${encodeURIComponent(min)}&date_max=${encodeURIComponent(max)}`);
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    renderKPIs(d.summary || {});
+    renderChart(d.by_day || {});
+    renderChannels(d.by_source || {});
+    renderProducts(d.top_products || []);
+    document.getElementById('lastUpd').textContent =
+      'Actualizado ' + new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+  } catch(e) {
+    document.getElementById('kpiGrid').innerHTML =
+      `<div class="kpi" style="grid-column:1/-1;color:#d94f3a;font-size:13px;">⚠ ${e.message}</div>`;
+  } finally {
+    document.getElementById('spinIcon').classList.remove('spinning');
+  }
+}
+
+function loadAll() { loadYear(); loadPeriod(); }
+
+function renderKPIs(s) {
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi">
+      <div class="kpi-label">GMV período</div>
+      <div class="kpi-val terra">${fmtFull(s.total_gmv||0)}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Órdenes</div>
+      <div class="kpi-val">${(s.total_orders||0).toLocaleString()}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Ticket promedio</div>
+      <div class="kpi-val gold">${fmtMXN(s.aov||0)}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Canales activos</div>
+      <div class="kpi-val">${s.total_orders > 0 ? Object.keys(window._bySource||{}).length || '—' : 0}</div>
+    </div>`;
+}
+
+function renderChart(byDay) {
+  const days = Object.keys(byDay).sort();
+  const wrap = document.getElementById('chartWrap');
+  if (!days.length) { wrap.innerHTML = `<div class="empty">Sin datos</div>`; return; }
+  const vals = days.map(d => byDay[d].gmv);
+  const maxV = Math.max(...vals, 1);
+  const W=600, H=130, P=16;
+  const step = (W-P*2) / Math.max(days.length-1,1);
+  const pts   = vals.map((v,i) => ({ x: P+i*step, y: H-P-(v/maxV)*(H-P*2), gmv:v, day:days[i] }));
+  const path  = pts.map((p,i)=>`${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const area  = path+` L${pts[pts.length-1].x},${H} L${pts[0].x},${H} Z`;
+  const labelIdxs = days.length<=7 ? days.map((_,i)=>i) : [0,Math.floor(days.length/2),days.length-1];
+  const labels = labelIdxs.map(i=>`<text x="${pts[i].x.toFixed(1)}" y="${H+4}" text-anchor="middle" font-size="9" fill="#5a5a5a" font-family="Archivo Narrow">${days[i].slice(5)}</text>`).join('');
+  const dots   = pts.map((p,i)=>`<circle class="dot" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" fill="#c16452" stroke="#161616" stroke-width="1.5" data-day="${p.day}" data-gmv="${p.gmv}"/>`).join('');
+  wrap.innerHTML=`
+    <svg class="chart" viewBox="0 0 ${W} ${H+12}" preserveAspectRatio="none">
+      <defs><linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#c16452" stop-opacity=".2"/>
+        <stop offset="100%" stop-color="#c16452" stop-opacity="0"/>
+      </linearGradient></defs>
+      <path d="${area}" fill="url(#g2)"/>
+      <path d="${path}" fill="none" stroke="#c16452" stroke-width="2" stroke-linejoin="round"/>
+      ${dots}${labels}
+    </svg>
+    <div class="chart-tooltip" id="tooltip"></div>`;
+  wrap.querySelectorAll('.dot').forEach(d=>{
+    d.addEventListener('mouseenter',e=>{
+      const tt=document.getElementById('tooltip');
+      tt.textContent=`${e.target.dataset.day} · ${fmtFull(parseFloat(e.target.dataset.gmv))}`;
+      tt.style.opacity=1; tt.style.left=(e.offsetX+10)+'px'; tt.style.top=(e.offsetY-28)+'px';
+    });
+    d.addEventListener('mouseleave',()=>{ document.getElementById('tooltip').style.opacity=0; });
+  });
+}
+
+function renderChannels(bySource) {
+  window._bySource = bySource;
+  const entries = Object.entries(bySource).sort((a,b)=>b[1].gmv-a[1].gmv);
+  if (!entries.length) { document.getElementById('channelsWrap').innerHTML=`<div class="empty">Sin datos</div>`; return; }
+  const maxG = Math.max(...entries.map(e=>e[1].gmv),1);
+  document.getElementById('channelsWrap').innerHTML = entries.map(([src,v])=>`
+    <div class="ch-row">
+      <div class="ch-name">${CHANNEL_LABELS[src]||src}</div>
+      <div class="ch-bar-wrap"><div class="ch-bar" style="width:${(v.gmv/maxG*100).toFixed(1)}%;background:${CHANNEL_COLORS[src]||'#7a7a7a'};"></div></div>
+      <div class="ch-gmv">${fmtMXN(v.gmv)}</div>
+      <div class="ch-ord">${v.orders} órd.</div>
+    </div>`).join('');
+}
+
+function renderProducts(products) {
+  if (!products.length) { document.getElementById('productsWrap').innerHTML=`<div class="empty">Sin datos</div>`; return; }
+  document.getElementById('productsWrap').innerHTML = products.map((p,i)=>`
+    <div class="prod-row">
+      <div class="prod-rank">${i+1}</div>
+      <div class="prod-name">${p.title}</div>
+      <div class="prod-units">${p.units} uds.</div>
+      <div class="prod-gmv">${fmtMXN(p.gmv)}</div>
+    </div>`).join('');
+}
+
+// Auto-refresh cada 5 min
+setInterval(loadAll, 5*60*1000);
+loadAll();
+</script>
+</body>
+</html>

@@ -18,6 +18,20 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:var(--fn);background:var(--beige);color:var(--dark);min-height:100vh;display:flex;flex-direction:column;}
+
+/* 50M modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.overlay.show{display:flex;}
+.secret-box{background:#0d0d0d;border:1px solid #2a2a2a;border-radius:6px;padding:40px 36px;width:320px;text-align:center;}
+.secret-logo{font-family:var(--fl);font-size:28px;font-weight:700;color:#fff;letter-spacing:.1em;margin-bottom:4px;}
+.secret-logo span{color:var(--terra);}
+.secret-sub{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.25);font-family:var(--fh);margin-bottom:28px;}
+.secret-input{width:100%;background:#1a1a1a;border:1px solid #2e2e2e;border-radius:4px;padding:12px 16px;font-family:var(--fh);font-size:16px;color:#fff;letter-spacing:.12em;text-align:center;outline:none;transition:border-color .15s;}
+.secret-input:focus{border-color:var(--terra);}
+.secret-input.err{border-color:#d94f3a;animation:shake .3s ease;}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.secret-hint{font-size:10px;color:rgba(255,255,255,.2);margin-top:12px;font-family:var(--fn);}
+.secret-close{position:absolute;top:16px;right:20px;color:rgba(255,255,255,.2);font-size:18px;cursor:pointer;line-height:1;}
 .topbar{background:var(--dark);padding:0 32px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .topbar-logo{font-family:var(--fl);font-size:18px;font-weight:700;color:#fff;letter-spacing:.12em;}
 .topbar-logo span{color:var(--terra);}
@@ -49,8 +63,22 @@ body{font-family:var(--fn);background:var(--beige);color:var(--dark);min-height:
 </style>
 </head>
 <body>
+<!-- 50M hidden entry -->
+<div class="overlay" id="overlay">
+  <div class="secret-box">
+    <div style="position:relative;">
+      <span class="secret-close" onclick="closeSecret()">×</span>
+      <div class="secret-logo">50<span>M</span></div>
+      <div class="secret-sub">Acceso restringido</div>
+      <input class="secret-input" id="secretInput" type="password" placeholder="••••••••••"
+        maxlength="20" autocomplete="off" onkeydown="if(event.key==='Enter')checkCode()"/>
+      <div class="secret-hint">Ingresa tu código de acceso</div>
+    </div>
+  </div>
+</div>
+
 <div class="topbar">
-  <div class="topbar-logo">BDG<span>·</span>HQ</div>
+  <div class="topbar-logo">BDG<span id="dot" style="cursor:default;">·</span>HQ</div>
   <div class="topbar-right">Bala Di Gala · Suite interna</div>
 </div>
 <div class="hero">
@@ -60,12 +88,12 @@ body{font-family:var(--fn);background:var(--beige);color:var(--dark);min-height:
 </div>
 <div class="sections">
   <div class="grid">
-    <a class="card soon" href="/pulse/">
+    <a class="card" href="/pulse/">
       <div class="card-num">Módulo 01</div>
       <div class="card-title">Pulse</div>
       <div class="card-divider"></div>
       <div class="card-desc">Dashboard general del negocio. KPIs, métricas y resumen ejecutivo en tiempo real.</div>
-      <div class="card-footer"><div class="badge soon">Próximamente</div><div class="arrow">→</div></div>
+      <div class="card-footer"><div class="badge live">Activo</div><div class="arrow">→</div></div>
     </a>
     <a class="card" href="/tiktok/">
       <div class="card-num">Módulo 02</div>
@@ -91,5 +119,37 @@ body{font-family:var(--fn);background:var(--beige);color:var(--dark);min-height:
   </div>
 </div>
 <div class="footer">© Bala Di Gala · Confidencial · Todos los derechos reservados</div>
+
+<script>
+let _clicks = 0, _timer = null;
+document.getElementById('dot').addEventListener('click', () => {
+  _clicks++;
+  clearTimeout(_timer);
+  _timer = setTimeout(() => { _clicks = 0; }, 2000);
+  if (_clicks >= 5) {
+    _clicks = 0;
+    document.getElementById('overlay').classList.add('show');
+    setTimeout(() => document.getElementById('secretInput').focus(), 80);
+  }
+});
+function checkCode() {
+  const val = document.getElementById('secretInput').value.trim();
+  if (val === 'jorge2026') {
+    window.location.href = '/50m/';
+  } else {
+    const inp = document.getElementById('secretInput');
+    inp.classList.add('err');
+    inp.value = '';
+    setTimeout(() => inp.classList.remove('err'), 400);
+  }
+}
+function closeSecret() {
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('secretInput').value = '';
+}
+document.getElementById('overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('overlay')) closeSecret();
+});
+</script>
 </body>
 </html>

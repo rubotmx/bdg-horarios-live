@@ -4,6 +4,7 @@
   ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/50m(.*)", "destination": "/public/50m/index.html" },
     { "source": "/tiktok(.*)", "destination": "/public/tiktok/index.html" },
     { "source": "/pulse(.*)", "destination": "/public/pulse/index.html" },
     { "source": "/inventario(.*)", "destination": "/public/inventario/index.html" },
