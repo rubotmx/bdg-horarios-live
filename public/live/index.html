@@ -146,8 +146,8 @@ body{display:flex;flex-direction:column;}
 /* ── AD CARD with data ───────────────────────── */
 .ad-card{border-radius:8px;overflow:hidden;background:var(--s2);border:1px solid rgba(255,255,255,.06);transition:border-color .15s;}
 .ad-card:hover{border-color:rgba(255,255,255,.15);}
-.ad-card-banner{position:relative;width:100%;height:110px;overflow:hidden;background:var(--s3);}
-.ad-card-banner img{width:100%;height:100%;object-fit:cover;display:block;}
+.ad-card-banner{position:relative;width:100%;height:110px;overflow:hidden;background:var(--s3);background-size:cover;background-position:center;}
+.ad-card-banner-grad{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(8,8,8,0) 20%,rgba(8,8,8,.55) 100%);}
 .ad-card-rank{position:absolute;top:6px;left:7px;font-size:14px;line-height:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,.8));}
 .ad-card-roas-badge{position:absolute;top:6px;right:7px;font-size:11px;font-weight:900;padding:2px 7px;border-radius:4px;backdrop-filter:blur(8px);}
 .ad-card-foot{padding:8px 10px 9px;}
@@ -933,9 +933,10 @@ function renderAds(meta) {
     const rank     = RANK_EMOJIS[i] || `#${i + 1}`;
     const roasLbl  = roas !== null ? roas.toFixed(1) + '×' : '—';
 
+    const bgStyle = ad.thumbnail ? `background-image:url('${ad.thumbnail}')` : '';
     return `<div class="ad-card">
-      <div class="ad-card-banner">
-        <img src="${ad.thumbnail}" loading="lazy" onerror="this.style.opacity='.08'"/>
+      <div class="ad-card-banner" style="${bgStyle}">
+        <div class="ad-card-banner-grad"></div>
         <div class="ad-card-rank">${rank}</div>
         <div class="ad-card-roas-badge" style="color:${roasClr};background:${roasBg};">${roasLbl} ROAS</div>
       </div>
@@ -962,12 +963,14 @@ function renderAds(meta) {
     </div>`;
   }).join('');
 
-  const rowHtml = withoutData.map(ad => `
-    <div class="ad-row">
-      <img class="ad-row-img" src="${ad.thumbnail}" loading="lazy" onerror="this.style.opacity='.1'"/>
+  const rowHtml = withoutData.map(ad => {
+    const bg = ad.thumbnail ? `background-image:url('${ad.thumbnail}');background-size:cover;background-position:center;` : '';
+    return `<div class="ad-row">
+      <div class="ad-row-img" style="${bg}"></div>
       <div class="ad-row-name">${ad.name}</div>
       <div class="ad-row-dot"></div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
   let html = '';
   if (withData.length) {
