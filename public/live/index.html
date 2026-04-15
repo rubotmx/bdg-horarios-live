@@ -55,12 +55,20 @@ body{display:flex;flex-direction:column;}
 .ring-pct{font-size:11px;font-weight:700;color:var(--muted);margin-top:2px;}
 
 /* Delta vs ayer */
-.delta-row{display:flex;align-items:center;gap:6px;margin-top:10px;}
+.delta-row{display:flex;flex-direction:column;align-items:center;gap:5px;margin-top:10px;width:100%;}
+.delta-main{display:flex;align-items:center;gap:6px;}
 .delta{font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;}
 .delta.up{color:var(--green);background:rgba(62,207,142,.1);}
 .delta.down{color:var(--red);background:rgba(242,107,107,.1);}
 .delta.flat{color:var(--muted);background:rgba(255,255,255,.05);}
 .delta-lbl{font-size:9px;color:var(--muted);}
+/* Same-hour row */
+.delta-samehour{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:6px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);width:calc(100% - 24px);}
+.delta-sh-ico{font-size:10px;flex-shrink:0;}
+.delta-sh-lbl{font-size:8px;color:var(--muted);flex:1;}
+.delta-sh-val{font-size:11px;font-weight:900;color:var(--sub);}
+.delta-sh-val.sh-up{color:var(--green);}
+.delta-sh-val.sh-down{color:var(--red);}
 
 /* KPI pills */
 .kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border-bottom:1px solid var(--line);flex-shrink:0;}
@@ -286,6 +294,7 @@ body.tv .prod-img{width:40px;height:40px;}
       <div class="delta-row" id="deltaRow">
         <div class="sk" style="width:80px;height:16px;"></div>
       </div>
+      <div id="sameHourRow" style="display:none;width:calc(100% - 24px);margin-top:2px;"></div>
     </div>
 
     <!-- KPIs 2×2 -->
@@ -547,17 +556,40 @@ function renderHero(sh, meta) {
   animCount(el, gmv, v => MXN(v));
   updateRing(gmv);
 
-  // Delta vs ayer
+  // Delta vs ayer (total del día)
   const deltaEl = document.getElementById('deltaRow');
   if (ayer.gmv > 0) {
-    const diff    = ((gmv - ayer.gmv) / ayer.gmv) * 100;
-    const cls     = diff > 2 ? 'up' : diff < -2 ? 'down' : 'flat';
-    const arrow   = diff > 2 ? '▲' : diff < -2 ? '▼' : '→';
+    const diff  = ((gmv - ayer.gmv) / ayer.gmv) * 100;
+    const cls   = diff > 2 ? 'up' : diff < -2 ? 'down' : 'flat';
+    const arrow = diff > 2 ? '▲' : diff < -2 ? '▼' : '→';
     deltaEl.innerHTML = `
-      <div class="delta ${cls}">${arrow} ${PERC(diff)}</div>
-      <div class="delta-lbl">vs ayer ${MXN(ayer.gmv)}</div>`;
+      <div class="delta-main">
+        <div class="delta ${cls}">${arrow} ${PERC(diff)}</div>
+        <div class="delta-lbl">vs ayer total ${MXN(ayer.gmv)}</div>
+      </div>`;
   } else {
     deltaEl.innerHTML = `<div class="delta-lbl" style="font-size:8px;">Sin datos de ayer</div>`;
+  }
+
+  // Ayer a esta misma hora
+  const shRow = document.getElementById('sameHourRow');
+  if (ayer.gmv_same_hour !== undefined) {
+    const shGmv  = ayer.gmv_same_hour || 0;
+    const shTime = ayer.same_hour_time || '';
+    // Compare current GMV vs yesterday-same-hour GMV
+    const shDiff  = shGmv > 0 ? ((gmv - shGmv) / shGmv) * 100 : null;
+    const shCls   = shDiff === null ? '' : shDiff > 2 ? 'sh-up' : shDiff < -2 ? 'sh-down' : '';
+    const shArrow = shDiff === null ? '' : shDiff > 2 ? '▲' : shDiff < -2 ? '▼' : '→';
+    const shPct   = shDiff !== null ? ` <span style="font-size:9px;font-weight:700;">${shArrow} ${Math.abs(shDiff).toFixed(1)}%</span>` : '';
+    shRow.style.display = '';
+    shRow.innerHTML = `
+      <div class="delta-samehour">
+        <div class="delta-sh-ico">🕐</div>
+        <div class="delta-sh-lbl">Ayer a las ${shTime} · ${N(ayer.orders_same_hour || 0)} órdenes</div>
+        <div class="delta-sh-val ${shCls}">${MXN(shGmv)}${shPct}</div>
+      </div>`;
+  } else {
+    shRow.style.display = 'none';
   }
 }
 

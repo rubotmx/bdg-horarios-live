@@ -82,8 +82,23 @@ async function fetchShopifyToday() {
     getProductImages(),
   ]);
 
-  const yesterdayGmv    = yesterdayOrders.reduce((s, o) => s + parseFloat(o.total_price), 0);
+  // Current MX time — for "same hour" comparison
+  const nowMX      = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Mexico_City" }));
+  const nowH       = nowMX.getHours();
+  const nowMin     = nowMX.getMinutes();
+
+  const yesterdayGmv     = yesterdayOrders.reduce((s, o) => s + parseFloat(o.total_price), 0);
   const yesterdayOrders_ = yesterdayOrders.length;
+
+  // Filter yesterday orders up to the same clock time as right now
+  const yesterdaySameHour = yesterdayOrders.filter(o => {
+    const oMX  = new Date(new Date(o.created_at).toLocaleString("en-US", { timeZone: "America/Mexico_City" }));
+    const oH   = oMX.getHours();
+    const oMin = oMX.getMinutes();
+    return oH < nowH || (oH === nowH && oMin <= nowMin);
+  });
+  const yesterdayGmvSameHour    = yesterdaySameHour.reduce((s, o) => s + parseFloat(o.total_price), 0);
+  const yesterdayOrdersSameHour = yesterdaySameHour.length;
 
   // ── Procesar hoy ────────────────────────────────────────────────────────────
   const byProduct = {}, byHour = {}, byChannel = {};
@@ -117,7 +132,13 @@ async function fetchShopifyToday() {
     top_products: Object.values(byProduct).sort((a, b) => b.gmv - a.gmv).slice(0, 10),
     by_hour:      byHour,
     by_channel:   byChannel,
-    yesterday:    { gmv: Math.round(yesterdayGmv * 100) / 100, orders: yesterdayOrders_ },
+    yesterday: {
+      gmv:           Math.round(yesterdayGmv          * 100) / 100,
+      orders:        yesterdayOrders_,
+      gmv_same_hour: Math.round(yesterdayGmvSameHour  * 100) / 100,
+      orders_same_hour: yesterdayOrdersSameHour,
+      same_hour_time: `${String(nowH).padStart(2,'0')}:${String(nowMin).padStart(2,'0')}`,
+    },
   };
 }
 
