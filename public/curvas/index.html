@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>BDG · Curvas de Tallas — Justificación</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;900&family=Jost:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --dark:#0e0e0e; --dark2:#141414; --dark3:#1c1c1c;
+  --terra:#c16452; --terra2:#e07060;
+  --blue:#1F3864; --blue2:#2E4D87;
+  --gold:#BF9000;
+  --line:rgba(255,255,255,.07);
+  --muted:rgba(255,255,255,.30);
+  --ff:'Archivo',sans-serif; --fl:'Jost',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--dark);color:#e8e4de;font-family:var(--ff);}
+body{padding:32px 24px 60px;max-width:900px;margin:0 auto;}
+
+/* HEADER */
+.header{border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:32px;}
+.logo{font-family:var(--fl);font-size:12px;font-weight:700;letter-spacing:.18em;color:#fff;margin-bottom:14px;}
+.logo span{color:var(--terra);}
+.header-title{font-size:clamp(22px,5vw,30px);font-weight:900;letter-spacing:-.03em;line-height:1;}
+.header-sub{font-size:10px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-top:6px;}
+.header-date{font-size:9px;color:rgba(255,255,255,.15);letter-spacing:.12em;text-transform:uppercase;margin-top:12px;}
+
+/* SECTION */
+.section{margin-bottom:40px;}
+.section-label{font-size:8px;letter-spacing:.28em;text-transform:uppercase;color:var(--terra);margin-bottom:10px;font-weight:700;}
+.section-title{font-size:clamp(15px,3.5vw,20px);font-weight:900;letter-spacing:-.02em;margin-bottom:16px;}
+
+/* SOURCE CARDS */
+.sources-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+@media(max-width:520px){.sources-grid{grid-template-columns:1fr;}}
+.source-card{background:var(--dark2);border:1px solid var(--line);border-radius:8px;padding:18px;position:relative;overflow:hidden;}
+.source-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.source-card.shopify::before{background:var(--terra);}
+.source-card.pdh::before{background:var(--gold);}
+.source-icon{font-size:24px;margin-bottom:10px;}
+.source-name{font-size:11px;font-weight:700;letter-spacing:.04em;margin-bottom:4px;}
+.source-detail{font-size:9px;color:var(--muted);line-height:1.65;}
+.source-detail code{font-size:8.5px;color:var(--terra);font-family:monospace;}
+.source-detail code.gold{color:var(--gold);}
+.source-stat{display:block;margin-top:10px;font-size:clamp(18px,4vw,24px);font-weight:900;letter-spacing:-.04em;}
+.source-stat-sub{font-size:8.5px;color:var(--muted);display:block;letter-spacing:.1em;text-transform:uppercase;margin-top:3px;}
+
+/* CURVES */
+.curves-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+@media(max-width:600px){.curves-grid{grid-template-columns:1fr;}}
+@media(min-width:601px) and (max-width:820px){.curves-grid{grid-template-columns:1fr 1fr;}}
+.curve-card{background:var(--dark2);border:1px solid var(--line);border-radius:8px;padding:18px 14px;}
+.curve-name{font-size:8px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.curve-title{font-size:13px;font-weight:900;margin-bottom:4px;}
+.curve-sub{font-size:9px;color:rgba(255,255,255,.18);margin-bottom:14px;}
+.bars{display:flex;align-items:flex-end;gap:8px;height:72px;margin-bottom:10px;}
+.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;height:100%;justify-content:flex-end;}
+.bar{width:100%;border-radius:2px 2px 0 0;}
+.bar.shopify{background:var(--terra);}
+.bar.pdh{background:var(--gold);}
+.bar.inuovo{background:#5B9BD5;}
+.bar-pct{font-size:7.5px;font-weight:700;color:#fff;margin-bottom:3px;}
+.bar-peak{color:var(--terra2)!important;}
+.bar-peak-g{color:var(--gold)!important;}
+.bar-peak-b{color:#5B9BD5!important;}
+.bar-lbl{font-size:8px;color:var(--muted);margin-top:5px;}
+.curve-note{font-size:8.5px;color:rgba(255,255,255,.2);line-height:1.5;border-top:1px solid var(--line);padding-top:9px;}
+
+/* PROCESS STEPS */
+.process-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative;margin-bottom:8px;}
+@media(max-width:560px){
+  .process-steps{grid-template-columns:1fr 1fr;gap:12px;}
+  .process-steps::before{display:none;}
+}
+.process-steps::before{
+  content:'';position:absolute;top:20px;left:12.5%;right:12.5%;height:1px;
+  background:linear-gradient(90deg,var(--terra),var(--gold));z-index:0;
+}
+.step{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 8px;position:relative;z-index:1;}
+.step-num{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--dark3);border:1px solid var(--terra);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:900;color:var(--terra);
+  margin-bottom:10px;flex-shrink:0;
+}
+.step-title{font-size:11px;font-weight:700;margin-bottom:5px;}
+.step-desc{font-size:9px;color:var(--muted);line-height:1.55;}
+
+/* CORRIDA TABLE */
+.corrida-section{background:var(--dark2);border:1px solid var(--line);border-radius:8px;padding:20px;}
+.corrida-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;}
+.corrida-title{font-size:13px;font-weight:900;}
+.corrida-badge{
+  font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  padding:4px 10px;border-radius:2px;
+  background:rgba(193,100,82,.12);color:var(--terra);border:1px solid rgba(193,100,82,.25);
+}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table.corrida{width:100%;border-collapse:collapse;font-size:10px;min-width:420px;}
+table.corrida th{
+  font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);padding:8px 8px 10px;border-bottom:1px solid var(--line);text-align:center;
+}
+table.corrida th:nth-child(2){text-align:left;}
+table.corrida td{padding:7px 8px;text-align:center;font-weight:700;}
+table.corrida td:nth-child(2){text-align:left;font-weight:600;font-size:9px;}
+table.corrida tr:nth-child(odd) td{background:rgba(255,255,255,.022);}
+.sz-23{color:#a8c4e0;}
+.sz-24{color:#5B9BD5;}
+.sz-25{color:var(--terra);}
+.sz-26{color:var(--gold);}
+.sz-tot{color:#fff;}
+.tot-row td{border-top:1px solid rgba(255,255,255,.1);padding-top:12px!important;background:none!important;}
+
+/* INSIGHT */
+.insight-box{
+  background:rgba(193,100,82,.06);border:1px solid rgba(193,100,82,.18);
+  border-left:3px solid var(--terra);border-radius:0 6px 6px 0;
+  padding:16px 18px;margin-top:16px;
+}
+.insight-title{font-size:10px;font-weight:700;color:var(--terra);margin-bottom:5px;}
+.insight-text{font-size:9.5px;color:var(--muted);line-height:1.7;}
+
+/* FOOTER */
+.footer{margin-top:40px;border-top:1px solid var(--line);padding-top:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+.footer-txt{font-size:8px;color:rgba(255,255,255,.1);letter-spacing:.12em;text-transform:uppercase;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">BDG<span>·</span>HQ</div>
+  <div class="header-title">Curvas de Tallas</div>
+  <div class="header-sub">Justificación metodológica · Inuovo FW 2026</div>
+  <div class="header-date">Generado el 15 de Abril, 2026</div>
+</div>
+
+<!-- 01 FUENTES -->
+<div class="section">
+  <div class="section-label">01 — Fuentes de datos</div>
+  <div class="section-title">¿De dónde vienen los números?</div>
+  <div class="sources-grid">
+    <div class="source-card shopify">
+      <div class="source-icon">🛍️</div>
+      <div class="source-name">Shopify · baladigalamx</div>
+      <div class="source-detail">
+        Historial completo de órdenes vía API paginada.<br>
+        Campo <code>variant_title</code> → talla MX por par vendido.
+      </div>
+      <span class="source-stat">27,295</span>
+      <span class="source-stat-sub">órdenes · 28,135 pares con talla</span>
+    </div>
+    <div class="source-card pdh">
+      <div class="source-icon">🏛️</div>
+      <div class="source-name">Palacio de Hierro</div>
+      <div class="source-detail">
+        Reporte histórico ZAPATOS MUJER.<br>
+        Mapeo PCM: <code class="gold">0005→23 · 0007→24 · 0009→25 · 0011→26 · 0013→27</code>
+      </div>
+      <span class="source-stat">2,195</span>
+      <span class="source-stat-sub">unidades · 36 artículos</span>
+    </div>
+  </div>
+</div>
+
+<!-- 02 CURVAS -->
+<div class="section">
+  <div class="section-label">02 — Distribución de tallas</div>
+  <div class="section-title">Las tres curvas comparadas</div>
+  <div class="curves-grid">
+
+    <div class="curve-card">
+      <div class="curve-name">Curva A</div>
+      <div class="curve-title">Shopify</div>
+      <div class="curve-sub">28,135 pares históricos</div>
+      <div class="bars">
+        <div class="bar-col"><div class="bar-pct">12.3%</div><div class="bar shopify" style="height:39%"></div><div class="bar-lbl">23</div></div>
+        <div class="bar-col"><div class="bar-pct">28.7%</div><div class="bar shopify" style="height:92%"></div><div class="bar-lbl">24</div></div>
+        <div class="bar-col"><div class="bar-pct bar-peak">31.3%</div><div class="bar shopify" style="height:100%;background:var(--terra2)"></div><div class="bar-lbl">25</div></div>
+        <div class="bar-col"><div class="bar-pct">19.6%</div><div class="bar shopify" style="height:63%"></div><div class="bar-lbl">26</div></div>
+        <div class="bar-col"><div class="bar-pct">7.8%</div><div class="bar shopify" style="height:25%"></div><div class="bar-lbl">27</div></div>
+      </div>
+      <div class="curve-note">Pico en talla 25 · Campana sesgada 24–25</div>
+    </div>
+
+    <div class="curve-card">
+      <div class="curve-name">Curva B</div>
+      <div class="curve-title">Palacio de Hierro</div>
+      <div class="curve-sub">2,195 unidades históricas</div>
+      <div class="bars">
+        <div class="bar-col"><div class="bar-pct">14.4%</div><div class="bar pdh" style="height:51%"></div><div class="bar-lbl">23</div></div>
+        <div class="bar-col"><div class="bar-pct">26.2%</div><div class="bar pdh" style="height:92%"></div><div class="bar-lbl">24</div></div>
+        <div class="bar-col"><div class="bar-pct bar-peak-g">28.4%</div><div class="bar pdh" style="height:100%"></div><div class="bar-lbl">25</div></div>
+        <div class="bar-col"><div class="bar-pct">21.0%</div><div class="bar pdh" style="height:74%"></div><div class="bar-lbl">26</div></div>
+        <div class="bar-col"><div class="bar-pct">10.0%</div><div class="bar pdh" style="height:35%"></div><div class="bar-lbl">27</div></div>
+      </div>
+      <div class="curve-note">Pico en talla 25 · Distribución más uniforme</div>
+    </div>
+
+    <div class="curve-card">
+      <div class="curve-name">Curva Resultante</div>
+      <div class="curve-title">Inuovo FW 2026</div>
+      <div class="curve-sub">Clipeada 23–26 · 12 prs</div>
+      <div class="bars">
+        <div class="bar-col"><div class="bar-pct">8.3%</div><div class="bar inuovo" style="height:20%"></div><div class="bar-lbl">23</div></div>
+        <div class="bar-col"><div class="bar-pct">33.3%</div><div class="bar inuovo" style="height:80%"></div><div class="bar-lbl">24</div></div>
+        <div class="bar-col"><div class="bar-pct bar-peak-b">41.7%</div><div class="bar inuovo" style="height:100%"></div><div class="bar-lbl">25</div></div>
+        <div class="bar-col"><div class="bar-pct">16.7%</div><div class="bar inuovo" style="height:40%"></div><div class="bar-lbl">26</div></div>
+      </div>
+      <div class="curve-note">Sin talla 27 · Renormalizada al 100%</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 03 PROCESO -->
+<div class="section">
+  <div class="section-label">03 — Metodología</div>
+  <div class="section-title">¿Cómo se calculó la corrida?</div>
+  <div class="process-steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">Consolidar curvas</div>
+      <div class="step-desc">Shopify + PDH: ambas fuentes confirman pico en talla 25.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">Clipear 23–26</div>
+      <div class="step-desc">Inuovo no produce talla 27. Se renormaliza el rango disponible.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">Corrida de 12</div>
+      <div class="step-desc">12 pares como unidad mínima de producción. Distribución: 1·4·5·2.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-title">Validar totales</div>
+      <div class="step-desc">Suma por modelo = total PO original. Ajuste en talla 25 si hay residuo.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 04 CORRIDA -->
+<div class="section">
+  <div class="section-label">04 — Resultado</div>
+  <div class="section-title">Corrida Inuovo FW 2026</div>
+  <div class="corrida-section">
+    <div class="corrida-header">
+      <div class="corrida-title">Distribución por talla · 12 pares base</div>
+      <div class="corrida-badge">7,360 pares totales</div>
+    </div>
+    <div class="table-wrap">
+      <table class="corrida" id="tbl"></table>
+    </div>
+    <div class="insight-box">
+      <div class="insight-title">¿Por qué esta distribución?</div>
+      <div class="insight-text">
+        Shopify (31.3%) y PDH (28.4%) confirman que la talla 25 es la más vendida en ambos canales. La talla 24 queda en segundo lugar en los dos casos. Inuovo no manufactura talla 27, por lo que ese porcentaje se redistribuye al rango 23–26. La corrida de 12 pares garantiza múltiplos de producción eficientes para la fábrica.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="footer-txt">© Bala Di Gala · Confidencial · Uso interno</div>
+  <div class="footer-txt">BDG·HQ · Módulo OC y Curvas</div>
+</div>
+
+<script>
+const items = [
+  [1,'ROGER · CAMEL',390],
+  [2,'ROGER · BLACK',390],
+  [3,'E67004 · BLACK',570],
+  [4,'E67004 · WINE',570],
+  [5,'E94003 · BLACK',550],
+  [6,'JM6382BT · BLACK',640],
+  [7,'JM6382BT · WINE',480],
+  [8,'E04019 · BROWN',330],
+  [9,'HE5352 · BROWN',480],
+  [10,'HE5352 · BLACK',640],
+  [11,'F05001 · BLACK',330],
+  [12,'F05001 · DARK BROWN',330],
+  [13,'HE6023 · BLACK',120],
+  [14,'HE6023 · DARK BROWN',120],
+  [15,'MC5903BT · TAUPE',280],
+  [16,'YR6151 · BLACK',570],
+  [17,'YR6151 · TAUPE',570],
+];
+const W=[1,4,5,2],WS=12;
+function dist(t){
+  const s=W.map(w=>Math.round(t*w/WS));
+  const diff=t-s.reduce((a,b)=>a+b,0);
+  s[2]+=diff; return s;
+}
+const tbl=document.getElementById('tbl');
+tbl.innerHTML=`<thead><tr>
+  <th>#</th><th style="text-align:left">Modelo · Color</th>
+  <th>MX 23</th><th>MX 24</th><th>MX 25</th><th>MX 26</th><th>Total</th>
+</tr></thead><tbody>${items.map(([n,name,tot])=>{
+  const s=dist(tot);
+  return `<tr>
+    <td style="color:rgba(255,255,255,.25);font-size:9px;font-weight:400">${n}</td>
+    <td>${name}</td>
+    <td class="sz-23">${s[0]}</td>
+    <td class="sz-24">${s[1]}</td>
+    <td class="sz-25">${s[2]}</td>
+    <td class="sz-26">${s[3]}</td>
+    <td class="sz-tot">${tot.toLocaleString()}</td>
+  </tr>`;
+}).join('')}</tbody><tfoot><tr class="tot-row">
+  <td></td>
+  <td style="text-align:left;font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3)">TOTAL</td>
+  <td class="sz-23">569</td>
+  <td class="sz-24">2,276</td>
+  <td class="sz-25">2,850</td>
+  <td class="sz-26">1,665</td>
+  <td style="color:var(--terra);font-size:12px">7,360</td>
+</tr></tfoot>`;
+</script>
+</body>
+</html>

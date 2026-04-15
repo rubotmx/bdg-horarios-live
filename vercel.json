@@ -11,7 +11,11 @@
     { "source": "/inventario(.*)", "destination": "/public/inventario/index.html" },
     { "source": "/catalogo(.*)", "destination": "/public/catalogo/index.html" },
     { "source": "/diseno(.*)", "destination": "/public/diseno/index.html" },
+    { "source": "/live(.*)",  "destination": "/public/live/index.html" },
+    { "source": "/penny(.*)", "destination": "/public/penny/index.html" },
+    { "source": "/oc(.*)", "destination": "/public/oc/index.html" },
     { "source": "/meta(.*)", "destination": "/public/meta/index.html" },
+    { "source": "/curvas(.*)", "destination": "/public/curvas/index.html" },
     { "source": "/(.*)", "destination": "/public/index.html" }
   ]
 }
