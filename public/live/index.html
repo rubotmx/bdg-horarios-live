@@ -40,8 +40,7 @@ body{display:flex;flex-direction:column;}
 
 /* ── COL 1: HERO ─────────────────────────────────────────────── */
 .hero-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 16px 14px;border-bottom:1px solid var(--line);flex-shrink:0;position:relative;}
-.goal-hint{font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;cursor:pointer;transition:color .12s;}
-.goal-hint:hover{color:var(--sub);}
+.goal-hint{font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
 
 /* Progress ring */
 .ring-wrap{position:relative;width:180px;height:180px;flex-shrink:0;}
@@ -184,16 +183,7 @@ body{display:flex;flex-direction:column;}
 .sk{background:linear-gradient(90deg,#111 25%,#1a1a1a 50%,#111 75%);background-size:200% 100%;animation:sh 1.3s infinite;border-radius:4px;}
 @keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-/* ── GOAL MODAL ──────────────────────────────────────────────── */
-.goal-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:100;display:none;align-items:center;justify-content:center;}
-.goal-modal.show{display:flex;}
-.goal-box{background:#111;border:1px solid var(--line);border-radius:10px;padding:28px 24px;width:280px;text-align:center;}
-.goal-box-title{font-size:11px;font-weight:700;color:var(--sub);margin-bottom:6px;letter-spacing:.06em;}
-.goal-box-sub{font-size:9px;color:var(--muted);margin-bottom:18px;}
-.goal-input{width:100%;background:#0a0a0a;border:1px solid rgba(255,255,255,.12);border-radius:5px;padding:10px 12px;font-family:var(--fh);font-size:20px;color:#fff;font-weight:700;text-align:center;outline:none;letter-spacing:-.02em;}
-.goal-input:focus{border-color:var(--green);}
-.goal-btn{margin-top:12px;width:100%;padding:9px;background:var(--green);color:#000;font-weight:700;font-size:11px;letter-spacing:.08em;border:none;border-radius:5px;cursor:pointer;font-family:var(--fh);transition:opacity .12s;}
-.goal-btn:hover{opacity:.85;}
+/* goal modal removed — meta fija */
 
 /* ── TV MODE ─────────────────────────────────────────────────── */
 body.tv .topbar{height:36px;}
@@ -251,17 +241,6 @@ body.tv .prod-img{width:40px;height:40px;}
   </div>
 </div>
 
-<!-- GOAL MODAL -->
-<div class="goal-modal" id="goalModal" onclick="if(event.target===this)closeGoal()">
-  <div class="goal-box">
-    <div class="goal-box-title">Meta diaria de ventas</div>
-    <div class="goal-box-sub">El anillo muestra tu progreso hacia esta cifra</div>
-    <input class="goal-input" id="goalInput" type="number" placeholder="50000"
-      onkeydown="if(event.key==='Enter')saveGoal()"/>
-    <button class="goal-btn" onclick="saveGoal()">Guardar</button>
-  </div>
-</div>
-
 <!-- GRID -->
 <div class="grid">
 
@@ -270,7 +249,7 @@ body.tv .prod-img{width:40px;height:40px;}
 
     <!-- Ring + GMV -->
     <div class="hero-wrap">
-      <div class="goal-hint" onclick="openGoal()">▸ Meta diaria</div>
+      <div class="goal-hint">Meta diaria $133,333</div>
       <div class="ring-wrap">
         <svg viewBox="0 0 180 180" width="180" height="180">
           <defs>
@@ -397,11 +376,8 @@ function animCount(el, target, fmt, duration = 900) {
   requestAnimationFrame(step);
 }
 
-// ── Goal (meta diaria) ─────────────────────────────────────────────────────────
-let _goal = parseInt(localStorage.getItem('bdg_live_goal') || '0') || 0;
-function openGoal()  { document.getElementById('goalInput').value = _goal || ''; document.getElementById('goalModal').classList.add('show'); setTimeout(() => document.getElementById('goalInput').focus(), 80); }
-function closeGoal() { document.getElementById('goalModal').classList.remove('show'); }
-function saveGoal()  { _goal = parseInt(document.getElementById('goalInput').value) || 0; localStorage.setItem('bdg_live_goal', _goal); closeGoal(); if (_lastGmv !== null) updateRing(_lastGmv); }
+// ── Meta fija ──────────────────────────────────────────────────────────────────
+const _goal = 133333;
 
 // ── TV mode ────────────────────────────────────────────────────────────────────
 let _tv = false;
