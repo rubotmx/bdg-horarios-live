@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="icon" href="/favicon.ico"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>BDG · En Vivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;900&family=Jost:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#080808; --s1:#0f0f0f; --s2:#141414; --s3:#1a1a1a;
+  --line:rgba(255,255,255,.07); --muted:rgba(255,255,255,.22); --sub:rgba(255,255,255,.5);
+  --terra:#c16452; --green:#3ecf8e; --yellow:#f5c518; --blue:#5b9cf6; --red:#f26b6b;
+  --fh:'Archivo',sans-serif; --fl:'Jost',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg);color:#e8e4de;font-family:var(--fh);overflow:hidden;}
+body{display:flex;flex-direction:column;}
+
+/* ── TOPBAR ──────────────────────────────────────────────────────────────── */
+.topbar{height:44px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);flex-shrink:0;}
+.logo{font-family:var(--fl);font-size:12px;font-weight:700;color:#fff;letter-spacing:.18em;}
+.logo span{color:var(--terra);}
+.pill{display:flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.18);}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 1.4s infinite;}
+@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(62,207,142,.5)}50%{opacity:.7;box-shadow:0 0 0 4px rgba(62,207,142,0)}}
+.pill-lbl{font-size:8px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:var(--green);}
+.topbar-r{display:flex;align-items:center;gap:14px;}
+.countdown{font-size:9px;color:var(--muted);letter-spacing:.04em;min-width:160px;text-align:right;}
+.btn-refresh{padding:3px 10px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:3px;color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.1em;cursor:pointer;font-family:var(--fh);transition:all .12s;}
+.btn-refresh:hover{background:rgba(255,255,255,.09);color:#fff;}
+.back{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .12s;}
+.back:hover{color:#fff;}
+
+/* ── GRID PRINCIPAL ──────────────────────────────────────────────────────── */
+.grid{flex:1;display:grid;grid-template-columns:1fr 1fr 340px;gap:1px;background:var(--line);min-height:0;}
+.col{background:var(--bg);display:flex;flex-direction:column;min-height:0;overflow:hidden;}
+
+/* ── COLUMNA 1: VENTAS ───────────────────────────────────────────────────── */
+.hero{padding:24px 22px 18px;border-bottom:1px solid var(--line);flex-shrink:0;}
+.hero-label{font-size:8px;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:8px;}
+.hero-gmv{font-size:clamp(40px,5vw,60px);font-weight:900;letter-spacing:-.05em;line-height:1;color:var(--green);}
+.hero-sub{font-size:11px;color:var(--muted);margin-top:6px;}
+
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border-bottom:1px solid var(--line);flex-shrink:0;}
+.kpi{padding:14px 18px;background:var(--bg);}
+.kpi-lbl{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:5px;}
+.kpi-val{font-size:22px;font-weight:900;letter-spacing:-.03em;line-height:1;}
+.kpi-val.blue{color:var(--blue);}
+.kpi-val.yellow{color:var(--yellow);}
+.kpi-val.green{color:var(--green);}
+.kpi-val.terra{color:var(--terra);}
+.kpi-val.red{color:var(--red);}
+.kpi-s{font-size:9px;color:var(--muted);margin-top:3px;}
+
+.chart-block{padding:16px 18px 14px;border-bottom:1px solid var(--line);flex-shrink:0;}
+.block-lbl{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:10px;}
+.hour-chart{display:flex;align-items:flex-end;gap:2px;height:52px;}
+.hb-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;height:100%;}
+.hb{width:100%;border-radius:2px 2px 0 0;background:rgba(193,100,82,.5);min-height:2px;transition:height .4s ease;}
+.hb.now{background:var(--green);}
+.hb.future{background:rgba(255,255,255,.06);}
+.hl{font-size:6.5px;color:var(--muted);font-weight:700;flex-shrink:0;}
+
+/* ── COLUMNA 2: PRODUCTOS ────────────────────────────────────────────────── */
+.col-header{padding:12px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.col-title{font-size:9px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:var(--sub);}
+.col-meta{font-size:9px;color:var(--muted);}
+.prod-list{flex:1;overflow-y:auto;padding:8px 0;}
+
+.prod-row{display:flex;align-items:center;gap:10px;padding:8px 18px;transition:background .1s;}
+.prod-row:hover{background:rgba(255,255,255,.025);}
+.rank{font-size:10px;font-weight:900;color:var(--muted);width:16px;text-align:center;flex-shrink:0;}
+.prod-img{width:36px;height:36px;border-radius:4px;object-fit:cover;background:var(--s2);flex-shrink:0;}
+.prod-img-ph{width:36px;height:36px;border-radius:4px;background:var(--s2);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted);}
+.prod-info{flex:1;min-width:0;}
+.prod-name{font-size:11px;font-weight:700;color:#e8e4de;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;}
+.prod-bar-track{height:2px;background:rgba(255,255,255,.06);border-radius:1px;overflow:hidden;}
+.prod-bar-fill{height:100%;border-radius:1px;background:var(--terra);}
+.prod-r{text-align:right;flex-shrink:0;}
+.prod-gmv{font-size:12px;font-weight:900;color:#fff;}
+.prod-units{font-size:8px;color:var(--muted);margin-top:2px;}
+
+/* ── COLUMNA 3: ADS ──────────────────────────────────────────────────────── */
+.meta-top{padding:14px 16px;border-bottom:1px solid var(--line);flex-shrink:0;}
+.meta-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.meta-icon{width:20px;height:20px;border-radius:4px;background:linear-gradient(135deg,#0668E1,#1877F2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.meta-icon svg{width:12px;height:12px;fill:#fff;}
+.meta-head{font-size:9px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:var(--sub);}
+.meta-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.ms{background:var(--s1);border:1px solid var(--line);border-radius:5px;padding:9px 10px;}
+.ms-lbl{font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:4px;}
+.ms-val{font-size:17px;font-weight:900;letter-spacing:-.03em;line-height:1;}
+.ms-val.green{color:var(--green);}
+.ms-val.yellow{color:var(--yellow);}
+.ms-val.blue{color:var(--blue);}
+.ms-sub{font-size:8px;color:var(--muted);margin-top:2px;}
+
+.roas-bar{display:flex;align-items:center;gap:8px;margin-top:10px;}
+.roas-track{flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
+.roas-fill{height:100%;border-radius:2px;transition:width .6s ease;}
+.roas-lbl{font-size:9px;font-weight:700;color:var(--muted);white-space:nowrap;}
+
+.ads-scroll{flex:1;overflow-y:auto;padding:10px;}
+.ads-head{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:10px;}
+.ads-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+.ad-card{background:var(--s1);border:1px solid var(--line);border-radius:7px;overflow:hidden;position:relative;}
+.ad-thumb{width:100%;aspect-ratio:4/5;object-fit:cover;display:block;background:var(--s2);}
+.ad-overlay{position:absolute;bottom:0;left:0;right:0;padding:8px;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,transparent 100%);}
+.ad-name{font-size:9px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;}
+.ad-badge{display:inline-flex;align-items:center;gap:3px;font-size:7px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);background:rgba(62,207,142,.15);padding:2px 5px;border-radius:2px;}
+
+.meta-uncfg{padding:30px 16px;text-align:center;}
+.meta-uncfg-ico{font-size:30px;opacity:.18;margin-bottom:12px;}
+.meta-uncfg-txt{font-size:10px;color:var(--muted);line-height:1.7;}
+.meta-uncfg-txt code{font-size:9px;background:rgba(255,255,255,.07);padding:1px 5px;border-radius:3px;color:var(--sub);}
+
+/* ── SK ──────────────────────────────────────────────────────────────────── */
+.sk{background:linear-gradient(90deg,#141414 25%,#1e1e1e 50%,#141414 75%);background-size:200% 100%;animation:sh 1.3s infinite;border-radius:4px;}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.07);border-radius:2px;}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────────────── */
+@media(max-width:1100px){
+  .grid{grid-template-columns:1fr 1fr;}
+  html,body{overflow:auto;}
+  .col:last-child{grid-column:1/-1;}
+  .ads-grid{grid-template-columns:repeat(4,1fr);}
+  .ad-thumb{aspect-ratio:1/1;}
+}
+@media(max-width:640px){
+  .grid{grid-template-columns:1fr;}
+  .col:last-child{grid-column:1;}
+  .ads-grid{grid-template-columns:1fr 1fr;}
+  .kpis{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="logo">BDG<span>·</span>HQ</div>
+    <div class="pill"><div class="dot"></div><div class="pill-lbl">En Vivo</div></div>
+  </div>
+  <div class="topbar-r">
+    <span class="countdown" id="countdown">Cargando…</span>
+    <button class="btn-refresh" onclick="load(true)">↻</button>
+    <a class="back" href="/">← HQ</a>
+  </div>
+</div>
+
+<!-- GRID -->
+<div class="grid">
+
+  <!-- COL 1: VENTAS DEL DÍA -->
+  <div class="col">
+
+    <!-- Hero GMV -->
+    <div class="hero">
+      <div class="hero-label">GMV · Hoy</div>
+      <div class="hero-gmv" id="heroGmv"><div class="sk" style="height:52px;width:200px;"></div></div>
+      <div class="hero-sub" id="heroSub">—</div>
+    </div>
+
+    <!-- KPIs 2×2 -->
+    <div class="kpis" id="kpis">
+      <div class="kpi"><div class="kpi-lbl">Órdenes</div><div class="sk" style="height:22px;width:60px;"></div></div>
+      <div class="kpi"><div class="kpi-lbl">Ticket Prom.</div><div class="sk" style="height:22px;width:80px;"></div></div>
+      <div class="kpi"><div class="kpi-lbl">Gasto Meta</div><div class="sk" style="height:22px;width:80px;"></div></div>
+      <div class="kpi"><div class="kpi-lbl">ROAS</div><div class="sk" style="height:22px;width:50px;"></div></div>
+    </div>
+
+    <!-- Gráfica horaria -->
+    <div class="chart-block">
+      <div class="block-lbl">Ventas por hora — MXN</div>
+      <div class="hour-chart" id="hourChart">
+        <div class="sk" style="width:100%;height:100%;border-radius:4px;"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- COL 2: PRODUCTOS -->
+  <div class="col">
+    <div class="col-header">
+      <div class="col-title">Más vendidos hoy</div>
+      <div class="col-meta" id="prodMeta">—</div>
+    </div>
+    <div class="prod-list" id="prodList">
+      <div style="padding:16px;"><div class="sk" style="height:300px;"></div></div>
+    </div>
+  </div>
+
+  <!-- COL 3: META ADS -->
+  <div class="col">
+    <div id="metaSection">
+      <div style="padding:40px 20px;text-align:center;">
+        <div class="sk" style="height:120px;border-radius:6px;"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /grid -->
+
+<script>
+const MXN = n => '$' + Math.round(n).toLocaleString('es-MX');
+const N   = n => parseInt(n).toLocaleString('es-MX');
+
+let _timer = null;
+let _countdown = 60;
+
+async function load(force = false){
+  clearInterval(_timer);
+  document.getElementById('countdown').textContent = 'Actualizando…';
+  try {
+    const res  = await fetch('/api/live' + (force ? '?t=' + Date.now() : ''));
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+    renderVentas(data.shopify);
+    renderMeta(data.meta);
+  } catch(e){
+    document.getElementById('heroGmv').textContent = '—';
+    document.getElementById('heroSub').textContent = 'Error: ' + e.message;
+  }
+  startCountdown();
+}
+
+function startCountdown(){
+  _countdown = 60;
+  clearInterval(_timer);
+  _timer = setInterval(() => {
+    _countdown--;
+    document.getElementById('countdown').textContent = `Actualiza en ${_countdown}s`;
+    if(_countdown <= 0){ clearInterval(_timer); load(); }
+  }, 1000);
+}
+
+// ── VENTAS ────────────────────────────────────────────────────────────────────
+function renderVentas(sh){
+  if(!sh) return;
+
+  // Hero
+  document.getElementById('heroGmv').textContent = MXN(sh.gmv || 0);
+  document.getElementById('heroSub').textContent = `${sh.date || ''} · ${N(sh.orders||0)} órdenes`;
+
+  // KPIs
+  const meta  = window._metaData || {};
+  const spend = meta.spend || 0;
+  const roas  = spend > 0 ? (sh.gmv / spend) : null;
+  const roasCls = roas === null ? '' : roas >= 5 ? 'green' : roas >= 3 ? 'yellow' : 'red';
+
+  document.getElementById('kpis').innerHTML = `
+    <div class="kpi">
+      <div class="kpi-lbl">Órdenes</div>
+      <div class="kpi-val">${N(sh.orders||0)}</div>
+      <div class="kpi-s">pedidos pagados</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Ticket Prom.</div>
+      <div class="kpi-val blue">${MXN(sh.aov||0)}</div>
+      <div class="kpi-s">por orden</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Gasto Meta</div>
+      <div class="kpi-val yellow">${spend > 0 ? MXN(spend) : '—'}</div>
+      <div class="kpi-s">${spend > 0 ? N(meta.impressions||0) + ' impr.' : 'sin datos'}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">ROAS</div>
+      <div class="kpi-val ${roasCls}">${roas !== null ? roas.toFixed(2) + '×' : '—'}</div>
+      <div class="kpi-s">${roas !== null ? (roas>=5?'🔥 Excelente':roas>=3?'✓ Positivo':'⚠ Bajo') : 'sin Meta'}</div>
+    </div>`;
+
+  // Gráfica horaria
+  renderHourChart(sh.by_hour || {});
+
+  // Productos
+  renderProducts(sh.top_products || [], sh.gmv || 0);
+}
+
+function renderHourChart(byHour){
+  const nowH = parseInt(new Date().toLocaleTimeString('en-US',{timeZone:'America/Mexico_City',hour:'2-digit',hour12:false}));
+  const hours = Array.from({length:17}, (_, i) => i + 7);
+  const max   = Math.max(1, ...Object.values(byHour).map(v => v.gmv || 0));
+
+  document.getElementById('hourChart').innerHTML = hours.map(h => {
+    const d    = byHour[h] || { gmv: 0, orders: 0 };
+    const pct  = Math.max(3, Math.round(d.gmv / max * 100));
+    const cls  = h > nowH ? 'future' : h === nowH ? 'now' : '';
+    const lbl  = h === 7 ? '7' : h === 10 ? '10' : h === 13 ? '1p' : h === 16 ? '4p' : h === 19 ? '7p' : h === 22 ? '10p' : '';
+    return `<div class="hb-wrap" title="${h}:00 · ${MXN(d.gmv)} · ${d.orders} órd.">
+      <div class="hb ${cls}" style="height:${cls==='future'?'8':pct}%;"></div>
+      <div class="hl">${lbl}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderProducts(products, totalGmv){
+  const meta = document.getElementById('prodMeta');
+  if(!products.length){
+    meta.textContent = '';
+    document.getElementById('prodList').innerHTML =
+      `<div style="padding:40px 20px;text-align:center;color:var(--muted);font-size:12px;">Sin ventas aún hoy.</div>`;
+    return;
+  }
+  meta.textContent = MXN(products.reduce((s,p)=>s+p.gmv,0)) + ' · ' + products.reduce((s,p)=>s+p.units,0) + ' pares';
+  const max = products[0].gmv;
+  document.getElementById('prodList').innerHTML = products.map((p, i) => `
+    <div class="prod-row">
+      <div class="rank">${i+1}</div>
+      <div class="prod-info">
+        <div class="prod-name">${p.title}</div>
+        <div class="prod-bar-track">
+          <div class="prod-bar-fill" style="width:${Math.round(p.gmv/max*100)}%"></div>
+        </div>
+      </div>
+      <div class="prod-r">
+        <div class="prod-gmv">${MXN(p.gmv)}</div>
+        <div class="prod-units">${p.units} par${p.units!==1?'es':''}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── META ADS ──────────────────────────────────────────────────────────────────
+function renderMeta(meta){
+  window._metaData = meta || {};
+  const el = document.getElementById('metaSection');
+
+  if(!meta || meta.configured === false){
+    el.innerHTML = `
+      <div class="meta-top">
+        <div class="meta-row">
+          <div class="meta-icon"><svg viewBox="0 0 24 24"><path d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z"/></svg></div>
+          <div class="meta-head">META ADS · HOY</div>
+        </div>
+      </div>
+      <div class="meta-uncfg">
+        <div class="meta-uncfg-ico">📡</div>
+        <div class="meta-uncfg-txt">
+          Agrega en Vercel:<br><br>
+          <code>META_TOKEN</code><br><code>META_ACCOUNT_ID</code>
+        </div>
+      </div>`;
+    return;
+  }
+
+  if(meta.error){
+    el.innerHTML = `<div style="padding:16px;font-size:11px;color:var(--red);">Error Meta: ${meta.error}</div>`;
+    return;
+  }
+
+  const spend = meta.spend || 0;
+  const roas  = meta.purchase_value > 0 && spend > 0 ? meta.purchase_value / spend : null;
+  const rFill = roas !== null ? Math.min(100, roas / 8 * 100) : 0;
+  const rClr  = roas === null ? 'var(--muted)' : roas >= 5 ? 'var(--green)' : roas >= 2 ? 'var(--yellow)' : 'var(--red)';
+
+  const ads   = meta.active_ads || [];
+
+  el.innerHTML = `
+    <div class="meta-top">
+      <div class="meta-row">
+        <div class="meta-icon"><svg viewBox="0 0 24 24"><path d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z"/></svg></div>
+        <div class="meta-head">META ADS · HOY</div>
+      </div>
+
+      <div class="meta-stats">
+        <div class="ms">
+          <div class="ms-lbl">Gasto</div>
+          <div class="ms-val yellow">${spend > 0 ? MXN(spend) : '—'}</div>
+        </div>
+        <div class="ms">
+          <div class="ms-lbl">ROAS</div>
+          <div class="ms-val" style="color:${rClr}">${roas !== null ? roas.toFixed(2)+'×' : '—'}</div>
+          <div class="ms-sub">${roas !== null ? (roas>=5?'🔥 Excelente':roas>=2?'✓ OK':'⚠ Bajo') : ''}</div>
+        </div>
+        <div class="ms">
+          <div class="ms-lbl">CTR</div>
+          <div class="ms-val blue">${(meta.ctr||0).toFixed(2)}%</div>
+          <div class="ms-sub">CPC ${MXN(meta.cpc||0)}</div>
+        </div>
+      </div>
+
+      ${roas !== null ? `
+      <div class="roas-bar" style="margin-top:10px;">
+        <div class="roas-track">
+          <div class="roas-fill" style="width:${rFill}%;background:${rClr};"></div>
+        </div>
+        <div class="roas-lbl">${roas.toFixed(1)}× / 8× objetivo</div>
+      </div>` : ''}
+    </div>
+
+    <div class="ads-scroll">
+      ${ads.length ? `
+        <div class="ads-head">Anuncios activos · ${ads.length}</div>
+        <div class="ads-grid">
+          ${ads.map(ad => `
+            <div class="ad-card" title="${ad.name}">
+              <img class="ad-thumb" src="${ad.thumbnail}" loading="lazy"
+                   onerror="this.style.display='none'"/>
+              <div class="ad-overlay">
+                <div class="ad-name">${ad.name}</div>
+                <div class="ad-badge">● Activo</div>
+              </div>
+            </div>`).join('')}
+        </div>` :
+        `<div style="padding:20px;text-align:center;color:var(--muted);font-size:11px;">Sin anuncios activos</div>`
+      }
+    </div>`;
+}
+
+load();
+</script>
+</body>
+</html>
