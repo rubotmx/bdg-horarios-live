@@ -1,13 +1,18 @@
-// Módulo En Vivo — ventas Shopify hoy + gasto Meta Ads en tiempo real
+// Módulo En Vivo — ventas Shopify hoy + comparativo ayer + imágenes + Meta Ads
 import { shopifyFetch, nextPageUrl, setCors } from "./_shopify.js";
 
+const STORE        = "baladigalamx.myshopify.com";
 const META_ACCOUNT = process.env.META_ACCOUNT_ID;
 
-const _cache = new Map();
-const LIVE_TTL = 60 * 1000; // 60 s
+// Caché principal (60s) y caché de imágenes de producto (30min)
+const _cache     = new Map();
+const LIVE_TTL   = 60  * 1000;
+const IMG_TTL    = 30  * 60 * 1000;
+let   _imgCache  = null;
+let   _imgExpiry = 0;
 
-function getCached(k) { const e = _cache.get(k); return e && Date.now() < e.expiry ? e.data : null; }
-function setCache(k, d) { _cache.set(k, { data: d, expiry: Date.now() + LIVE_TTL }); }
+function getCached(k)         { const e = _cache.get(k); return e && Date.now() < e.expiry ? e.data : null; }
+function setCache(k, d, ttl=LIVE_TTL) { _cache.set(k, { data: d, expiry: Date.now() + ttl }); }
 
 export default async function handler(req, res) {
   setCors(res, req);
@@ -27,16 +32,33 @@ export default async function handler(req, res) {
   }
 }
 
-async function fetchShopifyToday() {
-  const mxDate = new Date().toLocaleDateString("en-CA", { timeZone: "America/Mexico_City" });
-  const dateMin = `${mxDate}T00:00:00-06:00`;
+// ── Imágenes de producto (caché 30min) ────────────────────────────────────────
+async function getProductImages() {
+  if (_imgCache && Date.now() < _imgExpiry) return _imgCache;
+  const images = {};
+  let url = `https://${STORE}/admin/api/2024-01/products.json?limit=250&fields=title,images`;
+  while (url) {
+    const r = await shopifyFetch(url);
+    if (!r.ok) break;
+    const data = await r.json();
+    for (const p of (data.products || [])) {
+      if (p.images?.[0]?.src) images[p.title] = p.images[0].src;
+    }
+    url = nextPageUrl(r.headers.get("Link") || "");
+  }
+  _imgCache  = images;
+  _imgExpiry = Date.now() + IMG_TTL;
+  return images;
+}
 
+// ── Órdenes de un día específico ──────────────────────────────────────────────
+async function fetchDayOrders(mxDate) {
   const orders = [];
-  let url = `https://baladigalamx.myshopify.com/admin/api/2024-01/orders.json`
+  let url = `https://${STORE}/admin/api/2024-01/orders.json`
     + `?status=any&financial_status=paid&limit=250`
     + `&fields=id,created_at,total_price,line_items,source_name`
-    + `&created_at_min=${encodeURIComponent(dateMin)}`;
-
+    + `&created_at_min=${encodeURIComponent(mxDate + "T00:00:00-06:00")}`
+    + `&created_at_max=${encodeURIComponent(mxDate + "T23:59:59-06:00")}`;
   while (url) {
     const r = await shopifyFetch(url);
     if (!r.ok) break;
@@ -44,46 +66,67 @@ async function fetchShopifyToday() {
     orders.push(...(data.orders || []));
     url = nextPageUrl(r.headers.get("Link") || "");
   }
+  return orders;
+}
 
-  const gmv = orders.reduce((s, o) => s + parseFloat(o.total_price), 0);
+// ── Hoy + Ayer (paralelo) + imágenes ─────────────────────────────────────────
+async function fetchShopifyToday() {
+  const now = new Date();
+  const mxToday     = now.toLocaleDateString("en-CA", { timeZone: "America/Mexico_City" });
+  const mxYesterday = new Date(new Date(mxToday).getTime() - 86400000)
+    .toISOString().slice(0, 10);
+
+  const [todayOrders, yesterdayOrders, images] = await Promise.all([
+    fetchDayOrders(mxToday),
+    fetchDayOrders(mxYesterday),
+    getProductImages(),
+  ]);
+
+  const yesterdayGmv    = yesterdayOrders.reduce((s, o) => s + parseFloat(o.total_price), 0);
+  const yesterdayOrders_ = yesterdayOrders.length;
+
+  // ── Procesar hoy ────────────────────────────────────────────────────────────
   const byProduct = {}, byHour = {}, byChannel = {};
 
-  for (const o of orders) {
-    const h = parseInt((o.created_at || "").slice(11, 13));
-    if (!byHour[h]) byHour[h] = { orders: 0, gmv: 0 };
-    byHour[h].orders++;
-    byHour[h].gmv += parseFloat(o.total_price);
+  for (const o of todayOrders) {
+    const h   = parseInt(o.created_at.slice(11, 13));
+    const ch  = o.source_name || "web";
+    const amt = parseFloat(o.total_price);
 
-    const ch = o.source_name || "web";
-    byChannel[ch] = (byChannel[ch] || 0) + parseFloat(o.total_price);
+    if (!byHour[h])     byHour[h]     = { orders: 0, gmv: 0 };
+    if (!byChannel[ch]) byChannel[ch] = { orders: 0, gmv: 0 };
+    byHour[h].orders++;    byHour[h].gmv    += amt;
+    byChannel[ch].orders++;byChannel[ch].gmv += amt;
 
     for (const item of (o.line_items || [])) {
       const k = item.title;
-      if (!byProduct[k]) byProduct[k] = { title: k, units: 0, gmv: 0 };
+      if (!byProduct[k]) byProduct[k] = { title: k, units: 0, gmv: 0, image: images[k] || null };
       byProduct[k].units += item.quantity;
-      byProduct[k].gmv  += parseFloat(item.price) * item.quantity;
+      byProduct[k].gmv   += parseFloat(item.price) * item.quantity;
     }
   }
 
+  const gmv    = todayOrders.reduce((s, o) => s + parseFloat(o.total_price), 0);
+  const orders = todayOrders.length;
+
   return {
-    date:         mxDate,
-    orders:       orders.length,
+    date:         mxToday,
+    orders,
     gmv:          Math.round(gmv * 100) / 100,
-    aov:          orders.length > 0 ? Math.round(gmv / orders.length * 100) / 100 : 0,
+    aov:          orders > 0 ? Math.round(gmv / orders * 100) / 100 : 0,
     top_products: Object.values(byProduct).sort((a, b) => b.gmv - a.gmv).slice(0, 10),
     by_hour:      byHour,
     by_channel:   byChannel,
+    yesterday:    { gmv: Math.round(yesterdayGmv * 100) / 100, orders: yesterdayOrders_ },
   };
 }
 
+// ── Meta Ads ──────────────────────────────────────────────────────────────────
 async function fetchMetaToday() {
   const META_TOKEN = process.env.META_TOKEN;
   if (!META_TOKEN || !META_ACCOUNT) return { configured: false };
   try {
-    const [insights, ads] = await Promise.all([
-      fetchMetaInsights(META_TOKEN),
-      fetchActiveAds(META_TOKEN),
-    ]);
+    const [insights, ads] = await Promise.all([fetchMetaInsights(META_TOKEN), fetchActiveAds(META_TOKEN)]);
     return { configured: true, ...insights, active_ads: ads };
   } catch (e) {
     return { configured: true, error: e.message };
@@ -92,16 +135,13 @@ async function fetchMetaToday() {
 
 async function fetchMetaInsights(token) {
   const fields = "spend,impressions,clicks,reach,ctr,cpc,actions,action_values";
-  // Token va en Authorization header, no en query string
-  const url = `https://graph.facebook.com/v19.0/${META_ACCOUNT}/insights?fields=${fields}&date_preset=today`;
-  const r    = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-  const data = await r.json();
+  const url    = `https://graph.facebook.com/v19.0/${META_ACCOUNT}/insights?fields=${fields}&date_preset=today`;
+  const r      = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  const data   = await r.json();
   if (data.error) return { error: data.error.message };
-
   const ins       = data.data?.[0] || {};
   const purchases = (ins.actions       || []).find(a => a.action_type === "purchase");
   const revenue   = (ins.action_values || []).find(a => a.action_type === "purchase");
-
   return {
     spend:          parseFloat(ins.spend       || 0),
     impressions:    parseInt(ins.impressions   || 0),
@@ -116,43 +156,26 @@ async function fetchMetaInsights(token) {
 
 async function fetchActiveAds(token) {
   try {
-    // image_url = imagen full-size del creativo (alta resolución)
-    // thumbnail_url = frame pequeño de video (baja resolución, fallback)
-    // asset_feed_spec.images = imágenes del carrusel/dynamic
     const fields = [
-      "id", "name", "effective_status",
-      "creative{id,name,object_type,image_url,thumbnail_url,title,body,",
-      "asset_feed_spec{images{url,url_tags}},",
+      "id,name,effective_status,",
+      "creative{id,object_type,image_url,thumbnail_url,title,body,",
+      "asset_feed_spec{images{url}},",
       "object_story_spec{photo_data{image_url},video_data{image_url}}}",
     ].join("");
-
-    const url = `https://graph.facebook.com/v19.0/${META_ACCOUNT}/ads`
+    const url  = `https://graph.facebook.com/v19.0/${META_ACCOUNT}/ads`
       + `?fields=${encodeURIComponent(fields)}&effective_status=["ACTIVE"]&limit=50`;
     const r    = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
     const data = await r.json();
     if (data.error || !data.data) return [];
-
     return data.data.map(ad => {
       const c = ad.creative || {};
-
-      // Prioridad de imagen: full-size > story_spec > asset_feed > thumbnail
       const imgUrl =
-        c.image_url                                        ||  // imagen directa del creativo (mayor res)
-        c.object_story_spec?.photo_data?.image_url         ||  // foto del story
-        c.object_story_spec?.video_data?.image_url         ||  // cover de video en story
-        c.asset_feed_spec?.images?.[0]?.url                ||  // primera imagen de dynamic/carrusel
-        c.thumbnail_url                                    ||  // fallback: thumbnail de video
-        null;
-
-      return {
-        id:        ad.id,
-        name:      ad.name,
-        status:    ad.effective_status,
-        type:      c.object_type || null,
-        thumbnail: imgUrl,
-        title:     c.title  || null,
-        body:      c.body   || null,
-      };
+        c.image_url                                 ||
+        c.object_story_spec?.photo_data?.image_url  ||
+        c.object_story_spec?.video_data?.image_url  ||
+        c.asset_feed_spec?.images?.[0]?.url         ||
+        c.thumbnail_url                             || null;
+      return { id: ad.id, name: ad.name, type: c.object_type || null, thumbnail: imgUrl, body: c.body || null };
     }).filter(ad => ad.thumbnail);
   } catch (e) {
     return [];
