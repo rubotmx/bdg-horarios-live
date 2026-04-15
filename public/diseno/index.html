@@ -23,6 +23,60 @@ body{font-family:var(--fn);background:var(--beige);color:var(--dark);min-height:
 .topbar-right{display:flex;align-items:center;gap:14px;}
 .back{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);font-family:var(--fh);text-decoration:none;transition:color .12s;}
 .back:hover{color:#fff;}
+.user-pill{font-size:9px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;font-family:var(--fh);padding:3px 10px;border-radius:3px;background:rgba(193,100,82,.15);color:var(--terra);border:1px solid rgba(193,100,82,.25);}
+
+/* ── MENÚ INICIAL ────────────────────────────────────────────────── */
+#menuScreen{
+  position:fixed;inset:0;z-index:500;
+  background:var(--dark);
+  display:flex;flex-direction:column;
+}
+.menu-topbar{
+  height:52px;padding:0 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;
+}
+.menu-logo{font-family:var(--fl);font-size:17px;font-weight:700;color:#fff;letter-spacing:.12em;}
+.menu-logo span{color:var(--terra);}
+.menu-sub-lbl{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.2);font-family:var(--fh);}
+.menu-grid{flex:1;display:grid;grid-template-columns:repeat(3,1fr);}
+.menu-card{
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:40px 44px;border-right:1px solid rgba(255,255,255,.06);
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:background .18s;
+}
+.menu-card:last-child{border-right:none;}
+.menu-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 110%,rgba(193,100,82,.1) 0%,transparent 65%);
+  opacity:0;transition:opacity .2s;pointer-events:none;
+}
+.menu-card:hover{background:rgba(255,255,255,.02);}
+.menu-card:hover::before{opacity:1;}
+.menu-card-tag{font-size:8px;letter-spacing:.26em;text-transform:uppercase;color:rgba(255,255,255,.18);font-family:var(--fh);margin-bottom:14px;}
+.menu-card-name{
+  font-family:var(--fh);font-size:72px;font-weight:900;
+  color:#fff;letter-spacing:-.05em;line-height:.88;
+  transition:color .15s;
+}
+.menu-card:hover .menu-card-name{color:var(--terra);}
+.menu-card-desc{font-size:11px;color:rgba(255,255,255,.22);margin-top:14px;font-family:var(--fn,var(--fh));line-height:1.5;}
+.menu-card-arrow{
+  position:absolute;bottom:40px;right:40px;
+  font-size:22px;color:var(--terra);
+  opacity:0;transform:translateX(-8px);
+  transition:opacity .15s,transform .18s;
+}
+.menu-card:hover .menu-card-arrow{opacity:1;transform:translateX(0);}
+.menu-active-line{position:absolute;top:0;left:0;right:0;height:2px;background:var(--terra);transform:scaleX(0);transition:transform .2s;}
+.menu-card:hover .menu-active-line{transform:scaleX(1);}
+@media(max-width:720px){
+  .menu-grid{grid-template-columns:1fr;}
+  .menu-card{min-height:160px;border-right:none;border-bottom:1px solid rgba(255,255,255,.06);}
+  .menu-card:last-child{border-bottom:none;}
+  .menu-card-name{font-size:48px;}
+}
 
 /* PAGE */
 .page{max-width:1280px;margin:0 auto;padding:32px 24px 100px;}
@@ -172,9 +226,46 @@ body{font-family:var(--fn);background:var(--beige);color:var(--dark);min-height:
 </head>
 <body>
 
+<!-- MENÚ INICIAL -->
+<div id="menuScreen">
+  <div class="menu-topbar">
+    <div class="menu-logo">BDG<span>·</span>DISEÑO</div>
+    <div class="menu-sub-lbl">Selecciona tu espacio</div>
+    <a class="back" href="/" style="color:rgba(255,255,255,.2);font-size:9px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;">← HQ</a>
+  </div>
+  <div class="menu-grid">
+    <div class="menu-card" onclick="selectUser('team')">
+      <div class="menu-active-line"></div>
+      <div class="menu-card-tag">Espacio 01</div>
+      <div class="menu-card-name">TEAM</div>
+      <div class="menu-card-desc">Tablero compartido del equipo.<br>Moodboards, modelos y catálogo.</div>
+      <div class="menu-card-arrow">→</div>
+    </div>
+    <div class="menu-card" onclick="selectUser('serch')">
+      <div class="menu-active-line"></div>
+      <div class="menu-card-tag">Espacio 02</div>
+      <div class="menu-card-name">SERCH</div>
+      <div class="menu-card-desc">Tablero personal de Serch.<br>Desarrollos y referencias propias.</div>
+      <div class="menu-card-arrow">→</div>
+    </div>
+    <div class="menu-card" onclick="selectUser('george')">
+      <div class="menu-active-line"></div>
+      <div class="menu-card-tag">Espacio 03</div>
+      <div class="menu-card-name">GEORGE</div>
+      <div class="menu-card-desc">Tablero personal de George.<br>Desarrollos y referencias propias.</div>
+      <div class="menu-card-arrow">→</div>
+    </div>
+  </div>
+</div>
+
+<!-- TABLERO -->
 <div class="topbar">
-  <div class="topbar-logo">BDG<span>·</span>DISEÑO</div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="topbar-logo">BDG<span>·</span>DISEÑO</div>
+    <div class="user-pill" id="userPill">—</div>
+  </div>
   <div class="topbar-right">
+    <span class="back" style="cursor:pointer;" onclick="backToMenu()">↩ Cambiar</span>
     <a class="back" href="/">← HQ</a>
   </div>
 </div>
@@ -223,15 +314,28 @@ body{font-family:var(--fn);background:var(--beige);color:var(--dark);min-height:
       <div class="section-name">Catálogo Shopify</div>
       <span class="section-meta" id="meta-shopify">Cargando…</span>
     </div>
-    <div class="sh-toolbar">
-      <div class="sh-filters" id="shFilters">
-        <button class="sh-chip active" onclick="shFilter('todos',this)">Todos</button>
-        <button class="sh-chip" onclick="shFilter('active',this)">Activos</button>
-        <button class="sh-chip" onclick="shFilter('draft',this)">Borradores</button>
-        <button class="sh-chip" onclick="shFilter('archived',this)">Archivados</button>
+    <div class="sh-toolbar" style="flex-direction:column;align-items:flex-start;gap:10px;">
+      <!-- Category chips (rendered dynamically) -->
+      <div class="sh-filters" id="shCatFilters">
+        <div class="sk" style="width:340px;height:28px;border-radius:20px;"></div>
       </div>
-      <input class="sh-search" id="shSearch" type="text" placeholder="Buscar modelo…" oninput="renderShopify()"/>
-      <span class="sh-count" id="shCount"></span>
+      <!-- Status + sort + search row -->
+      <div style="display:flex;align-items:center;gap:8px;width:100%;flex-wrap:wrap;">
+        <div class="sh-filters" id="shFilters">
+          <button class="sh-chip active" onclick="shFilter('todos',this)">Todos</button>
+          <button class="sh-chip" onclick="shFilter('active',this)">Activos</button>
+          <button class="sh-chip" onclick="shFilter('draft',this)">Borradores</button>
+          <button class="sh-chip" onclick="shFilter('archived',this)">Archivados</button>
+        </div>
+        <div style="width:1px;height:18px;background:var(--line);flex-shrink:0;"></div>
+        <div class="sh-filters" id="shSortBtns">
+          <button class="sh-chip active" onclick="shSort('ventas',this)">↓ Más vendidos</button>
+          <button class="sh-chip" onclick="shSort('reciente',this)">↓ Más reciente</button>
+          <button class="sh-chip" onclick="shSort('nombre',this)">A–Z</button>
+        </div>
+        <input class="sh-search" id="shSearch" type="text" placeholder="Buscar modelo…" oninput="renderShopify()"/>
+        <span class="sh-count" id="shCount"></span>
+      </div>
     </div>
     <div id="grid-shopify"><div class="sk" style="height:220px;border-radius:9px;"></div></div>
   </div>
@@ -258,7 +362,33 @@ body{font-family:var(--fn);background:var(--beige);color:var(--dark);min-height:
 </div>
 
 <script>
-const FB = 'https://bdg-horarios-default-rtdb.firebaseio.com/bdg_horarios_v2/diseno';
+const FB_BASE = 'https://bdg-horarios-default-rtdb.firebaseio.com/bdg_horarios_v2';
+// team → path legacy (no rompemos datos existentes)
+const FB_PATHS = { team:'diseno', serch:'diseno_serch', george:'diseno_george' };
+let _user = null;
+let FB = '';
+
+function selectUser(user){
+  _user = user;
+  FB = `${FB_BASE}/${FB_PATHS[user]}`;
+  // Pill en topbar
+  document.getElementById('userPill').textContent = user.toUpperCase();
+  // Ocultar menú, mostrar tablero
+  document.getElementById('menuScreen').style.display = 'none';
+  // Cargar datos
+  init();
+  loadShopify();
+}
+
+function backToMenu(){
+  document.getElementById('menuScreen').style.display = 'flex';
+  _user = null; _items = [];
+  // Limpiar grids para que al volver muestren skeleton
+  ['moodboard','modelo','desarrollo'].forEach(t=>{
+    document.getElementById(`grid-${t}`).innerHTML='<div class="sk" style="height:200px;border-radius:9px;"></div>';
+    document.getElementById(`meta-${t}`).textContent='—';
+  });
+}
 
 let _items = [];
 let _editing = null;
@@ -446,8 +576,42 @@ function fmtDate(s){ if(!s) return ''; const [y,m,d]=s.split('-'); const M=['','
 
 // ── SHOPIFY CATÁLOGO ──────────────────────────────────────────────────────────
 let _shProducts = [];
-let _shFilter   = 'todos';
+let _shFilter   = 'todos';    // status filter
+let _shCat      = 'todos';    // category filter
+let _shSortMode = 'ventas';   // ventas | reciente | nombre
 const SH_STATUS_LABEL = { active:'Activo', draft:'Borrador', archived:'Archivado', unlisted:'Oculto' };
+const CATS = ['Bota Vaquera','Botín','Sneaker','Zueco','Terciopelo','Sandalia','Tacón','Flat','Accesorio','Sin Clasificar'];
+
+// Classify a product into a category; returns null if the product should be hidden
+function classifyProduct(p){
+  const t  = (p.product_type || '').toLowerCase();
+  const nm = p.title.toLowerCase();
+
+  // Exclude shoe care — product_type === "Complementos"
+  if(/^complementos$/i.test(t.trim())) return null;
+  // Exclude shoe care by name keywords (fallback)
+  if(/impermeab|kit.*cuid|cuid.*calz|calz.*cuid|crema.*calz|calz.*crema|cepillo|protector.*calz|limpiador|spray.*calz|brochas|cuidado\s*al\s*calz/i.test(nm)) return null;
+  // Exclude gift cards
+  if(/gift\s*card|tarjeta\s*regalo/i.test(nm) || /^tarjetas?\s*de\s*regalo$/i.test(t.trim())) return null;
+  // Exclude jackets (by product_type)
+  if(/chamarra|jacket|chaqueta/i.test(t)) return null;
+
+  // No product_type → Sin Clasificar
+  if(!t.trim()) return 'Sin Clasificar';
+
+  // Category rules — order matters (most specific first)
+  if(t.includes('bota vaquera'))                                           return 'Bota Vaquera';
+  if(t.includes('sneaker'))                                                return 'Sneaker';
+  if(t.includes('zueco'))                                                  return 'Zueco';
+  if(t.includes('terciopelo'))                                             return 'Terciopelo';
+  if(t.includes('abierto') || t.includes('sandalia') || t.includes('mule')) return 'Sandalia';
+  if(t.includes('tacón') || t.includes('tacon'))                          return 'Tacón';
+  if(t.includes('calzado plano') || t.includes('mocasín') || t.includes('moca') || t.includes('flat') || t.includes('loafer')) return 'Flat';
+  if(t.includes('bota') || t.includes('piel') || t.includes('vegano') || t.includes('corte exterior')) return 'Botín';
+  if(t.includes('necklace') || t.includes('collar') || t.includes('accesorio') || t.includes('joyería') || t.includes('bolsa')) return 'Accesorio';
+
+  return 'Botín'; // fallback for other leather/material descriptions
+}
 
 async function loadShopify(){
   const res  = await fetch('/api/shopify?mode=products');
@@ -455,28 +619,75 @@ async function loadShopify(){
   _shProducts = (data.products || []);
   _shProducts.sort((a,b) => a.title.localeCompare(b.title));
 
-  const counts = {};
-  for(const p of _shProducts) counts[p.status] = (counts[p.status]||0)+1;
-  document.getElementById('meta-shopify').textContent =
-    `${_shProducts.length} modelos · ${counts.active||0} activos · ${counts.draft||0} borradores · ${counts.archived||0} archivados`;
+  // Pre-compute category for each product
+  for(const p of _shProducts) p._cat = classifyProduct(p);
 
+  // Count only visible (non-excluded) products
+  const visible = _shProducts.filter(p => p._cat !== null);
+  const counts  = {};
+  for(const p of visible) counts[p.status] = (counts[p.status]||0)+1;
+  document.getElementById('meta-shopify').textContent =
+    `${visible.length} modelos · ${counts.active||0} activos · ${counts.draft||0} borradores · ${counts.archived||0} archivados · ventas 2020–hoy`;
+
+  renderCatChips();
+  renderShopify();
+}
+
+function renderCatChips(){
+  const visible   = _shProducts.filter(p => p._cat !== null);
+  const catCounts = {};
+  for(const p of visible) catCounts[p._cat] = (catCounts[p._cat]||0)+1;
+
+  const el = document.getElementById('shCatFilters');
+  el.innerHTML =
+    `<button class="sh-chip${_shCat==='todos'?' active':''}" onclick="shCatFilter('todos',this)">Todos</button>` +
+    CATS.filter(c => catCounts[c]).map(c =>
+      `<button class="sh-chip${_shCat===c?' active':''}" onclick="shCatFilter('${c}',this)">${c} <span style="opacity:.45;font-weight:400;font-size:9px;">${catCounts[c]}</span></button>`
+    ).join('');
+}
+
+function shCatFilter(cat, btn){
+  _shCat = cat;
+  document.querySelectorAll('#shCatFilters .sh-chip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderShopify();
+}
+
+function shSort(mode, btn){
+  _shSortMode = mode;
+  document.querySelectorAll('#shSortBtns .sh-chip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
   renderShopify();
 }
 
 function shFilter(f, btn){
   _shFilter = f;
-  document.querySelectorAll('.sh-chip').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#shFilters .sh-chip').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   renderShopify();
+}
+
+function fmtLaunch(iso){
+  if(!iso) return '';
+  const d = new Date(iso);
+  const M = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  return `${d.getDate()} ${M[d.getMonth()+1]} ${d.getFullYear()}`;
 }
 
 function renderShopify(){
   const q = (document.getElementById('shSearch')?.value||'').toLowerCase();
   let list = _shProducts.filter(p => {
+    if(p._cat === null) return false;
     if(_shFilter !== 'todos' && p.status !== _shFilter) return false;
+    if(_shCat    !== 'todos' && p._cat   !== _shCat)   return false;
     if(q && !p.title.toLowerCase().includes(q)) return false;
     return true;
   });
+
+  // Sort
+  if(_shSortMode === 'ventas')   list.sort((a,b) => (b.units_sold||0) - (a.units_sold||0));
+  if(_shSortMode === 'reciente') list.sort((a,b) => (b.created_at||'').localeCompare(a.created_at||''));
+  if(_shSortMode === 'nombre')   list.sort((a,b) => a.title.localeCompare(b.title));
 
   document.getElementById('shCount').textContent = `${list.length} modelos`;
 
@@ -487,10 +698,10 @@ function renderShopify(){
   }
 
   document.getElementById('grid-shopify').innerHTML = `<div class="sh-grid">${list.map(p => {
-    const img   = p.images?.[0]?.src;
-    const vars  = p.variants || [];
-    const stock = vars.reduce((s,v) => s + Math.max(0, v.inventory_quantity||0), 0);
-    const sizes = [...new Set(vars.map(v => {
+    const img      = p.images?.[0]?.src;
+    const vars     = p.variants || [];
+    const stock    = vars.reduce((s,v) => s + Math.max(0, v.inventory_quantity||0), 0);
+    const sizes    = [...new Set(vars.map(v => {
       const m = String(v.option1||'').match(/^(\d{2}(?:\.\d)?)/);
       return m ? m[1] : (v.option1||'');
     }).filter(Boolean))].sort((a,b)=>parseFloat(a)-parseFloat(b)).slice(0,8);
@@ -508,14 +719,18 @@ function renderShopify(){
       </div>
       <div class="sh-body">
         <div class="sh-name">${p.title}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
+          ${p._cat ? `<div style="font-size:8.5px;color:var(--muted);font-family:var(--fh);font-weight:700;letter-spacing:.1em;text-transform:uppercase;">${p._cat}</div>` : '<div></div>'}
+          ${p.units_sold ? `<div style="font-size:9px;font-family:var(--fh);font-weight:700;color:var(--terra);" title="Pares vendidos 2020–hoy">${p.units_sold} pares</div>` : ''}
+        </div>
+        ${p.created_at ? `<div style="font-size:9px;color:var(--muted);font-family:var(--fn);margin-bottom:5px;">Lanzado ${fmtLaunch(p.created_at)}</div>` : ''}
         <div class="sh-sizes">${sizes.map(s=>`<span class="sh-sz">${s}</span>`).join('')}</div>
       </div>
     </div>`;
   }).join('')}</div>`;
 }
 
-init();
-loadShopify();
+// init y loadShopify se disparan desde selectUser(), no al cargar la página
 </script>
 </body>
 </html>

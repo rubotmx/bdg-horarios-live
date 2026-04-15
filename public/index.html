@@ -26,12 +26,13 @@ body{font-family:var(--fh);background:var(--dark);color:#e8e4de;display:flex;fle
 .topbar-sub{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.14);font-family:var(--fh);}
 
 /* GRID */
-.grid{flex:1;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:1fr 1fr;min-height:0;}
+.grid{flex:1;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(auto-fill,1fr);min-height:0;}
 
 /* CARD */
 .card{position:relative;overflow:hidden;text-decoration:none;display:flex;flex-direction:column;justify-content:flex-end;padding:28px 26px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);transition:background .15s;cursor:pointer;}
 .card:nth-child(3n){border-right:none;}
-.card:nth-child(n+4){border-bottom:none;}
+.card:nth-child(n+7){border-bottom:none;}
+.card:nth-child(n+4):nth-child(-n+6){border-bottom:1px solid var(--line);}
 .card.disabled{opacity:.3;pointer-events:none;}
 .card:not(.disabled):hover{background:rgba(255,255,255,.03);}
 
@@ -177,7 +178,29 @@ body{font-family:var(--fh);background:var(--dark);color:#e8e4de;display:flex;fle
     </div>
   </div>
 
-  <!-- 06 50M — LOCKED (hidden trigger) -->
+  <!-- 06 En Vivo — LIBRE -->
+  <a class="card active" href="/live/">
+    <div class="card-label">Módulo 06</div>
+    <div class="card-title">En<br>Vivo</div>
+    <div class="card-desc">Ventas del día en tiempo real. Gasto Meta Ads y productos más vendidos.</div>
+    <div class="card-footer">
+      <div class="badge live">Activo</div>
+      <div class="arrow">→</div>
+    </div>
+  </a>
+
+  <!-- 07 OC y Curvas — LIBRE -->
+  <a class="card active" href="/oc/">
+    <div class="card-label">Módulo 07</div>
+    <div class="card-title">OC y<br>Curvas</div>
+    <div class="card-desc">Órdenes de compra y curvas de tallas por modelo.</div>
+    <div class="card-footer">
+      <div class="badge live">Activo</div>
+      <div class="arrow">→</div>
+    </div>
+  </a>
+
+  <!-- 08 50M — LOCKED (hidden trigger) -->
   <div class="card active locked" onclick="gatedNav('/50m/','50M')" id="card50m" style="display:none;">
     <div class="card-label">Acceso especial</div>
     <div class="card-title">50M</div>
@@ -194,11 +217,10 @@ body{font-family:var(--fh);background:var(--dark);color:#e8e4de;display:flex;fle
 </div>
 
 <script>
-const PIN       = 'jorge2026';
 const SESSION_KEY = 'bdg_hq_access';
 let _pendingUrl = null;
+let _checking   = false;
 
-// If already authenticated this session, skip PIN for gated cards
 function hasAccess(){ return sessionStorage.getItem(SESSION_KEY) === '1'; }
 function grantSession(){ sessionStorage.setItem(SESSION_KEY, '1'); }
 
@@ -210,16 +232,37 @@ function gatedNav(url, name){
   setTimeout(() => document.getElementById('pinInput').focus(), 80);
 }
 
-function checkPin(){
-  const val = document.getElementById('pinInput').value.trim();
-  if(val === PIN){
-    grantSession();
-    closePin();
-    if(_pendingUrl) window.location.href = _pendingUrl;
-  } else {
-    const inp = document.getElementById('pinInput');
+async function checkPin(){
+  if(_checking) return;
+  const inp = document.getElementById('pinInput');
+  const val = inp.value.trim();
+  if(!val) return;
+  _checking = true;
+  inp.disabled = true;
+  try {
+    const res = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin: val, module: 'hq' }),
+    });
+    const data = await res.json();
+    if(data.ok){
+      grantSession();
+      closePin();
+      if(_pendingUrl) window.location.href = _pendingUrl;
+    } else {
+      inp.classList.add('err'); inp.value = '';
+      setTimeout(() => inp.classList.remove('err'), 350);
+    }
+  } catch(e) {
+    // Si el API falla, no bloquear al usuario — fallback silencioso
+    console.warn('[auth] API no disponible');
     inp.classList.add('err'); inp.value = '';
     setTimeout(() => inp.classList.remove('err'), 350);
+  } finally {
+    inp.disabled = false;
+    inp.focus();
+    _checking = false;
   }
 }
 

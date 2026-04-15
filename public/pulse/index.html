@@ -283,7 +283,7 @@ let _saveTimer  = {};
 // ── DATES ─────────────────────────────────────────────────────────────────────
 function pad(n){ return String(n).padStart(2,'0'); }
 function fmt(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
-function nowMX(){ return new Date(new Date().getTime() - 6*3600000); }
+function nowMX(){ return new Date(new Date().toLocaleString("en-US",{timeZone:"America/Mexico_City"})); }
 
 function getWeekThursday(offsetWeeks){
   const now=nowMX();

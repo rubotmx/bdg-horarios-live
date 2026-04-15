@@ -202,7 +202,7 @@ function setPeriod(p, btn) {
 function dateRange(period) {
   const pad = n => String(n).padStart(2,'0');
   const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-  const now  = new Date(new Date().getTime() - 6*3600000);
+  const now  = new Date(new Date().toLocaleString("en-US",{timeZone:"America/Mexico_City"}));
   let min, max;
   if (period === 'today') {
     const t = fmt(now);
