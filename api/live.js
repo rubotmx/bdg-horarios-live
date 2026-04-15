@@ -116,21 +116,44 @@ async function fetchMetaInsights(token) {
 
 async function fetchActiveAds(token) {
   try {
-    const fields = "id,name,effective_status,creative{thumbnail_url,image_url,title,body,object_type}";
+    // image_url = imagen full-size del creativo (alta resolución)
+    // thumbnail_url = frame pequeño de video (baja resolución, fallback)
+    // asset_feed_spec.images = imágenes del carrusel/dynamic
+    const fields = [
+      "id", "name", "effective_status",
+      "creative{id,name,object_type,image_url,thumbnail_url,title,body,",
+      "asset_feed_spec{images{url,url_tags}},",
+      "object_story_spec{photo_data{image_url},video_data{image_url}}}",
+    ].join("");
+
     const url = `https://graph.facebook.com/v19.0/${META_ACCOUNT}/ads`
       + `?fields=${encodeURIComponent(fields)}&effective_status=["ACTIVE"]&limit=50`;
     const r    = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
     const data = await r.json();
     if (data.error || !data.data) return [];
-    return data.data.map(ad => ({
-      id:        ad.id,
-      name:      ad.name,
-      status:    ad.effective_status,
-      thumbnail: ad.creative?.thumbnail_url || ad.creative?.image_url || null,
-      title:     ad.creative?.title  || null,
-      body:      ad.creative?.body   || null,
-      type:      ad.creative?.object_type || null,
-    })).filter(ad => ad.thumbnail);
+
+    return data.data.map(ad => {
+      const c = ad.creative || {};
+
+      // Prioridad de imagen: full-size > story_spec > asset_feed > thumbnail
+      const imgUrl =
+        c.image_url                                        ||  // imagen directa del creativo (mayor res)
+        c.object_story_spec?.photo_data?.image_url         ||  // foto del story
+        c.object_story_spec?.video_data?.image_url         ||  // cover de video en story
+        c.asset_feed_spec?.images?.[0]?.url                ||  // primera imagen de dynamic/carrusel
+        c.thumbnail_url                                    ||  // fallback: thumbnail de video
+        null;
+
+      return {
+        id:        ad.id,
+        name:      ad.name,
+        status:    ad.effective_status,
+        type:      c.object_type || null,
+        thumbnail: imgUrl,
+        title:     c.title  || null,
+        body:      c.body   || null,
+      };
+    }).filter(ad => ad.thumbnail);
   } catch (e) {
     return [];
   }
