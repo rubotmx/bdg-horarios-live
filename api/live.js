@@ -104,7 +104,8 @@ async function fetchShopifyToday() {
   const byProduct = {}, byHour = {}, byChannel = {};
 
   for (const o of todayOrders) {
-    const h   = parseInt(o.created_at.slice(11, 13));
+    const oMX = new Date(new Date(o.created_at).toLocaleString("en-US", { timeZone: "America/Mexico_City" }));
+    const h   = oMX.getHours();
     const ch  = o.source_name || "web";
     const amt = parseFloat(o.total_price);
 
@@ -121,23 +122,51 @@ async function fetchShopifyToday() {
     }
   }
 
+  // ── Procesar ayer por hora ───────────────────────────────────────────────────
+  const yesterdayByHour = {};
+  for (const o of yesterdayOrders) {
+    const oMX = new Date(new Date(o.created_at).toLocaleString("en-US", { timeZone: "America/Mexico_City" }));
+    const h   = oMX.getHours();
+    if (!yesterdayByHour[h]) yesterdayByHour[h] = { orders: 0, gmv: 0 };
+    yesterdayByHour[h].orders++;
+    yesterdayByHour[h].gmv += parseFloat(o.total_price);
+  }
+
+  // ── Órdenes recientes (últimas 10, para el ticker) ───────────────────────────
+  const recentOrders = [...todayOrders]
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, 10)
+    .map(o => {
+      const oMX = new Date(new Date(o.created_at).toLocaleString("en-US", { timeZone: "America/Mexico_City" }));
+      const t   = `${String(oMX.getHours()).padStart(2,'0')}:${String(oMX.getMinutes()).padStart(2,'0')}`;
+      const item = o.line_items?.[0];
+      return {
+        time:    t,
+        product: item?.title || '—',
+        amount:  Math.round(parseFloat(o.total_price) * 100) / 100,
+        channel: o.source_name || 'web',
+      };
+    });
+
   const gmv    = todayOrders.reduce((s, o) => s + parseFloat(o.total_price), 0);
   const orders = todayOrders.length;
 
   return {
-    date:         mxToday,
+    date:          mxToday,
     orders,
-    gmv:          Math.round(gmv * 100) / 100,
-    aov:          orders > 0 ? Math.round(gmv / orders * 100) / 100 : 0,
-    top_products: Object.values(byProduct).sort((a, b) => b.gmv - a.gmv).slice(0, 10),
-    by_hour:      byHour,
-    by_channel:   byChannel,
+    gmv:           Math.round(gmv * 100) / 100,
+    aov:           orders > 0 ? Math.round(gmv / orders * 100) / 100 : 0,
+    top_products:  Object.values(byProduct).sort((a, b) => b.gmv - a.gmv).slice(0, 10),
+    by_hour:       byHour,
+    by_channel:    byChannel,
+    recent_orders: recentOrders,
     yesterday: {
-      gmv:           Math.round(yesterdayGmv          * 100) / 100,
-      orders:        yesterdayOrders_,
-      gmv_same_hour: Math.round(yesterdayGmvSameHour  * 100) / 100,
+      gmv:             Math.round(yesterdayGmv          * 100) / 100,
+      orders:          yesterdayOrders_,
+      gmv_same_hour:   Math.round(yesterdayGmvSameHour  * 100) / 100,
       orders_same_hour: yesterdayOrdersSameHour,
-      same_hour_time: `${String(nowH).padStart(2,'0')}:${String(nowMin).padStart(2,'0')}`,
+      same_hour_time:  `${String(nowH).padStart(2,'0')}:${String(nowMin).padStart(2,'0')}`,
+      by_hour:         yesterdayByHour,
     },
   };
 }

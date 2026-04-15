@@ -179,6 +179,37 @@ body{display:flex;flex-direction:column;}
 @keyframes ringPulse{0%,100%{filter:drop-shadow(0 0 0 transparent)}50%{filter:drop-shadow(0 0 12px rgba(62,207,142,.6))}}
 .ring-wrap.pulse svg{animation:ringPulse .7s ease-out;}
 
+/* ── PROYECCIÓN ──────────────────────────────────────────────── */
+.proyec-row{padding:10px 14px;border-bottom:1px solid var(--line);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.proyec-lbl{font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:3px;}
+.proyec-val{font-size:17px;font-weight:900;letter-spacing:-.03em;line-height:1;}
+.proyec-sub{font-size:7px;color:var(--muted);}
+
+/* ── VELOCIDAD badge ─────────────────────────────────────────── */
+.vel-badge{font-size:8px;font-weight:700;padding:2px 8px;border-radius:3px;white-space:nowrap;}
+.vel-badge.up{color:var(--green);background:rgba(62,207,142,.1);}
+.vel-badge.down{color:var(--red);background:rgba(242,107,107,.1);}
+.vel-badge.flat{color:var(--muted);background:rgba(255,255,255,.05);}
+
+/* ── HEAT MAP ────────────────────────────────────────────────── */
+.heat-row{display:flex;gap:2px;padding:5px 16px 7px;border-bottom:1px solid var(--line);flex-shrink:0;}
+.heat-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.heat-bar{width:100%;height:12px;border-radius:2px;transition:background .4s;}
+.heat-lbl{font-size:5.5px;color:rgba(255,255,255,.18);text-align:center;}
+
+/* ── TICKER ──────────────────────────────────────────────────── */
+.ticker-strip{height:30px;border-top:1px solid var(--line);display:flex;align-items:center;overflow:hidden;flex-shrink:0;background:rgba(255,255,255,.012);}
+.ticker-label{font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding:0 14px;flex-shrink:0;border-right:1px solid var(--line);height:100%;display:flex;align-items:center;white-space:nowrap;font-weight:700;}
+.ticker-overflow{flex:1;overflow:hidden;mask-image:linear-gradient(to right,transparent 0%,black 4%,black 96%,transparent 100%);}
+.ticker-track{display:flex;align-items:center;animation:tickScroll 35s linear infinite;will-change:transform;}
+@keyframes tickScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.t-item{display:flex;align-items:center;gap:7px;padding:0 20px;white-space:nowrap;}
+.t-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.t-prod{color:rgba(255,255,255,.65);font-weight:700;font-size:9px;max-width:180px;overflow:hidden;text-overflow:ellipsis;}
+.t-amt{color:var(--green);font-weight:900;font-size:10px;}
+.t-time{color:rgba(255,255,255,.2);font-size:8px;}
+.t-sep{color:rgba(255,255,255,.07);font-size:16px;padding:0 4px;}
+
 /* ── SK ──────────────────────────────────────────────────────── */
 .sk{background:linear-gradient(90deg,#111 25%,#1a1a1a 50%,#111 75%);background-size:200% 100%;animation:sh 1.3s infinite;border-radius:4px;}
 @keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
@@ -194,6 +225,9 @@ body.tv .kpi-val{font-size:24px;}
 body.tv .prod-name{font-size:12px;}
 body.tv .prod-gmv{font-size:13px;}
 body.tv .prod-img{width:40px;height:40px;}
+body.tv .ticker-strip{height:36px;}
+body.tv .t-prod{font-size:11px;}
+body.tv .t-amt{font-size:12px;}
 
 /* Scrollbar */
 ::-webkit-scrollbar{width:3px;}
@@ -284,6 +318,9 @@ body.tv .prod-img{width:40px;height:40px;}
       <div class="kpi"><div class="kpi-lbl">ROAS</div><div class="sk" style="height:18px;width:40px;"></div></div>
     </div>
 
+    <!-- Proyección cierre -->
+    <div class="proyec-row" id="proyecRow" style="display:none;"></div>
+
     <!-- Channels -->
     <div class="channels" id="channels">
       <div class="ch-lbl">Canal de venta</div>
@@ -306,7 +343,10 @@ body.tv .prod-img{width:40px;height:40px;}
 
     <div class="col-hdr">
       <div class="col-title">Ventas por hora</div>
-      <div class="col-meta" id="chartMeta">—</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span id="velocidadBadge" class="vel-badge"></span>
+        <div class="col-meta" id="chartMeta">—</div>
+      </div>
     </div>
 
     <!-- SVG Area Chart -->
@@ -332,6 +372,9 @@ body.tv .prod-img{width:40px;height:40px;}
       </svg>
     </div>
 
+    <!-- Heat map horario -->
+    <div class="heat-row" id="heatRow"></div>
+
     <!-- Products -->
     <div class="col-hdr">
       <div class="col-title">Más vendidos hoy</div>
@@ -355,6 +398,14 @@ body.tv .prod-img{width:40px;height:40px;}
     <div class="ads-results" id="adsResults" style="display:none;"></div>
   </div>
 
+</div>
+
+<!-- TICKER -->
+<div class="ticker-strip" id="tickerStrip" style="display:none;">
+  <div class="ticker-label">🛍 Órdenes</div>
+  <div class="ticker-overflow">
+    <div class="ticker-track" id="tickerTrack"></div>
+  </div>
 </div>
 
 <script>
@@ -495,13 +546,114 @@ document.addEventListener('click', () => getSaleSound(), { once: true });
 function renderAll(data) {
   const sh   = data.shopify || {};
   const meta = data.meta   || {};
+  const nowH = parseInt(new Date().toLocaleTimeString('en-US', { timeZone: 'America/Mexico_City', hour: '2-digit', hour12: false }));
   renderHero(sh, meta);
   renderKPIs(sh, meta);
+  renderProyeccion(sh.gmv || 0, sh.by_hour || {}, nowH);
   renderChannels(sh.by_channel || {});
   renderChart(sh.by_hour || {}, sh.gmv || 0);
+  renderHeatMap(sh.by_hour || {}, nowH);
+  renderVelocidad(sh.by_hour || {}, sh.yesterday?.by_hour || {}, nowH);
   renderProducts(sh.top_products || [], sh.gmv || 0);
+  renderTicker(sh.recent_orders || []);
   renderAds(meta);
   if (meta.configured && !meta.error && meta.spend > 0) renderMetaMini(meta);
+}
+
+// ── Proyección cierre del día ──────────────────────────────────────────────────
+const GOAL = 133333;
+const DAY_START = 7, DAY_END = 23;   // horas hábiles MX
+
+function renderProyeccion(gmv, byHour, nowH) {
+  const el = document.getElementById('proyecRow');
+  if (!el) return;
+  if (!gmv || nowH < DAY_START) { el.style.display = 'none'; return; }
+  el.style.display = '';
+
+  if (nowH >= DAY_END) {
+    el.innerHTML = `<div><div class="proyec-lbl">Proyección cierre</div><div class="proyec-sub">Día terminado</div></div>
+      <div class="proyec-val" style="color:var(--sub)">${MXN(gmv)}</div>`;
+    return;
+  }
+  const elapsed   = Math.max(0.5, nowH - DAY_START + 0.5);
+  const totalH    = DAY_END - DAY_START;
+  const pace      = gmv / elapsed;           // $/hora actual
+  const projected = Math.round(pace * totalH);
+  const hoursLeft = DAY_END - nowH;
+  const pctGoal   = projected / GOAL * 100;
+  const clr       = projected >= GOAL ? 'var(--green)' : projected >= GOAL * .7 ? 'var(--yellow)' : 'var(--red)';
+  const tag       = projected >= GOAL ? '🎯 Meta' : Math.round(pctGoal) + '% meta';
+
+  el.innerHTML = `
+    <div>
+      <div class="proyec-lbl">Proyección cierre</div>
+      <div class="proyec-sub">${MXN(Math.round(pace))}/hr · ${hoursLeft}h restantes</div>
+    </div>
+    <div style="text-align:right;">
+      <div class="proyec-val" style="color:${clr}">${MXN(projected)}</div>
+      <div class="proyec-sub">${tag}</div>
+    </div>`;
+}
+
+// ── Heat map horario ───────────────────────────────────────────────────────────
+function renderHeatMap(byHour, nowH) {
+  const el    = document.getElementById('heatRow');
+  if (!el) return;
+  const hours = Array.from({length: DAY_END - DAY_START + 1}, (_, i) => i + DAY_START);
+  const vals  = hours.map(h => byHour[h]?.gmv || 0);
+  const maxV  = Math.max(1, ...vals);
+
+  el.innerHTML = hours.map((h, i) => {
+    const v       = vals[i];
+    const pct     = v / maxV;
+    const past    = h < nowH;
+    const current = h === nowH;
+    let bg;
+    if (current)   bg = `rgba(62,207,142,${Math.max(.18, pct)})`;
+    else if (past) bg = `rgba(193,100,82,${Math.max(.07, pct * .9)})`;
+    else           bg = 'rgba(255,255,255,.03)';
+    const border = current ? 'border:1px solid rgba(62,207,142,.45);box-sizing:border-box;' : '';
+    return `<div class="heat-col">
+      <div class="heat-bar" title="${h}:00 · ${v > 0 ? MXN(v) : '—'}" style="background:${bg};${border}"></div>
+      <div class="heat-lbl">${h}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Velocidad de hora ──────────────────────────────────────────────────────────
+function renderVelocidad(byHour, yesterdayByHour, nowH) {
+  const el = document.getElementById('velocidadBadge');
+  if (!el) return;
+  const todayGmvH  = byHour[nowH]?.gmv          || 0;
+  const yesterGmvH = yesterdayByHour?.[nowH]?.gmv || 0;
+  if (!yesterGmvH || !todayGmvH) { el.textContent = ''; el.className = 'vel-badge'; return; }
+  const diff = ((todayGmvH - yesterGmvH) / yesterGmvH) * 100;
+  const cls  = diff > 5 ? 'up' : diff < -5 ? 'down' : 'flat';
+  const icon = diff > 5 ? '🔥' : diff < -5 ? '❄️' : '→';
+  el.className = `vel-badge ${cls}`;
+  el.textContent = `${icon} ${diff > 0 ? '+' : ''}${diff.toFixed(0)}% esta hora`;
+}
+
+// ── Ticker de órdenes ──────────────────────────────────────────────────────────
+function renderTicker(orders) {
+  const strip = document.getElementById('tickerStrip');
+  const track = document.getElementById('tickerTrack');
+  if (!strip || !track || !orders?.length) { if (strip) strip.style.display = 'none'; return; }
+  strip.style.display = '';
+
+  // Triple para loop seamless
+  const all = [...orders, ...orders, ...orders];
+  track.innerHTML = all.map(o => {
+    const col = CH_COLORS[o.channel] || '#888';
+    return `<div class="t-item">
+      <div class="t-dot" style="background:${col}"></div>
+      <span class="t-prod">${o.product}</span>
+      <span class="t-amt">${MXN(o.amount)}</span>
+      <span class="t-time">${o.time}</span>
+    </div><div class="t-sep">|</div>`;
+  }).join('');
+
+  track.style.animationDuration = `${Math.max(25, orders.length * 4)}s`;
 }
 
 // ── Ring + GMV ─────────────────────────────────────────────────────────────────
