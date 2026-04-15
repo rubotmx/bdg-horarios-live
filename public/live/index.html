@@ -126,41 +126,34 @@ body{display:flex;flex-direction:column;}
 .prod-units{font-size:8px;color:var(--muted);margin-top:1px;}
 
 /* ── COL 3: ADS ──────────────────────────────────────────────── */
-.ads-col{flex:1;display:flex;flex-direction:column;min-height:0;}
-.ad-featured{position:relative;flex:1;min-height:0;background:var(--s1);overflow:hidden;}
-.ad-featured img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .5s;}
-.ad-featured-overlay{position:absolute;bottom:0;left:0;right:0;padding:16px 14px 12px;background:linear-gradient(to top,rgba(0,0,0,.92) 0%,rgba(0,0,0,.5) 50%,transparent 100%);}
-.ad-feat-name{font-size:11px;font-weight:700;color:#fff;margin-bottom:4px;line-height:1.3;}
-.ad-feat-body{font-size:9px;color:rgba(255,255,255,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:6px;}
-.ad-feat-badge{display:inline-flex;align-items:center;gap:4px;font-size:7px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);background:rgba(62,207,142,.15);border:1px solid rgba(62,207,142,.2);padding:2px 7px;border-radius:2px;}
-/* Progress bar for auto-rotation */
-.ad-progress{position:absolute;top:0;left:0;right:0;height:2px;background:rgba(255,255,255,.08);}
-.ad-progress-fill{height:100%;background:var(--terra);transition:width linear;}
-
-.ads-strip{display:flex;gap:4px;padding:8px;border-top:1px solid var(--line);flex-shrink:0;overflow-x:auto;}
-.ads-strip::-webkit-scrollbar{height:2px;}
-.ads-strip::-webkit-scrollbar-thumb{background:rgba(255,255,255,.06);}
-.ad-thumb-btn{width:48px;height:60px;border-radius:4px;overflow:hidden;flex-shrink:0;cursor:pointer;border:1px solid transparent;transition:border-color .15s,opacity .15s;opacity:.5;}
-.ad-thumb-btn.active{border-color:var(--terra);opacity:1;}
-.ad-thumb-btn img{width:100%;height:100%;object-fit:cover;display:block;}
-
 .ads-uncfg{padding:30px 16px;text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .ads-uncfg-ico{font-size:28px;opacity:.15;margin-bottom:10px;}
 .ads-uncfg-txt{font-size:9px;color:var(--muted);line-height:1.7;}
 .ads-uncfg-txt code{font-size:8px;background:rgba(255,255,255,.07);padding:1px 5px;border-radius:3px;color:var(--sub);}
 
-/* ── AD RESULTS BREAKDOWN ────────────────────────────────── */
-.ads-results{border-top:1px solid var(--line);flex-shrink:0;padding:8px 10px 10px;}
-.ads-results-hdr{font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:6px;}
-.ad-result-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);}
-.ad-result-row:last-child{border-bottom:none;}
-.ad-result-thumb{width:30px;height:38px;border-radius:3px;object-fit:cover;flex-shrink:0;background:var(--s2);}
-.ad-result-info{flex:1;min-width:0;}
-.ad-result-name{font-size:9px;font-weight:700;color:#e8e4de;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;}
-.ad-result-metrics{display:flex;gap:8px;}
-.ad-result-metric{font-size:8px;color:var(--muted);}
-.ad-result-metric b{color:#e8e4de;font-weight:700;}
-.ad-result-roas{font-size:11px;font-weight:900;flex-shrink:0;min-width:28px;text-align:right;}
+/* Summary strip */
+.ads-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-bottom:1px solid var(--line);flex-shrink:0;}
+.ads-sum-cell{background:var(--bg);padding:8px 10px;text-align:center;}
+.ads-sum-val{font-size:14px;font-weight:900;letter-spacing:-.02em;line-height:1;}
+.ads-sum-lbl{font-size:6.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+
+/* Ad cards list */
+.ads-scroll{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:7px;}
+.ad-card{display:flex;border-radius:7px;overflow:hidden;background:var(--s2);border:1px solid rgba(255,255,255,.05);transition:border-color .15s,transform .1s;cursor:default;}
+.ad-card:hover{border-color:rgba(255,255,255,.13);transform:translateY(-1px);}
+.ad-card-img{width:64px;flex-shrink:0;object-fit:cover;display:block;background:var(--s3);}
+.ad-card-body{flex:1;padding:8px 10px;min-width:0;display:flex;flex-direction:column;justify-content:space-between;}
+.ad-card-name{font-size:8.5px;font-weight:700;color:#e8e4de;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:6px;}
+.ad-card-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:6px;}
+.ad-stat{text-align:center;}
+.ad-stat-val{font-size:12px;font-weight:900;line-height:1;letter-spacing:-.02em;}
+.ad-stat-lbl{font-size:6px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+.ad-card-bar{height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
+.ad-card-bar-fill{height:100%;border-radius:2px;transition:width .6s ease;}
+/* No-data variant */
+.ad-card-nodata{display:flex;align-items:center;gap:8px;padding:9px 10px;flex:1;}
+.ad-nodata-name{font-size:9px;font-weight:700;color:rgba(255,255,255,.45);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ad-active-dot{width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0;animation:blink 1.4s infinite;}
 
 /* ── SALE FLASH ─────────────────────────────────────────────── */
 #saleFlash{position:fixed;inset:0;pointer-events:none;z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;}
@@ -389,13 +382,13 @@ body.tv .t-amt{font-size:12px;}
   <!-- ── COL 3: ADS ─────────────────────────────────────────────── -->
   <div class="col">
     <div class="col-hdr" style="flex-shrink:0;">
-      <div class="col-title">Meta Ads · Activos</div>
+      <div class="col-title">Meta Ads</div>
       <div class="col-meta" id="adsMeta">—</div>
     </div>
-    <div class="ads-col" id="adsCol">
-      <div style="flex:1;padding:20px;"><div class="sk" style="height:100%;min-height:200px;border-radius:6px;"></div></div>
+    <div id="adsSummary" style="display:none;" class="ads-summary"></div>
+    <div class="ads-scroll" id="adsScroll">
+      <div style="padding:20px;"><div class="sk" style="height:200px;border-radius:6px;"></div></div>
     </div>
-    <div class="ads-results" id="adsResults" style="display:none;"></div>
   </div>
 
 </div>
@@ -863,109 +856,101 @@ function renderProducts(products, totalGmv) {
   }).join('');
 }
 
-// ── Ads carousel ──────────────────────────────────────────────────────────────
-let _ads = [], _adIdx = 0, _adTimer = null, _adProgress = null;
-const AD_DURATION = 6000; // 6s por anuncio
-
+// ── Ads — card list ────────────────────────────────────────────────────────────
 function renderAds(meta) {
-  const col = document.getElementById('adsCol');
+  const scroll  = document.getElementById('adsScroll');
+  const summary = document.getElementById('adsSummary');
 
   if (!meta || meta.configured === false) {
-    col.innerHTML = `
-      <div class="ads-uncfg">
-        <div class="ads-uncfg-ico">📡</div>
-        <div class="ads-uncfg-txt">Agrega en Vercel:<br><br><code>META_TOKEN</code><br><code>META_ACCOUNT_ID</code></div>
-      </div>`;
+    summary.style.display = 'none';
+    scroll.innerHTML = `<div class="ads-uncfg">
+      <div class="ads-uncfg-ico">📡</div>
+      <div class="ads-uncfg-txt">Agrega en Vercel:<br><br><code>META_TOKEN</code><br><code>META_ACCOUNT_ID</code></div>
+    </div>`;
     return;
   }
-  if (meta.error) { col.innerHTML = `<div style="padding:16px;font-size:11px;color:var(--red);">Error Meta: ${meta.error}</div>`; return; }
-
-  _ads = meta.active_ads || [];
-  document.getElementById('adsMeta').textContent = _ads.length ? `${_ads.length} activos` : 'sin anuncios';
-
-  if (!_ads.length) {
-    col.innerHTML = `<div class="ads-uncfg"><div class="ads-uncfg-ico">🎯</div><div class="ads-uncfg-txt">Sin anuncios activos en este momento.</div></div>`;
+  if (meta.error) {
+    summary.style.display = 'none';
+    scroll.innerHTML = `<div style="padding:16px;font-size:11px;color:var(--red);">Error Meta: ${meta.error}</div>`;
     return;
   }
 
-  col.innerHTML = `
-    <div class="ad-featured" id="adFeatured">
-      <div class="ad-progress"><div class="ad-progress-fill" id="adProgressFill" style="width:0%"></div></div>
-      <img id="adFeatImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"/>
-      <div class="ad-featured-overlay">
-        <div class="ad-feat-name" id="adFeatName"></div>
-        <div class="ad-feat-body" id="adFeatBody"></div>
-        <div class="ad-feat-badge">● Activo</div>
-      </div>
+  const ads = meta.active_ads || [];
+  document.getElementById('adsMeta').textContent = ads.length ? `${ads.length} activo${ads.length !== 1 ? 's' : ''}` : 'sin anuncios';
+
+  if (!ads.length) {
+    summary.style.display = 'none';
+    scroll.innerHTML = `<div class="ads-uncfg"><div class="ads-uncfg-ico">🎯</div><div class="ads-uncfg-txt">Sin anuncios activos.</div></div>`;
+    return;
+  }
+
+  // ── Summary strip (account-level) ──────────────────────────────────────────
+  const totalSpend  = meta.spend          || 0;
+  const totalPurch  = meta.purchases      || 0;
+  const roasShopify = totalSpend > 0 && _lastGmv ? _lastGmv / totalSpend : null;
+  const roasC       = roasShopify === null ? 'var(--sub)' : roasShopify >= 5 ? 'var(--green)' : roasShopify >= 2.5 ? 'var(--yellow)' : 'var(--red)';
+
+  summary.style.display = '';
+  summary.innerHTML = `
+    <div class="ads-sum-cell">
+      <div class="ads-sum-val" style="color:var(--yellow)">${totalSpend > 0 ? MXN(totalSpend) : '—'}</div>
+      <div class="ads-sum-lbl">Gasto total</div>
     </div>
-    <div class="ads-strip" id="adsStrip"></div>`;
+    <div class="ads-sum-cell">
+      <div class="ads-sum-val" style="color:${roasC}">${roasShopify !== null ? roasShopify.toFixed(1) + '×' : '—'}</div>
+      <div class="ads-sum-lbl">ROAS real</div>
+    </div>
+    <div class="ads-sum-cell">
+      <div class="ads-sum-val">${totalPurch > 0 ? totalPurch : '—'}</div>
+      <div class="ads-sum-lbl">Compras Meta</div>
+    </div>`;
 
-  buildStrip();
-  showAd(0);
-  startAdRotation();
-  renderAdResults(_ads);
-}
+  // ── Per-ad cards ────────────────────────────────────────────────────────────
+  const maxSpend = Math.max(1, ...ads.map(a => a.insights?.spend || 0));
 
-function buildStrip() {
-  document.getElementById('adsStrip').innerHTML = _ads.map((ad, i) =>
-    `<div class="ad-thumb-btn${i === 0 ? ' active' : ''}" id="adThumb${i}" onclick="selectAd(${i})">
-      <img src="${ad.thumbnail}" loading="lazy" onerror="this.style.opacity='.3'"/>
-    </div>`
-  ).join('');
-}
+  scroll.innerHTML = ads.map((ad, i) => {
+    const ins = ad.insights;
+    const hasData = ins && ins.spend > 0;
 
-function showAd(idx) {
-  _adIdx = idx;
-  const ad = _ads[idx];
-  document.getElementById('adFeatImg').src = ad.thumbnail;
-  document.getElementById('adFeatName').textContent = ad.name;
-  document.getElementById('adFeatBody').textContent = ad.body || '';
+    if (!hasData) {
+      return `<div class="ad-card">
+        <img class="ad-card-img" src="${ad.thumbnail}" loading="lazy" onerror="this.style.opacity='.15'" style="height:56px;"/>
+        <div class="ad-card-nodata">
+          <div class="ad-nodata-name">${ad.name}</div>
+          <div class="ad-active-dot"></div>
+        </div>
+      </div>`;
+    }
 
-  document.querySelectorAll('.ad-thumb-btn').forEach((el, i) => el.classList.toggle('active', i === idx));
+    const roas   = ins.spend > 0 && ins.revenue > 0 ? ins.revenue / ins.spend : null;
+    const roasClr = roas === null ? 'var(--muted)' : roas >= 5 ? 'var(--green)' : roas >= 2.5 ? 'var(--yellow)' : 'var(--red)';
+    const spendPct = Math.round((ins.spend / maxSpend) * 100);
+    const rank   = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}`;
 
-  // Reset progress bar
-  const fill = document.getElementById('adProgressFill');
-  if (fill) { fill.style.transition = 'none'; fill.style.width = '0%'; setTimeout(() => { fill.style.transition = `width ${AD_DURATION}ms linear`; fill.style.width = '100%'; }, 50); }
-}
-
-function selectAd(idx) { clearInterval(_adTimer); showAd(idx); startAdRotation(); }
-
-function startAdRotation() {
-  clearInterval(_adTimer);
-  _adTimer = setInterval(() => { showAd((_adIdx + 1) % _ads.length); }, AD_DURATION);
-}
-
-// ── Ad Results breakdown (Top 3 por gasto) ────────────────────────────────────
-function renderAdResults(ads) {
-  const el = document.getElementById('adsResults');
-  if (!el) return;
-
-  const top = ads.filter(ad => ad.insights?.spend > 0).slice(0, 3);
-  if (!top.length) { el.style.display = 'none'; return; }
-
-  el.style.display = '';
-  el.innerHTML = `
-    <div class="ads-results-hdr">🏆 Top 3 · Resultados hoy</div>
-    ${top.map((ad, i) => {
-      const ins   = ad.insights;
-      // ROAS por anuncio: revenue Meta atribuido / gasto (indicativo por anuncio)
-      const roas  = ins.spend > 0 && ins.revenue > 0 ? ins.revenue / ins.spend : null;
-      const clr   = roas === null ? 'var(--muted)' : roas >= 5 ? 'var(--green)' : roas >= 2.5 ? 'var(--yellow)' : 'var(--red)';
-      const medal = ['🥇','🥈','🥉'][i];
-      return `<div class="ad-result-row">
-        <img class="ad-result-thumb" src="${ad.thumbnail}" loading="lazy" onerror="this.style.opacity='.2'"/>
-        <div class="ad-result-info">
-          <div class="ad-result-name">${medal} ${ad.name}</div>
-          <div class="ad-result-metrics">
-            <div class="ad-result-metric">Gasto <b>${MXN(ins.spend)}</b></div>
-            <div class="ad-result-metric">Compras <b>${ins.purchases}</b></div>
+    return `<div class="ad-card">
+      <img class="ad-card-img" src="${ad.thumbnail}" loading="lazy" onerror="this.style.opacity='.15'" style="height:88px;"/>
+      <div class="ad-card-body">
+        <div class="ad-card-name">${rank} ${ad.name}</div>
+        <div class="ad-card-stats">
+          <div class="ad-stat">
+            <div class="ad-stat-val" style="color:var(--yellow)">${MXN(ins.spend)}</div>
+            <div class="ad-stat-lbl">Gasto</div>
+          </div>
+          <div class="ad-stat">
+            <div class="ad-stat-val" style="color:${roasClr}">${roas !== null ? roas.toFixed(1)+'×' : '—'}</div>
+            <div class="ad-stat-lbl">ROAS</div>
+          </div>
+          <div class="ad-stat">
+            <div class="ad-stat-val">${ins.purchases}</div>
+            <div class="ad-stat-lbl">Compras</div>
           </div>
         </div>
-        ${roas !== null
-          ? `<div class="ad-result-roas" style="color:${clr}">${roas.toFixed(1)}×</div>`
-          : `<div class="ad-result-roas" style="color:var(--muted)">—</div>`}
-      </div>`;
-    }).join('')}`;
+        <div class="ad-card-bar">
+          <div class="ad-card-bar-fill" style="width:${spendPct}%;background:${roasClr};"></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // ── Meta ROAS mini ─────────────────────────────────────────────────────────────
