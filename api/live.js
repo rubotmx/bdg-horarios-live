@@ -162,12 +162,38 @@ async function fetchActiveAds(token) {
       "asset_feed_spec{images{url}},",
       "object_story_spec{photo_data{image_url},video_data{image_url}}}",
     ].join("");
-    const url  = `https://graph.facebook.com/v19.0/${META_ACCOUNT}/ads`
+    const adsUrl      = `https://graph.facebook.com/v19.0/${META_ACCOUNT}/ads`
       + `?fields=${encodeURIComponent(fields)}&effective_status=["ACTIVE"]&limit=50`;
-    const r    = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-    const data = await r.json();
-    if (data.error || !data.data) return [];
-    return data.data.map(ad => {
+    const insUrl      = `https://graph.facebook.com/v19.0/${META_ACCOUNT}/insights`
+      + `?fields=ad_id,spend,impressions,clicks,actions,action_values`
+      + `&date_preset=today&level=ad&limit=100`;
+
+    const [adsRes, insRes] = await Promise.all([
+      fetch(adsUrl, { headers: { Authorization: `Bearer ${token}` } }),
+      fetch(insUrl, { headers: { Authorization: `Bearer ${token}` } }),
+    ]);
+
+    const adsData = await adsRes.json();
+    if (adsData.error || !adsData.data) return [];
+
+    // Build insights map by ad_id
+    const insightsMap = {};
+    if (insRes.ok) {
+      const insData = await insRes.json();
+      for (const ins of (insData.data || [])) {
+        const purchases = (ins.actions       || []).find(a => a.action_type === "purchase");
+        const revenue   = (ins.action_values || []).find(a => a.action_type === "purchase");
+        insightsMap[ins.ad_id] = {
+          spend:       parseFloat(ins.spend       || 0),
+          impressions: parseInt(ins.impressions   || 0),
+          clicks:      parseInt(ins.clicks        || 0),
+          purchases:   purchases ? parseInt(purchases.value)  : 0,
+          revenue:     revenue   ? parseFloat(revenue.value)  : 0,
+        };
+      }
+    }
+
+    const ads = adsData.data.map(ad => {
       const c = ad.creative || {};
       const imgUrl =
         c.image_url                                 ||
@@ -175,8 +201,19 @@ async function fetchActiveAds(token) {
         c.object_story_spec?.video_data?.image_url  ||
         c.asset_feed_spec?.images?.[0]?.url         ||
         c.thumbnail_url                             || null;
-      return { id: ad.id, name: ad.name, type: c.object_type || null, thumbnail: imgUrl, body: c.body || null };
+      return {
+        id:        ad.id,
+        name:      ad.name,
+        type:      c.object_type || null,
+        thumbnail: imgUrl,
+        body:      c.body || null,
+        insights:  insightsMap[ad.id] || null,
+      };
     }).filter(ad => ad.thumbnail);
+
+    // Sort by spend desc so top spenders come first
+    ads.sort((a, b) => (b.insights?.spend || 0) - (a.insights?.spend || 0));
+    return ads;
   } catch (e) {
     return [];
   }

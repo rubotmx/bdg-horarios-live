@@ -142,6 +142,36 @@ body{display:flex;flex-direction:column;}
 .ads-uncfg-txt{font-size:9px;color:var(--muted);line-height:1.7;}
 .ads-uncfg-txt code{font-size:8px;background:rgba(255,255,255,.07);padding:1px 5px;border-radius:3px;color:var(--sub);}
 
+/* ── AD RESULTS BREAKDOWN ────────────────────────────────── */
+.ads-results{border-top:1px solid var(--line);flex-shrink:0;padding:8px 10px 10px;}
+.ads-results-hdr{font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:6px;}
+.ad-result-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.ad-result-row:last-child{border-bottom:none;}
+.ad-result-thumb{width:30px;height:38px;border-radius:3px;object-fit:cover;flex-shrink:0;background:var(--s2);}
+.ad-result-info{flex:1;min-width:0;}
+.ad-result-name{font-size:9px;font-weight:700;color:#e8e4de;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;}
+.ad-result-metrics{display:flex;gap:8px;}
+.ad-result-metric{font-size:8px;color:var(--muted);}
+.ad-result-metric b{color:#e8e4de;font-weight:700;}
+.ad-result-roas{font-size:11px;font-weight:900;flex-shrink:0;min-width:28px;text-align:right;}
+
+/* ── SALE FLASH ─────────────────────────────────────────────── */
+#saleFlash{position:fixed;inset:0;pointer-events:none;z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;}
+#saleFlash.fire{animation:salePop .8s ease-out forwards;}
+@keyframes salePop{
+  0%  {opacity:0;transform:scale(.8);}
+  15% {opacity:1;transform:scale(1.08);}
+  40% {opacity:1;transform:scale(1);}
+  100%{opacity:0;transform:scale(1.05);}
+}
+.sale-badge{background:linear-gradient(135deg,#1a3a28,#0d2018);border:1px solid rgba(62,207,142,.35);border-radius:12px;padding:14px 22px;display:flex;align-items:center;gap:10px;box-shadow:0 0 40px rgba(62,207,142,.25),0 4px 24px rgba(0,0,0,.6);}
+.sale-icon{font-size:22px;}
+.sale-txt{font-size:13px;font-weight:900;color:var(--green);letter-spacing:.04em;}
+.sale-amt{font-size:11px;color:rgba(62,207,142,.7);font-weight:700;}
+/* Green border pulse on ring when sale fires */
+@keyframes ringPulse{0%,100%{filter:drop-shadow(0 0 0 transparent)}50%{filter:drop-shadow(0 0 12px rgba(62,207,142,.6))}}
+.ring-wrap.pulse svg{animation:ringPulse .7s ease-out;}
+
 /* ── SK ──────────────────────────────────────────────────────── */
 .sk{background:linear-gradient(90deg,#111 25%,#1a1a1a 50%,#111 75%);background-size:200% 100%;animation:sh 1.3s infinite;border-radius:4px;}
 @keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
@@ -187,6 +217,17 @@ body.tv .prod-img{width:40px;height:40px;}
 </style>
 </head>
 <body>
+
+<!-- SALE FLASH OVERLAY -->
+<div id="saleFlash">
+  <div class="sale-badge">
+    <div class="sale-icon">💰</div>
+    <div>
+      <div class="sale-txt" id="saleFlashTxt">¡Venta nueva!</div>
+      <div class="sale-amt" id="saleFlashAmt"></div>
+    </div>
+  </div>
+</div>
 
 <!-- TOPBAR -->
 <div class="topbar">
@@ -323,6 +364,7 @@ body.tv .prod-img{width:40px;height:40px;}
     <div class="ads-col" id="adsCol">
       <div style="flex:1;padding:20px;"><div class="sk" style="height:100%;min-height:200px;border-radius:6px;"></div></div>
     </div>
+    <div class="ads-results" id="adsResults" style="display:none;"></div>
   </div>
 
 </div>
@@ -372,8 +414,65 @@ function startCountdown() {
   }, 1000);
 }
 
+// ── Sale sound (Web Audio API — sin archivos externos) ────────────────────────
+let _audioCtx = null;
+function getSaleSound() {
+  // Lazy-create context on first user gesture or on first sale
+  if (!_audioCtx) {
+    try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return null; }
+  }
+  return _audioCtx;
+}
+function playSaleSound(newOrders = 1) {
+  const ctx = getSaleSound();
+  if (!ctx) return;
+  // Cha-ching: two quick high tones + resonance
+  const now = ctx.currentTime;
+  [[660, 0, 0.12, 0.08], [880, 0.1, 0.12, 0.07], [1100, 0.18, 0.09, 0.06]].forEach(([freq, delay, dur, vol]) => {
+    const osc  = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, now + delay);
+    osc.frequency.exponentialRampToValueAtTime(freq * 0.92, now + delay + dur);
+    gain.gain.setValueAtTime(vol, now + delay);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + delay + dur + 0.15);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now + delay);
+    osc.stop(now + delay + dur + 0.2);
+  });
+}
+
+// ── Sale flash animation ───────────────────────────────────────────────────────
+let _flashTimeout = null;
+function fireSaleFlash(newCount, lastTopProduct) {
+  const flash   = document.getElementById('saleFlash');
+  const txtEl   = document.getElementById('saleFlashTxt');
+  const amtEl   = document.getElementById('saleFlashAmt');
+  const ringWrap = document.querySelector('.ring-wrap');
+
+  txtEl.textContent = newCount === 1 ? '¡Venta nueva!' : `¡+${newCount} ventas!`;
+  amtEl.textContent = lastTopProduct ? lastTopProduct : '';
+
+  flash.classList.remove('fire');
+  void flash.offsetWidth; // reflow
+  flash.classList.add('fire');
+
+  // Ring pulse
+  if (ringWrap) {
+    ringWrap.classList.add('pulse');
+    setTimeout(() => ringWrap.classList.remove('pulse'), 800);
+  }
+
+  clearTimeout(_flashTimeout);
+  _flashTimeout = setTimeout(() => flash.classList.remove('fire'), 900);
+
+  playSaleSound(newCount);
+}
+
 // ── Data ───────────────────────────────────────────────────────────────────────
-let _lastGmv = null;
+let _lastGmv    = null;
+let _lastOrders = null;   // track order count between refreshes
 
 async function load(force = false) {
   clearInterval(_timer);
@@ -383,14 +482,30 @@ async function load(force = false) {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    _lastGmv = data.shopify?.gmv || 0;
+
+    const newOrders = data.shopify?.orders || 0;
+    const prevOrders = _lastOrders;
+
+    _lastGmv    = data.shopify?.gmv    || 0;
+    _lastOrders = newOrders;
+
     renderAll(data);
+
+    // Detect new sales (skip on very first load)
+    if (prevOrders !== null && newOrders > prevOrders) {
+      const diff = newOrders - prevOrders;
+      const top  = data.shopify?.top_products?.[0]?.title || '';
+      fireSaleFlash(diff, top);
+    }
   } catch (e) {
     document.getElementById('ringGmv').textContent = '—';
     document.getElementById('countdown').textContent = 'Error: ' + e.message;
   }
   startCountdown();
 }
+
+// Init AudioContext on first interaction so it's ready when a sale fires
+document.addEventListener('click', () => getSaleSound(), { once: true });
 
 function renderAll(data) {
   const sh   = data.shopify || {};
@@ -476,7 +591,7 @@ function renderKPIs(sh, meta) {
       <div class="kpi-d" style="color:var(--muted)">${spend > 0 ? N(meta.impressions || 0) + ' impr.' : 'sin datos'}</div>
     </div>
     <div class="kpi">
-      <div class="kpi-lbl">ROAS</div>
+      <div class="kpi-lbl">ROAS · Shopify/Meta</div>
       <div class="kpi-val ${roasC}">${roasT}</div>
       <div class="kpi-d" style="color:var(--muted)">${roas !== null ? (roas >= 5 ? '🔥 Excelente' : roas >= 2.5 ? '✓ Positivo' : '⚠ Bajo') : 'sin Meta'}</div>
     </div>`;
@@ -628,6 +743,7 @@ function renderAds(meta) {
   buildStrip();
   showAd(0);
   startAdRotation();
+  renderAdResults(_ads);
 }
 
 function buildStrip() {
@@ -657,6 +773,39 @@ function selectAd(idx) { clearInterval(_adTimer); showAd(idx); startAdRotation()
 function startAdRotation() {
   clearInterval(_adTimer);
   _adTimer = setInterval(() => { showAd((_adIdx + 1) % _ads.length); }, AD_DURATION);
+}
+
+// ── Ad Results breakdown (Top 3 por gasto) ────────────────────────────────────
+function renderAdResults(ads) {
+  const el = document.getElementById('adsResults');
+  if (!el) return;
+
+  const top = ads.filter(ad => ad.insights?.spend > 0).slice(0, 3);
+  if (!top.length) { el.style.display = 'none'; return; }
+
+  el.style.display = '';
+  el.innerHTML = `
+    <div class="ads-results-hdr">🏆 Top 3 · Resultados hoy</div>
+    ${top.map((ad, i) => {
+      const ins   = ad.insights;
+      // ROAS por anuncio: revenue Meta atribuido / gasto (indicativo por anuncio)
+      const roas  = ins.spend > 0 && ins.revenue > 0 ? ins.revenue / ins.spend : null;
+      const clr   = roas === null ? 'var(--muted)' : roas >= 5 ? 'var(--green)' : roas >= 2.5 ? 'var(--yellow)' : 'var(--red)';
+      const medal = ['🥇','🥈','🥉'][i];
+      return `<div class="ad-result-row">
+        <img class="ad-result-thumb" src="${ad.thumbnail}" loading="lazy" onerror="this.style.opacity='.2'"/>
+        <div class="ad-result-info">
+          <div class="ad-result-name">${medal} ${ad.name}</div>
+          <div class="ad-result-metrics">
+            <div class="ad-result-metric">Gasto <b>${MXN(ins.spend)}</b></div>
+            <div class="ad-result-metric">Compras <b>${ins.purchases}</b></div>
+          </div>
+        </div>
+        ${roas !== null
+          ? `<div class="ad-result-roas" style="color:${clr}">${roas.toFixed(1)}×</div>`
+          : `<div class="ad-result-roas" style="color:var(--muted)">—</div>`}
+      </div>`;
+    }).join('')}`;
 }
 
 // ── Meta ROAS mini ─────────────────────────────────────────────────────────────
