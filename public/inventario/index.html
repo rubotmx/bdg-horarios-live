@@ -48,8 +48,6 @@ html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var
 .btn-toolbar{display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--border);border-radius:8px;background:var(--surface);font-family:var(--fn);font-size:13px;color:var(--text);cursor:pointer;font-weight:500;white-space:nowrap;transition:all .12s;}
 .btn-toolbar:hover{border-color:#aaa;}
 .btn-toolbar.active{background:var(--text);color:#fff;border-color:var(--text);}
-.btn-preventa{background:var(--terra);color:#fff;border-color:var(--terra);}
-.btn-preventa:hover{background:#b05848;border-color:#b05848;}
 
 /* ── SUMMARY ── */
 .summary-row{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
@@ -91,38 +89,6 @@ td.core-cell{text-align:center;padding:4px 16px 4px 6px;}
 .sz-wrap{display:flex;flex-direction:column;align-items:center;gap:2px;}
 .pv-dot{font-size:9px;font-weight:700;color:var(--orange);background:rgba(224,125,42,.12);border-radius:3px;padding:1px 4px;line-height:1.4;}
 
-/* ── PREVENTA MODAL ── */
-.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:flex-start;justify-content:center;padding-top:60px;}
-.modal-backdrop.open{display:flex;}
-.modal{background:var(--surface);border-radius:14px;width:100%;max-width:520px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.18);}
-.modal-head{padding:20px 22px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-.modal-title{font-size:16px;font-weight:800;letter-spacing:-.01em;}
-.modal-close{font-size:20px;cursor:pointer;color:var(--muted);line-height:1;background:none;border:none;font-family:inherit;padding:0;}
-.modal-close:hover{color:var(--text);}
-
-/* Form */
-.modal-form{padding:18px 22px;border-bottom:1px solid var(--border);flex-shrink:0;}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
-.field label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
-.field select,.field input{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-family:var(--fn);font-size:13px;color:var(--text);background:var(--surface);outline:none;transition:border-color .12s;}
-.field select:focus,.field input:focus{border-color:#aaa;}
-.field-full{grid-column:1/-1;}
-.btn-add{width:100%;padding:10px;background:var(--terra);color:#fff;border:none;border-radius:8px;font-family:var(--fn);font-size:13px;font-weight:700;cursor:pointer;transition:background .12s;}
-.btn-add:hover{background:#b05848;}
-
-/* Preventa list */
-.pv-list{overflow-y:auto;flex:1;padding:8px 0;}
-.pv-empty{text-align:center;padding:30px;color:var(--muted);font-size:13px;}
-.pv-group{padding:0 22px 12px;}
-.pv-group-name{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:10px 0 6px;border-top:1px solid var(--border2);margin-top:4px;}
-.pv-group:first-child .pv-group-name{border-top:none;margin-top:0;}
-.pv-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;background:var(--bg);margin-bottom:4px;}
-.pv-talla{font-size:11px;font-weight:800;background:rgba(224,125,42,.15);color:var(--orange);padding:3px 8px;border-radius:20px;}
-.pv-qty{font-size:14px;font-weight:800;color:var(--text);min-width:28px;}
-.pv-note{font-size:12px;color:var(--muted);flex:1;}
-.pv-date{font-size:10px;color:var(--muted2);}
-.pv-del{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;padding:2px 4px;line-height:1;border-radius:4px;transition:color .12s;}
-.pv-del:hover{color:var(--red-txt);}
 
 /* Skeleton */
 .sk{background:linear-gradient(90deg,#edebe8 25%,#e4e2de 50%,#edebe8 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:4px;}
@@ -157,40 +123,6 @@ td.core-cell{text-align:center;padding:4px 16px 4px 6px;}
   </div>
 </div>
 
-<!-- PREVENTA MODAL -->
-<div class="modal-backdrop" id="modalBackdrop" onclick="closeModal(event)">
-  <div class="modal">
-    <div class="modal-head">
-      <div class="modal-title">📦 Preventas</div>
-      <button class="modal-close" onclick="closePvModal()">×</button>
-    </div>
-    <div class="modal-form">
-      <div class="form-grid">
-        <div class="field field-full">
-          <label>Modelo</label>
-          <select id="pvModel"></select>
-        </div>
-        <div class="field">
-          <label>Talla</label>
-          <select id="pvSize">
-            <option>23</option><option>24</option><option>25</option>
-            <option>26</option><option>27</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Cantidad</label>
-          <input id="pvQty" type="number" min="1" value="1"/>
-        </div>
-        <div class="field field-full">
-          <label>Nota (opcional)</label>
-          <input id="pvNote" type="text" placeholder="ej. Cliente Marta, pedido #123"/>
-        </div>
-      </div>
-      <button class="btn-add" onclick="addPreventa()">+ Agregar preventa</button>
-    </div>
-    <div class="pv-list" id="pvList"></div>
-  </div>
-</div>
 
 <div class="page">
 
@@ -208,9 +140,6 @@ td.core-cell{text-align:center;padding:4px 16px 4px 6px;}
     <button class="btn-toolbar" id="filterBtn" onclick="toggleFilter()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
       Negativos
-    </button>
-    <button class="btn-toolbar btn-preventa" onclick="openPvModal()">
-      + Preventa
     </button>
   </div>
 
@@ -241,8 +170,7 @@ td.core-cell{text-align:center;padding:4px 16px 4px 6px;}
 let _products      = [];
 let _mode          = 'positive';  // 'positive' | 'all'
 let _filterCompl   = false;
-let _core          = JSON.parse(localStorage.getItem('bdg_core')      || '{}');
-let _preventas     = JSON.parse(localStorage.getItem('bdg_preventas') || '[]');
+let _core          = JSON.parse(localStorage.getItem('bdg_core') || '{}');
 
 const ALLOWED_MODELS = [
   'BALA BLACK','BECCA VINTAGE BLACK','DALLAS BLACK','DALLAS CAMEL',
@@ -255,7 +183,6 @@ const ALLOWED_SET = new Set(ALLOWED_MODELS.map(s => s.toLowerCase()));
 
 function effectiveQty(qty){ return _mode === 'positive' ? Math.max(0, qty) : qty; }
 function extractSize(s){ const m = String(s||'').trim().match(/^(\d{2}(?:\.\d)?)/); return m ? m[1] : String(s||'').trim(); }
-function savePv(){ localStorage.setItem('bdg_preventas', JSON.stringify(_preventas)); }
 
 // ── TOGGLES ──────────────────────────────────────────────────────────────────
 function toggleFilter(){
@@ -275,77 +202,6 @@ function toggleCore(title, e){
   render();
 }
 
-// ── PREVENTA MODAL ────────────────────────────────────────────────────────────
-function openPvModal(){
-  // Populate model select
-  const sel = document.getElementById('pvModel');
-  sel.innerHTML = ALLOWED_MODELS.map(m => `<option value="${m}">${m}</option>`).join('');
-  document.getElementById('modalBackdrop').classList.add('open');
-  renderPvList();
-}
-function closePvModal(){ document.getElementById('modalBackdrop').classList.remove('open'); }
-function closeModal(e){ if(e.target === document.getElementById('modalBackdrop')) closePvModal(); }
-
-function addPreventa(){
-  const model = document.getElementById('pvModel').value;
-  const size  = document.getElementById('pvSize').value;
-  const qty   = parseInt(document.getElementById('pvQty').value) || 1;
-  const note  = document.getElementById('pvNote').value.trim();
-  if(!model || !size) return;
-  _preventas.push({
-    id:    Date.now(),
-    model, size, qty, note,
-    date:  new Date().toLocaleDateString('es-MX', {day:'2-digit',month:'short'})
-  });
-  savePv();
-  document.getElementById('pvNote').value = '';
-  document.getElementById('pvQty').value  = '1';
-  renderPvList();
-  render();
-}
-
-function deletePreventa(id){
-  _preventas = _preventas.filter(p => p.id !== id);
-  savePv();
-  renderPvList();
-  render();
-}
-
-function renderPvList(){
-  const el = document.getElementById('pvList');
-  if(!_preventas.length){
-    el.innerHTML = '<div class="pv-empty">No hay preventas registradas.</div>';
-    return;
-  }
-  // Group by model
-  const byModel = {};
-  for(const p of _preventas){
-    if(!byModel[p.model]) byModel[p.model] = [];
-    byModel[p.model].push(p);
-  }
-  el.innerHTML = Object.entries(byModel).map(([model, items]) => `
-    <div class="pv-group">
-      <div class="pv-group-name">${model}</div>
-      ${items.map(p => `
-        <div class="pv-item">
-          <span class="pv-talla">T${p.size}</span>
-          <span class="pv-qty">×${p.qty}</span>
-          <span class="pv-note">${p.note || '—'}</span>
-          <span class="pv-date">${p.date}</span>
-          <button class="pv-del" onclick="deletePreventa(${p.id})">×</button>
-        </div>`).join('')}
-    </div>`).join('');
-}
-
-// Build preventa lookup: model → size → total qty
-function pvMap(){
-  const map = {};
-  for(const p of _preventas){
-    if(!map[p.model]) map[p.model] = {};
-    map[p.model][p.size] = (map[p.model][p.size] || 0) + p.qty;
-  }
-  return map;
-}
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 async function init(){
@@ -371,7 +227,6 @@ async function init(){
 // ── RENDER ───────────────────────────────────────────────────────────────────
 function render(){
   const query = (document.getElementById('searchInput')?.value||'').toLowerCase();
-  const pv    = pvMap();
 
   // Collect sizes
   const sizeSet = new Set();
@@ -390,7 +245,7 @@ function render(){
   }
 
   // Summary
-  let totalUnits=0, totalNeg=0, totalPv=0;
+  let totalUnits=0, totalNeg=0;
   for(const p of filtered){
     for(const v of (p.variants||[])){
       const q = v.inventory_quantity??0;
@@ -398,13 +253,11 @@ function render(){
       if(q<0) totalNeg++;
     }
   }
-  for(const m of Object.values(pv)) for(const q of Object.values(m)) totalPv += q;
 
   document.getElementById('summaryRow').innerHTML = `
     <div class="sum-chip"><div class="sv">${totalUnits.toLocaleString('es-MX')}</div><div class="sl">Unidades</div></div>
     <div class="sum-chip"><div class="sv">${filtered.length}</div><div class="sl">Modelos</div></div>
     ${totalNeg>0?`<div class="sum-chip neg"><div class="sv">${totalNeg}</div><div class="sl">SKUs neg.</div></div>`:''}
-    ${totalPv>0?`<div class="sum-chip orange"><div class="sv">${totalPv}</div><div class="sl">En preventa</div></div>`:''}
   `;
 
   // Header
@@ -426,7 +279,6 @@ function render(){
     const total   = sizes.reduce((s,sz)=>s+effectiveQty(sizeMap[sz]??0),0);
     const totalCl = total>0?'pos':total<0?'neg':'zero';
     const isCore  = !!_core[p.title];
-    const pvMod   = pv[p.title] || {};
 
     const thumb = img
       ? `<img class="thumb" src="${img}" loading="lazy" alt="${p.title}" onerror="this.outerHTML='<div class=thumb-ph>👟</div>'"/>`
@@ -437,9 +289,7 @@ function render(){
       const eff = raw !== undefined ? effectiveQty(raw) : null;
       const cls = eff === null ? 'zero' : eff>0?'pos':eff<0?'neg':'zero';
       const num = eff === null ? '—' : eff;
-      const pvQ = pvMod[sz];
-      const pvBadge = pvQ ? `<div class="pv-dot">P:${pvQ}</div>` : '';
-      return `<td class="sz-cell"><div class="sz-wrap"><span class="sz-badge ${cls}">${num}</span>${pvBadge}</div></td>`;
+      return `<td class="sz-cell"><span class="sz-badge ${cls}">${num}</span></td>`;
     }).join('');
 
     const titleSafe = p.title.replace(/'/g,"\\'");
