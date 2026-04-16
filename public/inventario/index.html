@@ -31,7 +31,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 
 /* ── TOPBAR ──────────────────────────────────────────────────────── */
 .topbar{height:52px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:0;position:sticky;top:0;z-index:100;}
-.logo{font-size:15px;font-weight:800;letter-spacing:-.01em;color:var(--text);margin-right:28px;}
 .nav-tabs{display:flex;gap:0;}
 .nav-tab{padding:0 18px;height:52px;display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;text-decoration:none;transition:color .12s;}
 .nav-tab svg{opacity:.5;}
@@ -124,7 +123,9 @@ td.core-cell{text-align:center;padding:4px 16px 4px 6px;}
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <div class="logo">BALADIGALA</div>
+  <a href="/" style="display:flex;align-items:center;text-decoration:none;">
+    <img src="https://baladigala.com/cdn/shop/files/TIPOGRAFIA_0eeef2c9-8447-407e-940f-5d63c2a8467c.webp?v=1737764437&width=610" alt="Bala Di Gala" style="height:22px;width:auto;display:block;"/>
+  </a>
   <nav class="nav-tabs">
     <a class="nav-tab active" href="/inventario/">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
