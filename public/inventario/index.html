@@ -90,6 +90,10 @@ td.core-cell{text-align:center;padding:4px 16px 4px 6px;}
 .pv-dot{font-size:9px;font-weight:700;color:var(--orange);background:rgba(224,125,42,.12);border-radius:3px;padding:1px 4px;line-height:1.4;}
 
 
+/* Color pill (para clogs) */
+.color-pill{display:inline-block;font-size:9px;font-weight:600;letter-spacing:.06em;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 6px;margin-top:2px;}
+.thumb-indent{width:32px;height:32px;flex-shrink:0;}
+
 /* Skeleton */
 .sk{background:linear-gradient(90deg,#edebe8 25%,#e4e2de 50%,#edebe8 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:4px;}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
@@ -302,37 +306,78 @@ function render(){
     return;
   }
 
-  document.getElementById('tableBody').innerHTML = filtered.map(p => {
-    const img     = p.images?.[0]?.src;
+  document.getElementById('tableBody').innerHTML = filtered.flatMap(p => {
+    const img = p.images?.[0]?.src;
+    const thumb = img
+      ? `<img class="thumb" src="${img}" loading="lazy" alt="${p.title}" onerror="this.outerHTML='<div class=thumb-ph>👟</div>'"/>`
+      : `<div class="thumb-ph"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg></div>`;
+
+    // Detect if product has colors (option1 is non-numeric = color)
+    const hasColors = (p.variants||[]).some(v => v.option2 && /^\d{2}$/.test(String(v.option2||'').trim()));
+
+    if(hasColors){
+      // Group variants by color (option1)
+      const colorMap = {};
+      for(const v of (p.variants||[])){
+        const color = String(v.option1||'').trim();
+        const sz    = extractSizeFromVariant(v);
+        if(!colorMap[color]) colorMap[color] = {};
+        colorMap[color][sz] = (colorMap[color][sz]||0) + (v.inventory_quantity??0);
+      }
+
+      return Object.entries(colorMap).map(([color, sizeMap], ci) => {
+        const total   = sizes.reduce((s,sz)=>s+effectiveQty(sizeMap[sz]??0),0);
+        const totalCl = total>0?'pos':total<0?'neg':'zero';
+        const titleSafe = (p.title+' '+color).replace(/'/g,"\\'");
+        const isCore  = !!_core[titleSafe];
+        const coreHtml = isCore
+          ? `<span class="core-check" onclick="toggleCore('${titleSafe}',event)">✓</span>`
+          : `<span class="core-x"    onclick="toggleCore('${titleSafe}',event)">✕</span>`;
+
+        const sizeCells = sizes.map(sz => {
+          const raw = sizeMap[sz];
+          const eff = raw !== undefined ? effectiveQty(raw) : null;
+          const cls = eff === null ? 'zero' : eff>0?'pos':eff<0?'neg':'zero';
+          return `<td class="sz-cell"><span class="sz-badge ${cls}">${eff === null ? '—' : eff}</span></td>`;
+        }).join('');
+
+        // First color row shows thumb, subsequent rows show color pill only
+        const nameCell = ci === 0
+          ? `${thumb}<div><div class="model-name">${p.title}</div><div class="color-pill">${color}</div></div>`
+          : `<div class="thumb-indent"></div><div><div class="model-name" style="color:var(--muted);font-weight:500;">${p.title}</div><div class="color-pill">${color}</div></div>`;
+
+        return `<tr>
+          <td><div class="col-model-cell">${nameCell}</div></td>
+          ${sizeCells}
+          <td class="sz-cell"><span class="sz-badge total ${totalCl}">${total}</span></td>
+          <td class="core-cell">${coreHtml}</td>
+        </tr>`;
+      });
+    }
+
+    // Standard single-row product
     const sizeMap = {};
     for(const v of (p.variants||[])){ const sz=extractSizeFromVariant(v); sizeMap[sz]=(sizeMap[sz]||0)+(v.inventory_quantity??0); }
     const total   = sizes.reduce((s,sz)=>s+effectiveQty(sizeMap[sz]??0),0);
     const totalCl = total>0?'pos':total<0?'neg':'zero';
     const isCore  = !!_core[p.title];
-
-    const thumb = img
-      ? `<img class="thumb" src="${img}" loading="lazy" alt="${p.title}" onerror="this.outerHTML='<div class=thumb-ph>👟</div>'"/>`
-      : `<div class="thumb-ph"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg></div>`;
-
-    const sizeCells = sizes.map(sz => {
-      const raw = sizeMap[sz];
-      const eff = raw !== undefined ? effectiveQty(raw) : null;
-      const cls = eff === null ? 'zero' : eff>0?'pos':eff<0?'neg':'zero';
-      const num = eff === null ? '—' : eff;
-      return `<td class="sz-cell"><span class="sz-badge ${cls}">${num}</span></td>`;
-    }).join('');
-
     const titleSafe = p.title.replace(/'/g,"\\'");
     const coreHtml  = isCore
       ? `<span class="core-check" onclick="toggleCore('${titleSafe}',event)">✓</span>`
       : `<span class="core-x"    onclick="toggleCore('${titleSafe}',event)">✕</span>`;
+    const sizeCells = sizes.map(sz => {
+      const raw = sizeMap[sz];
+      const eff = raw !== undefined ? effectiveQty(raw) : null;
+      const cls = eff === null ? 'zero' : eff>0?'pos':eff<0?'neg':'zero';
+      return `<td class="sz-cell"><span class="sz-badge ${cls}">${eff === null ? '—' : eff}</span></td>`;
+    }).join('');
 
-    return `<tr>
+    return [`<tr>
       <td><div class="col-model-cell">${thumb}<div class="model-name">${p.title}</div></div></td>
       ${sizeCells}
       <td class="sz-cell"><span class="sz-badge total ${totalCl}">${total}</span></td>
       <td class="core-cell">${coreHtml}</td>
-    </tr>`;
+    </tr>`];
   }).join('');
 }
 
