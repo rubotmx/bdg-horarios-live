@@ -52,9 +52,13 @@ thead th.th-bodega{color:var(--terra);background:rgba(193,100,82,.06);}
 /* Model rows */
 tr.model-row{cursor:pointer;transition:background .1s;}
 tr.model-row:hover{background:rgba(255,255,255,.025);}
-tr.model-row td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.04);}
+tr.model-row td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.04);}
 tr.model-row td:first-child{position:sticky;left:0;background:var(--bg);z-index:5;}
 tr.model-row:hover td:first-child{background:#0d0d0d;}
+
+/* Product image */
+.prod-thumb{width:36px;height:36px;border-radius:5px;object-fit:cover;background:var(--s3);flex-shrink:0;}
+.prod-thumb-ph{width:36px;height:36px;border-radius:5px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;color:rgba(255,255,255,.1);}
 
 /* Size sub-rows */
 tr.size-row{display:none;}
@@ -112,6 +116,37 @@ td.td-bodega{text-align:center;background:rgba(193,100,82,.04);}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px;}
 
+/* ── APARADORES ── */
+.apr-wrap{flex:1;overflow:auto;display:none;padding:14px;gap:12px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));}
+.apr-wrap.show{display:grid;}
+.apr-card{background:var(--s1);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+.apr-header{padding:10px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
+.apr-store-name{font-size:11px;font-weight:800;letter-spacing:.04em;}
+.apr-store-total{font-size:9px;color:var(--muted);}
+.apr-body{padding:8px;}
+.apr-model{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:6px;transition:background .1s;}
+.apr-model:hover{background:rgba(255,255,255,.04);}
+.apr-thumb{width:32px;height:32px;border-radius:4px;object-fit:cover;background:var(--s3);flex-shrink:0;}
+.apr-thumb-ph{width:32px;height:32px;border-radius:4px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;color:rgba(255,255,255,.1);}
+.apr-model-info{flex:1;min-width:0;}
+.apr-model-name{font-size:9px;font-weight:700;color:#e8e4de;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;}
+.apr-sizes{display:flex;gap:3px;flex-wrap:wrap;}
+.apr-sz{font-size:7.5px;font-weight:700;padding:1px 4px;border-radius:3px;line-height:1.4;}
+.apr-sz.c0{background:rgba(242,107,107,.12);color:rgba(242,107,107,.6);}
+.apr-sz.c1{background:rgba(245,197,24,.1);color:var(--yellow);}
+.apr-sz.c2{background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);}
+.apr-sz.c3{background:rgba(62,207,142,.08);color:rgba(62,207,142,.7);}
+.apr-sz.c4{background:rgba(62,207,142,.15);color:var(--green);}
+.apr-no-stock{font-size:8px;color:rgba(255,255,255,.15);padding:6px;text-align:center;}
+
+/* Store header accent colors */
+.apr-card[data-store="CE"]  .apr-header{border-top:3px solid rgba(91,156,246,.5);}
+.apr-card[data-store="LEN"] .apr-header{border-top:3px solid rgba(62,207,142,.5);}
+.apr-card[data-store="COY"] .apr-header{border-top:3px solid rgba(245,197,24,.5);}
+.apr-card[data-store="POL"] .apr-header{border-top:3px solid rgba(193,100,82,.5);}
+.apr-card[data-store="SAT"] .apr-header{border-top:3px solid rgba(167,139,250,.5);}
+.apr-card[data-store="GDL"] .apr-header{border-top:3px solid rgba(242,107,107,.5);}
+
 /* hidden */
 .hidden{display:none!important;}
 </style>
@@ -132,8 +167,8 @@ td.td-bodega{text-align:center;background:rgba(193,100,82,.04);}
   <span class="ctrl-label">Vista</span>
   <div class="seg" id="modeSeg">
     <button class="seg-btn active" data-mode="inv" onclick="setMode('inv')">Inventario</button>
-    <button class="seg-btn" data-mode="rst" onclick="setMode('rst')">Restock</button>
     <button class="seg-btn" data-mode="vta" onclick="setMode('vta')">Ventas</button>
+    <button class="seg-btn" data-mode="apr" onclick="setMode('apr')">Aparadores</button>
   </div>
   <div class="ctrl-sep"></div>
   <!-- Categoría -->
@@ -148,7 +183,9 @@ td.td-bodega{text-align:center;background:rgba(193,100,82,.04);}
 
 <div class="kpi-strip" id="kpiStrip"></div>
 
-<div class="table-wrap">
+<div class="apr-wrap" id="aprWrap"></div>
+
+<div class="table-wrap" id="tableWrap" style="display:flex;flex-direction:column;">
 <table id="mainTable">
 <thead>
   <tr>
@@ -184,14 +221,25 @@ const STORES = [
 ];
 const SIZES = [23,24,25,26,27];
 
-let _mode = 'inv'; // inv | rst | vta
-let _cat  = 'ALL';
-let _open = new Set();
+let _mode   = 'inv'; // inv | rst | vta
+let _cat    = 'ALL';
+let _open   = new Set();
+let _images = {}; // title → image URL
+
+async function loadImages() {
+  try {
+    const r = await fetch('/api/images');
+    if (r.ok) { _images = await r.json(); render(); }
+  } catch(e) {}
+}
 
 // ── State ─────────────────────────────────────────────────────────────────────
 function setMode(m) {
   _mode = m;
   document.querySelectorAll('#modeSeg .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+  const isApr = m === 'apr';
+  document.getElementById('aprWrap').classList.toggle('show', isApr);
+  document.getElementById('tableWrap').style.display = isApr ? 'none' : '';
   render();
 }
 function setCat(c) {
@@ -266,10 +314,61 @@ function renderKPIs(models) {
     </div>`;
 }
 
+// ── Aparadores render ─────────────────────────────────────────────────────────
+function renderAparadores(models) {
+  const wrap = document.getElementById('aprWrap');
+  wrap.innerHTML = '';
+
+  for (const st of STORES) {
+    // For each store, gather models that have inventory there
+    const storeModels = models.map(([name, d]) => {
+      const sizes = SIZES.map(t => ({ t, inv: d.tallas[t]?.s[st.inv] || 0 }));
+      const totalInv = sizes.reduce((s, x) => s + x.inv, 0);
+      return { name, d, sizes, totalInv };
+    }).filter(x => x.totalInv > 0).sort((a, b) => b.totalInv - a.totalInv);
+
+    const totalPares = storeModels.reduce((s, x) => s + x.totalInv, 0);
+
+    const card = document.createElement('div');
+    card.className = 'apr-card';
+    card.dataset.store = st.key;
+
+    const modelsHtml = storeModels.length === 0
+      ? `<div class="apr-no-stock">Sin inventario</div>`
+      : storeModels.map(({ name, d, sizes }) => {
+          const imgUrl = _images[name] || null;
+          const imgEl = imgUrl
+            ? `<img class="apr-thumb" src="${imgUrl}" loading="lazy" onerror="this.outerHTML='<div class=apr-thumb-ph>👟</div>'"/>`
+            : `<div class="apr-thumb-ph">👟</div>`;
+          const szBadges = sizes.map(({ t, inv }) =>
+            `<span class="apr-sz ${invClass(inv)}" title="T${t}: ${inv} par${inv !== 1 ? 'es' : ''}">T${t} <b>${inv}</b></span>`
+          ).join('');
+          return `<div class="apr-model">
+            ${imgEl}
+            <div class="apr-model-info">
+              <div class="apr-model-name">${name}</div>
+              <div class="apr-sizes">${szBadges}</div>
+            </div>
+          </div>`;
+        }).join('');
+
+    card.innerHTML = `
+      <div class="apr-header">
+        <div class="apr-store-name">${st.label}</div>
+        <div class="apr-store-total">${storeModels.length} modelos · ${totalPares} pares</div>
+      </div>
+      <div class="apr-body">${modelsHtml}</div>`;
+
+    wrap.appendChild(card);
+  }
+}
+
 // ── Main render ───────────────────────────────────────────────────────────────
 function render() {
   const models = Object.entries(DATA).filter(([, d]) => _cat === 'ALL' || d.cat === _cat);
   renderKPIs(models);
+
+  if (_mode === 'apr') { renderAparadores(models); return; }
 
   const tbody = document.getElementById('tbody');
   tbody.innerHTML = '';
@@ -315,6 +414,11 @@ function render() {
         : '';
 
     // Model row
+    const imgUrl = _images[name] || null;
+    const imgEl  = imgUrl
+      ? `<img class="prod-thumb" src="${imgUrl}" loading="lazy" onerror="this.outerHTML='<div class=prod-thumb-ph>👟</div>'"/>`
+      : `<div class="prod-thumb-ph">👟</div>`;
+
     const mRow = document.createElement('tr');
     mRow.className = 'model-row';
     mRow.dataset.model = name;
@@ -322,6 +426,7 @@ function render() {
       <td>
         <div class="model-name">
           <span class="chevron ${isOpen ? 'open' : ''}">▶</span>
+          ${imgEl}
           <span class="cat-badge cat-${d.cat}">${d.cat}</span>
           ${name}
         </div>
@@ -344,8 +449,7 @@ function render() {
         const inv = td.s[st.inv] || 0;
         const rst = td.s[st.rst] || 0;
         if (_mode === 'inv') {
-          const pill = rst > 0 ? `<span class="restock-pill">+${rst} rst</span>` : '';
-          return `<td class="inv-cell sz"><span class="${invClass(inv)}">${inv}</span>${pill}</td>`;
+          return `<td class="inv-cell sz"><span class="${invClass(inv)}">${inv}</span></td>`;
         } else if (_mode === 'rst') {
           return `<td class="inv-cell sz"><span class="${rstClass(rst)}">${rst > 0 ? rst : '—'}</span></td>`;
         } else {
@@ -396,6 +500,7 @@ function toggleRow(name) {
 }
 
 render();
+loadImages();
 </script>
 </body>
 </html>
