@@ -18,13 +18,25 @@ export default async function handler(req, res) {
   setCors(res, req);
   if (req.method === "OPTIONS") return res.status(200).end();
 
-  const hit = getCached("live");
+  // date param: YYYY-MM-DD (Mexico City). If omitted → today
+  const reqDate = req.query.date || null;
+  const mxToday = new Date().toLocaleDateString("en-CA", { timeZone: "America/Mexico_City" });
+  const isToday = !reqDate || reqDate === mxToday;
+  const targetDate = reqDate || mxToday;
+
+  const cacheKey = isToday ? "live" : `hist:${targetDate}`;
+  const cacheTTL = isToday ? LIVE_TTL : 24 * 60 * 60 * 1000; // hist: 24h
+
+  const hit = getCached(cacheKey);
   if (hit) { res.setHeader("X-Cache", "HIT"); return res.status(200).json(hit); }
 
   try {
-    const [shopify, meta] = await Promise.all([fetchShopifyToday(), fetchMetaToday()]);
-    const result = { shopify, meta, ts: Date.now() };
-    setCache("live", result);
+    const [shopify, meta] = await Promise.all([
+      fetchShopifyDay(targetDate, isToday),
+      isToday ? fetchMetaToday() : Promise.resolve({ configured: false }),
+    ]);
+    const result = { shopify, meta, ts: Date.now(), date: targetDate, isToday };
+    setCache(cacheKey, result, cacheTTL);
     res.setHeader("X-Cache", "MISS");
     return res.status(200).json(result);
   } catch (e) {
@@ -69,10 +81,8 @@ async function fetchDayOrders(mxDate) {
   return orders;
 }
 
-// ── Hoy + Ayer (paralelo) + imágenes ─────────────────────────────────────────
-async function fetchShopifyToday() {
-  const now = new Date();
-  const mxToday     = now.toLocaleDateString("en-CA", { timeZone: "America/Mexico_City" });
+// ── Día específico + Ayer (paralelo) + imágenes ──────────────────────────────
+async function fetchShopifyDay(mxToday, isToday = true) {
   const mxYesterday = new Date(new Date(mxToday).getTime() - 86400000)
     .toISOString().slice(0, 10);
 
@@ -82,15 +92,15 @@ async function fetchShopifyToday() {
     getProductImages(),
   ]);
 
-  // Current MX time — for "same hour" comparison
-  const nowMX      = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Mexico_City" }));
-  const nowH       = nowMX.getHours();
-  const nowMin     = nowMX.getMinutes();
+  // Current MX time — for "same hour" comparison (only relevant when viewing today)
+  const nowMX  = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Mexico_City" }));
+  const nowH   = isToday ? nowMX.getHours()   : 23;
+  const nowMin = isToday ? nowMX.getMinutes() : 59;
 
   const yesterdayGmv     = yesterdayOrders.reduce((s, o) => s + parseFloat(o.total_price), 0);
   const yesterdayOrders_ = yesterdayOrders.length;
 
-  // Filter yesterday orders up to the same clock time as right now
+  // Filter yesterday orders up to the same clock time (full-day when viewing history)
   const yesterdaySameHour = yesterdayOrders.filter(o => {
     const oMX  = new Date(new Date(o.created_at).toLocaleString("en-US", { timeZone: "America/Mexico_City" }));
     const oH   = oMX.getHours();

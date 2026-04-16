@@ -28,6 +28,15 @@ body{display:flex;flex-direction:column;}
 .pill-lbl{font-size:8px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:var(--green);}
 .topbar-r{display:flex;align-items:center;gap:10px;}
 .countdown{font-size:9px;color:var(--muted);min-width:130px;text-align:right;}
+
+/* Date picker */
+.date-nav{display:flex;align-items:center;gap:4px;}
+.date-nav-btn{padding:2px 7px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:3px;color:var(--muted);font-size:11px;cursor:pointer;font-family:var(--fh);line-height:1.4;transition:all .12s;}
+.date-nav-btn:hover{background:rgba(255,255,255,.1);color:#fff;}
+#datePicker{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:3px;color:#e8e4de;font-size:9px;font-family:var(--fh);padding:3px 6px;outline:none;cursor:pointer;letter-spacing:.04em;}
+#datePicker::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:pointer;opacity:.6;}
+.pill-hist{display:flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;background:rgba(91,156,246,.08);border:1px solid rgba(91,156,246,.18);}
+.pill-hist .pill-lbl{color:var(--blue);}
 .btn{padding:3px 10px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:3px;color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.1em;cursor:pointer;font-family:var(--fh);transition:all .12s;}
 .btn:hover{background:rgba(255,255,255,.1);color:#fff;}
 .btn.tv-on{background:rgba(193,100,82,.12);border-color:rgba(193,100,82,.3);color:var(--terra);}
@@ -263,7 +272,15 @@ body.tv .t-amt{font-size:12px;}
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:10px;">
     <img src="https://baladigala.com/cdn/shop/files/TIPOGRAFIA_0eeef2c9-8447-407e-940f-5d63c2a8467c.webp?v=1737764437&width=610" alt="Bala Di Gala" style="height:18px;width:auto;display:block;filter:brightness(0) invert(1);"/>
-    <div class="pill"><div class="dot"></div><div class="pill-lbl">En Vivo</div></div>
+    <div id="livePill" class="pill"><div class="dot"></div><div class="pill-lbl">En Vivo</div></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px;">
+    <div class="date-nav">
+      <button class="date-nav-btn" onclick="changeDate(-1)" title="Día anterior">‹</button>
+      <input type="date" id="datePicker" onchange="onDateChange()" title="Seleccionar fecha"/>
+      <button class="date-nav-btn" id="dateNextBtn" onclick="changeDate(1)" title="Día siguiente">›</button>
+    </div>
+    <button class="btn" id="todayBtn" onclick="goToday()" style="display:none;">Hoy</button>
   </div>
   <div class="topbar-r">
     <span class="countdown" id="countdown">Cargando…</span>
@@ -298,7 +315,7 @@ body.tv .t-amt{font-size:12px;}
         </svg>
         <div class="ring-center">
           <div class="ring-gmv" id="ringGmv"><div class="sk" style="width:90px;height:22px;"></div></div>
-          <div class="ring-lbl">GMV Hoy</div>
+          <div class="ring-lbl" id="ringLbl">Ventas Totales</div>
           <div class="ring-pct" id="ringPct"></div>
         </div>
       </div>
@@ -428,6 +445,77 @@ function animCount(el, target, fmt, duration = 900) {
 // ── Meta fija ──────────────────────────────────────────────────────────────────
 const _goal = 133333;
 
+// ── Date state ─────────────────────────────────────────────────────────────────
+function mxToday() {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' });
+}
+let _selectedDate = mxToday();
+
+function initDatePicker() {
+  const picker = document.getElementById('datePicker');
+  picker.max   = mxToday();
+  picker.value = _selectedDate;
+}
+
+function onDateChange() {
+  const picker = document.getElementById('datePicker');
+  _selectedDate = picker.value || mxToday();
+  updateDateUI();
+  load(true);
+}
+
+function changeDate(delta) {
+  const d = new Date(_selectedDate + 'T12:00:00');
+  d.setDate(d.getDate() + delta);
+  const next = d.toISOString().slice(0, 10);
+  const today = mxToday();
+  if (next > today) return; // can't go into future
+  _selectedDate = next;
+  document.getElementById('datePicker').value = _selectedDate;
+  updateDateUI();
+  load(true);
+}
+
+function goToday() {
+  _selectedDate = mxToday();
+  document.getElementById('datePicker').value = _selectedDate;
+  updateDateUI();
+  load(true);
+}
+
+function updateDateUI() {
+  const today    = mxToday();
+  const isToday  = _selectedDate === today;
+  const nextBtn  = document.getElementById('dateNextBtn');
+  const todayBtn = document.getElementById('todayBtn');
+  const pill     = document.getElementById('livePill');
+  const ringLbl  = document.getElementById('ringLbl');
+
+  // Next button — disable when on today
+  nextBtn.disabled = isToday;
+  nextBtn.style.opacity = isToday ? '.3' : '';
+  nextBtn.style.cursor  = isToday ? 'default' : 'pointer';
+
+  // Today shortcut button
+  todayBtn.style.display = isToday ? 'none' : '';
+
+  // Pill
+  if (isToday) {
+    pill.className = 'pill';
+    pill.innerHTML = '<div class="dot"></div><div class="pill-lbl">En Vivo</div>';
+  } else {
+    const [y, m, d] = _selectedDate.split('-');
+    pill.className = 'pill-hist';
+    pill.innerHTML = `<div class="pill-lbl">📅 ${d}/${m}/${y}</div>`;
+  }
+
+  // Ring label
+  ringLbl.textContent = isToday ? 'Ventas Totales' : 'Ventas del día';
+
+  // picker max
+  document.getElementById('datePicker').max = today;
+}
+
 // ── TV mode ────────────────────────────────────────────────────────────────────
 let _tv = false;
 function toggleTV() {
@@ -510,23 +598,32 @@ let _lastOrders = null;   // track order count between refreshes
 
 async function load(force = false) {
   clearInterval(_timer);
+  const today   = mxToday();
+  const isToday = _selectedDate === today;
+
   document.getElementById('countdown').textContent = 'Actualizando…';
   try {
-    const res  = await fetch('/api/live' + (force ? '?t=' + Date.now() : ''));
+    let url = '/api/live';
+    const params = [];
+    if (!isToday) params.push('date=' + _selectedDate);
+    if (force)    params.push('t=' + Date.now());
+    if (params.length) url += '?' + params.join('&');
+
+    const res  = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     if (data.error) throw new Error(data.error);
 
-    const newOrders = data.shopify?.orders || 0;
+    const newOrders  = data.shopify?.orders || 0;
     const prevOrders = _lastOrders;
 
-    _lastGmv    = data.shopify?.gmv    || 0;
+    _lastGmv    = data.shopify?.gmv || 0;
     _lastOrders = newOrders;
 
-    renderAll(data);
+    renderAll(data, isToday);
 
-    // Detect new sales (skip on very first load)
-    if (prevOrders !== null && newOrders > prevOrders) {
+    // Detect new sales only when watching live
+    if (isToday && prevOrders !== null && newOrders > prevOrders) {
       const diff = newOrders - prevOrders;
       const top  = data.shopify?.top_products?.[0]?.title || '';
       fireSaleFlash(diff, top);
@@ -535,27 +632,41 @@ async function load(force = false) {
     document.getElementById('ringGmv').textContent = '—';
     document.getElementById('countdown').textContent = 'Error: ' + e.message;
   }
-  startCountdown();
+
+  if (isToday) {
+    startCountdown();
+  } else {
+    document.getElementById('countdown').textContent = _selectedDate;
+  }
 }
 
 // Init AudioContext on first interaction so it's ready when a sale fires
 document.addEventListener('click', () => getSaleSound(), { once: true });
 
-function renderAll(data) {
+// Init date picker on load
+initDatePicker();
+updateDateUI();
+
+function renderAll(data, isToday = true) {
   const sh   = data.shopify || {};
   const meta = data.meta   || {};
-  const nowH = parseInt(new Date().toLocaleTimeString('en-US', { timeZone: 'America/Mexico_City', hour: '2-digit', hour12: false }));
-  renderHero(sh, meta);
-  renderKPIs(sh, meta);
-  renderProyeccion(sh.gmv || 0, sh.by_hour || {}, nowH);
+  // For historical dates use end-of-day (23) so heat/chart show full day
+  const nowH = isToday
+    ? parseInt(new Date().toLocaleTimeString('en-US', { timeZone: 'America/Mexico_City', hour: '2-digit', hour12: false }))
+    : 23;
+  renderHero(sh, meta, isToday);
+  renderKPIs(sh, meta, isToday);
+  if (isToday) renderProyeccion(sh.gmv || 0, sh.by_hour || {}, nowH);
+  else { const el = document.getElementById('proyecRow'); if (el) el.style.display = 'none'; }
   renderChannels(sh.by_channel || {});
-  renderChart(sh.by_hour || {}, sh.gmv || 0);
-  renderHeatMap(sh.by_hour || {}, nowH);
-  renderVelocidad(sh.by_hour || {}, sh.yesterday?.by_hour || {}, nowH);
+  renderChart(sh.by_hour || {}, sh.gmv || 0, isToday ? nowH : -1);
+  renderHeatMap(sh.by_hour || {}, isToday ? nowH : 24);
+  if (isToday) renderVelocidad(sh.by_hour || {}, sh.yesterday?.by_hour || {}, nowH);
+  else { const el = document.getElementById('velocidadBadge'); if (el) { el.textContent = ''; el.className = 'vel-badge'; } }
   renderProducts(sh.top_products || [], sh.gmv || 0);
   renderTicker(sh.recent_orders || []);
-  renderAds(meta);
-  if (meta.configured && !meta.error && meta.spend > 0) renderMetaMini(meta);
+  renderAds(meta, isToday);
+  if (isToday && meta.configured && !meta.error && meta.spend > 0) renderMetaMini(meta);
 }
 
 // ── Proyección cierre del día ──────────────────────────────────────────────────
@@ -675,7 +786,7 @@ function updateRing(gmv) {
   }
 }
 
-function renderHero(sh, meta) {
+function renderHero(sh, meta, isToday = true) {
   const gmv  = sh.gmv || 0;
   const ayer = sh.yesterday || {};
   const el   = document.getElementById('ringGmv');
@@ -697,9 +808,9 @@ function renderHero(sh, meta) {
     deltaEl.innerHTML = `<div class="delta-lbl" style="font-size:8px;">Sin datos de ayer</div>`;
   }
 
-  // Ayer a esta misma hora
+  // Ayer a esta misma hora (solo para vista live)
   const shRow = document.getElementById('sameHourRow');
-  if (ayer.gmv_same_hour !== undefined) {
+  if (isToday && ayer.gmv_same_hour !== undefined) {
     const shGmv  = ayer.gmv_same_hour || 0;
     const shTime = ayer.same_hour_time || '';
     // Compare current GMV vs yesterday-same-hour GMV
@@ -720,8 +831,8 @@ function renderHero(sh, meta) {
 }
 
 // ── KPIs ───────────────────────────────────────────────────────────────────────
-function renderKPIs(sh, meta) {
-  const spend = meta.spend || 0;
+function renderKPIs(sh, meta, isToday = true) {
+  const spend = isToday ? (meta.spend || 0) : 0;
   const roas  = spend > 0 ? sh.gmv / spend : null;
   const roasC = roas === null ? '' : roas >= 5 ? 'green' : roas >= 2.5 ? 'yellow' : 'red';
   const roasT = roas !== null ? roas.toFixed(2) + '×' : '—';
@@ -784,12 +895,11 @@ function renderChannels(byChannel) {
 }
 
 // ── SVG Area Chart ─────────────────────────────────────────────────────────────
-function renderChart(byHour, totalGmv) {
+function renderChart(byHour, totalGmv, nowH = -1) {
   const W = 560, H = 80;
   const hours = Array.from({ length: 17 }, (_, i) => i + 7); // 7–23
   const vals  = hours.map(h => byHour[h]?.gmv || 0);
   const max   = Math.max(1, ...vals);
-  const nowH  = parseInt(new Date().toLocaleTimeString('en-US', { timeZone: 'America/Mexico_City', hour: '2-digit', hour12: false }));
 
   document.getElementById('chartMeta').textContent  = totalGmv > 0 ? MXN(totalGmv) + ' · hoy' : '';
   document.getElementById('chartPeak').textContent  = max > 0 ? 'Pico ' + MXN(max) : '';
@@ -977,7 +1087,7 @@ function renderMetaMini(meta) {
   document.getElementById('roasVal').textContent  = roas.toFixed(2) + '×';
 }
 
-load();
+load(); // initial load — date already set by initDatePicker() above
 </script>
 </body>
 </html>
