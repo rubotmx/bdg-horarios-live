@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>BDG · PDH Inventario</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#080808;--s1:#0f0f0f;--s2:#141414;--s3:#1c1c1c;
+  --line:rgba(255,255,255,.07);--muted:rgba(255,255,255,.22);--sub:rgba(255,255,255,.5);
+  --terra:#c16452;--green:#3ecf8e;--yellow:#f5c518;--blue:#5b9cf6;--red:#f26b6b;--purple:#a78bfa;
+  --f:'Inter',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg);color:#e8e4de;font-family:var(--f);overflow:hidden;}
+body{display:flex;flex-direction:column;}
+
+/* ── TOPBAR ── */
+.topbar{height:44px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);flex-shrink:0;gap:12px;}
+.tp-left{display:flex;align-items:center;gap:10px;}
+.tp-tag{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding:2px 8px;border:1px solid var(--line);border-radius:3px;}
+.tp-date{font-size:9px;color:var(--muted);}
+.btn-back{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .12s;}
+.btn-back:hover{color:#fff;}
+
+/* ── CONTROLS ── */
+.controls{height:40px;padding:0 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);flex-shrink:0;background:var(--s1);}
+.seg{display:flex;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:5px;overflow:hidden;}
+.seg-btn{padding:4px 12px;font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all .12s;border:none;background:transparent;font-family:var(--f);}
+.seg-btn.active{background:rgba(255,255,255,.1);color:#e8e4de;}
+.ctrl-sep{width:1px;height:20px;background:var(--line);flex-shrink:0;}
+.ctrl-label{font-size:8px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
+
+/* ── KPI STRIP ── */
+.kpi-strip{display:flex;border-bottom:1px solid var(--line);flex-shrink:0;}
+.kpi-cell{flex:1;padding:10px 16px;border-right:1px solid var(--line);}
+.kpi-cell:last-child{border-right:none;}
+.kpi-lbl{font-size:6.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:4px;}
+.kpi-val{font-size:16px;font-weight:900;letter-spacing:-.03em;line-height:1;}
+.kpi-sub{font-size:8px;color:var(--muted);margin-top:2px;}
+
+/* ── TABLE WRAP ── */
+.table-wrap{flex:1;overflow:auto;position:relative;}
+table{width:100%;border-collapse:collapse;min-width:860px;}
+thead th{position:sticky;top:0;z-index:10;background:var(--s2);font-size:7.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:2px solid var(--line);white-space:nowrap;text-align:center;}
+thead th:first-child{text-align:left;position:sticky;left:0;z-index:20;background:var(--s2);}
+thead th.th-total{color:var(--sub);background:rgba(255,255,255,.03);}
+thead th.th-bodega{color:var(--terra);background:rgba(193,100,82,.06);}
+
+/* Model rows */
+tr.model-row{cursor:pointer;transition:background .1s;}
+tr.model-row:hover{background:rgba(255,255,255,.025);}
+tr.model-row td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.04);}
+tr.model-row td:first-child{position:sticky;left:0;background:var(--bg);z-index:5;}
+tr.model-row:hover td:first-child{background:#0d0d0d;}
+
+/* Size sub-rows */
+tr.size-row{display:none;}
+tr.size-row.open{display:table-row;}
+tr.size-row td{padding:5px 10px;border-bottom:1px solid rgba(255,255,255,.025);background:rgba(255,255,255,.015);}
+tr.size-row td:first-child{position:sticky;left:0;background:rgba(20,20,20,1);z-index:5;}
+
+/* Cells */
+.model-name{font-size:11px;font-weight:700;color:#e8e4de;display:flex;align-items:center;gap:7px;}
+.chevron{font-size:8px;color:var(--muted);transition:transform .15s;flex-shrink:0;}
+.chevron.open{transform:rotate(90deg);}
+.cat-badge{font-size:7px;font-weight:800;padding:1px 5px;border-radius:3px;letter-spacing:.08em;flex-shrink:0;}
+.cat-A{background:rgba(245,197,24,.12);color:var(--yellow);}
+.cat-B{background:rgba(91,156,246,.12);color:var(--blue);}
+.cat-C{background:rgba(167,139,250,.12);color:var(--purple);}
+
+.sz-lbl{font-size:9px;font-weight:700;color:var(--muted);padding-left:22px;}
+
+/* Inventory cells */
+.inv-cell{text-align:center;font-size:12px;font-weight:800;letter-spacing:-.02em;line-height:1;}
+.inv-cell.sz{font-size:11px;}
+.inv-cell .restock-pill{display:block;font-size:6.5px;font-weight:700;color:var(--blue);margin-top:1px;letter-spacing:.05em;}
+
+/* Color tiers for inv_disp */
+.c0{color:rgba(242,107,107,.6);}
+.c1{color:var(--yellow);}
+.c2{color:rgba(255,255,255,.45);}
+.c3{color:rgba(62,207,142,.6);}
+.c4{color:var(--green);}
+
+/* Color tiers for restock */
+.r0{color:rgba(255,255,255,.15);}
+.r1{color:rgba(91,156,246,.7);}
+.r2{color:var(--blue);}
+.r3{color:#7db8ff;font-size:14px;}
+
+/* Total col */
+td.td-total{text-align:center;background:rgba(255,255,255,.02);}
+td.td-bodega{text-align:center;background:rgba(193,100,82,.04);}
+.bodega-val{font-size:12px;font-weight:800;color:var(--terra);}
+.bodega-val.zero{color:rgba(255,255,255,.15);}
+.faltante-lbl{font-size:7px;color:var(--red);font-weight:700;}
+.sobrante-lbl{font-size:7px;color:var(--green);font-weight:700;}
+
+/* Store header colors */
+.th-ec{border-top:2px solid rgba(91,156,246,.35);}
+.th-len{border-top:2px solid rgba(62,207,142,.35);}
+.th-coy{border-top:2px solid rgba(245,197,24,.35);}
+.th-pol{border-top:2px solid rgba(193,100,82,.35);}
+.th-sat{border-top:2px solid rgba(167,139,250,.35);}
+.th-gdl{border-top:2px solid rgba(242,107,107,.35);}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px;}
+
+/* hidden */
+.hidden{display:none!important;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tp-left">
+    <img src="https://baladigala.com/cdn/shop/files/TIPOGRAFIA_0eeef2c9-8447-407e-940f-5d63c2a8467c.webp?v=1737764437&width=610" alt="Bala Di Gala" style="height:18px;width:auto;filter:brightness(0) invert(1);"/>
+    <div class="tp-tag">PDH · Palacio de Hierro</div>
+    <div class="tp-date">Al 14 de abril 2026</div>
+  </div>
+  <a class="btn-back" href="/">← HQ</a>
+</div>
+
+<div class="controls">
+  <!-- Vista -->
+  <span class="ctrl-label">Vista</span>
+  <div class="seg" id="modeSeg">
+    <button class="seg-btn active" data-mode="inv" onclick="setMode('inv')">Inventario</button>
+    <button class="seg-btn" data-mode="rst" onclick="setMode('rst')">Restock</button>
+    <button class="seg-btn" data-mode="vta" onclick="setMode('vta')">Ventas</button>
+  </div>
+  <div class="ctrl-sep"></div>
+  <!-- Categoría -->
+  <span class="ctrl-label">Categoría</span>
+  <div class="seg" id="catSeg">
+    <button class="seg-btn active" data-cat="ALL" onclick="setCat('ALL')">Todos</button>
+    <button class="seg-btn" data-cat="A" onclick="setCat('A')">A</button>
+    <button class="seg-btn" data-cat="B" onclick="setCat('B')">B</button>
+    <button class="seg-btn" data-cat="C" onclick="setCat('C')">C</button>
+  </div>
+</div>
+
+<div class="kpi-strip" id="kpiStrip"></div>
+
+<div class="table-wrap">
+<table id="mainTable">
+<thead>
+  <tr>
+    <th style="text-align:left;min-width:200px;">Modelo</th>
+    <th class="th-ec">EC</th>
+    <th class="th-len">León</th>
+    <th class="th-coy">Coyoacán</th>
+    <th class="th-pol">Polanco</th>
+    <th class="th-sat">Satélite</th>
+    <th class="th-gdl">Guadalajara</th>
+    <th class="th-total">Total PDH</th>
+    <th class="th-bodega">Bodega</th>
+  </tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+// s array indices: [CE_inv, CE_rst, LEN_inv, LEN_rst, MTY_inv, MTY_rst,
+//                   COY_inv, COY_rst, POL_inv, POL_rst, SAT_inv, SAT_rst, GDL_inv, GDL_rst]
+const DATA = {"Bala Black":{"sku":"BDGBABLA","cat":"B","tallas":{"23":{"tv":11,"ti":5,"tr":4,"bo":4,"fa":0,"s":[1,1,1,1,0,0,1,0,1,1,1,1,0,0]},"24":{"tv":23,"ti":3,"tr":7,"bo":1,"fa":-6,"s":[0,3,1,1,0,0,1,0,0,2,1,1,0,0]},"25":{"tv":26,"ti":4,"tr":7,"bo":0,"fa":-7,"s":[2,2,1,1,0,0,0,0,1,2,0,2,0,0]},"26":{"tv":19,"ti":6,"tr":4,"bo":0,"fa":-4,"s":[0,2,2,0,0,0,1,0,1,1,1,1,1,0]},"27":{"tv":13,"ti":5,"tr":5,"bo":0,"fa":-5,"s":[1,1,1,1,0,0,2,0,1,1,0,2,0,0]}}},"Calf Pony":{"sku":"BDGCALF","cat":"B","tallas":{"23":{"tv":9,"ti":4,"tr":0,"bo":0,"fa":0,"s":[2,0,0,0,0,0,0,0,1,0,1,0,0,0]},"24":{"tv":15,"ti":4,"tr":0,"bo":4,"fa":4,"s":[0,0,1,0,0,0,1,0,1,0,1,0,0,0]},"25":{"tv":27,"ti":3,"tr":0,"bo":8,"fa":8,"s":[0,0,0,0,0,0,0,0,2,0,1,0,0,0]},"26":{"tv":6,"ti":10,"tr":0,"bo":5,"fa":5,"s":[0,0,0,0,0,0,3,0,5,0,2,0,0,0]},"27":{"tv":3,"ti":10,"tr":0,"bo":2,"fa":2,"s":[2,0,1,0,0,0,2,0,2,0,3,0,0,0]}}},"Dallas Black":{"sku":"BDGDALLBL","cat":"A","tallas":{"23":{"tv":20,"ti":12,"tr":3,"bo":4,"fa":1,"s":[4,0,2,0,0,0,0,2,1,1,2,0,3,0]},"24":{"tv":39,"ti":2,"tr":12,"bo":23,"fa":11,"s":[1,3,1,1,0,0,0,2,0,2,0,2,0,2]},"25":{"tv":43,"ti":3,"tr":13,"bo":1,"fa":-12,"s":[0,4,1,1,0,0,1,1,0,4,0,2,1,1]},"26":{"tv":40,"ti":5,"tr":11,"bo":11,"fa":0,"s":[0,4,1,1,0,0,0,2,1,2,0,2,3,0]},"27":{"tv":13,"ti":13,"tr":2,"bo":1,"fa":-1,"s":[1,1,2,0,0,0,2,0,2,1,2,0,4,0]}}},"Dallas Camel":{"sku":"BDGDALLCA","cat":"A","tallas":{"23":{"tv":12,"ti":9,"tr":0,"bo":0,"fa":0,"s":[3,0,2,0,0,0,1,0,2,0,1,0,0,0]},"24":{"tv":27,"ti":4,"tr":4,"bo":6,"fa":2,"s":[1,3,1,0,0,0,0,0,1,1,1,0,0,0]},"25":{"tv":21,"ti":9,"tr":4,"bo":3,"fa":-1,"s":[1,3,3,0,0,0,3,0,1,1,1,0,0,0]},"26":{"tv":20,"ti":6,"tr":3,"bo":4,"fa":1,"s":[2,1,3,0,0,0,0,0,0,2,0,0,1,0]},"27":{"tv":3,"ti":11,"tr":1,"bo":0,"fa":-1,"s":[1,1,2,0,0,0,2,0,4,0,1,0,1,0]}}},"Monarch Red":{"sku":"BDGMONRED","cat":"A","tallas":{"23":{"tv":22,"ti":6,"tr":10,"bo":0,"fa":-10,"s":[1,1,4,0,0,0,0,2,0,4,0,2,1,1]},"24":{"tv":30,"ti":3,"tr":10,"bo":0,"fa":-10,"s":[0,3,1,1,0,0,0,2,0,2,1,1,1,1]},"25":{"tv":45,"ti":3,"tr":12,"bo":7,"fa":-5,"s":[0,3,0,2,0,0,1,1,1,3,0,2,1,1]},"26":{"tv":31,"ti":6,"tr":9,"bo":1,"fa":-8,"s":[0,4,1,1,0,0,1,1,2,1,1,1,1,1]},"27":{"tv":12,"ti":13,"tr":1,"bo":2,"fa":1,"s":[3,0,2,0,0,0,3,0,2,0,1,1,2,0]}}},"Tyro Black":{"sku":"BDGTYR","cat":"A","tallas":{"23":{"tv":24,"ti":13,"tr":3,"bo":4,"fa":1,"s":[2,0,1,1,0,0,0,2,4,0,2,0,4,0]},"24":{"tv":38,"ti":10,"tr":3,"bo":1,"fa":-2,"s":[2,1,2,0,0,0,2,0,1,1,2,0,1,1]},"25":{"tv":40,"ti":8,"tr":6,"bo":5,"fa":-1,"s":[1,2,1,1,0,0,2,0,0,3,2,0,2,0]},"26":{"tv":32,"ti":14,"tr":2,"bo":2,"fa":0,"s":[2,1,3,0,0,0,3,0,3,0,1,1,2,0]},"27":{"tv":10,"ti":15,"tr":0,"bo":6,"fa":6,"s":[3,0,2,0,0,0,2,0,3,0,2,0,3,0]}}},"Hudson Black":{"sku":"BDGHUDBLA","cat":"A","tallas":{"23":{"tv":25,"ti":9,"tr":5,"bo":8,"fa":3,"s":[1,1,1,1,0,0,2,0,0,3,3,0,2,0]},"24":{"tv":39,"ti":9,"tr":6,"bo":3,"fa":-3,"s":[2,2,2,0,0,0,0,2,1,2,2,0,2,0]},"25":{"tv":42,"ti":12,"tr":4,"bo":18,"fa":14,"s":[3,1,2,0,0,0,1,1,2,2,2,0,2,0]},"26":{"tv":31,"ti":9,"tr":6,"bo":0,"fa":-6,"s":[1,3,2,0,0,0,1,1,0,2,3,0,2,0]},"27":{"tv":13,"ti":13,"tr":2,"bo":1,"fa":-1,"s":[1,1,2,0,0,0,1,1,4,0,2,0,3,0]}}},"Legacy Taupe":{"sku":"BDGLEGTAU","cat":"B","tallas":{"23":{"tv":14,"ti":9,"tr":3,"bo":3,"fa":0,"s":[2,0,1,1,0,0,2,0,1,1,2,0,1,1]},"24":{"tv":26,"ti":1,"tr":11,"bo":3,"fa":-8,"s":[0,2,0,2,0,0,1,1,0,2,0,2,0,2]},"25":{"tv":27,"ti":7,"tr":6,"bo":7,"fa":1,"s":[2,1,2,0,0,0,2,0,0,2,1,1,0,2]},"26":{"tv":14,"ti":13,"tr":2,"bo":5,"fa":3,"s":[0,2,4,0,0,0,2,0,3,0,2,0,2,0]},"27":{"tv":5,"ti":9,"tr":3,"bo":2,"fa":-1,"s":[1,1,2,0,0,0,2,0,1,1,2,0,1,1]}}},"Legacy Studs":{"sku":"BDGLEGST","cat":"B","tallas":{"23":{"tv":27,"ti":5,"tr":8,"bo":4,"fa":-4,"s":[0,3,1,1,0,0,0,2,1,1,1,1,2,0]},"24":{"tv":31,"ti":4,"tr":9,"bo":11,"fa":2,"s":[0,3,1,1,0,0,0,2,0,2,1,1,2,0]},"25":{"tv":36,"ti":4,"tr":11,"bo":14,"fa":3,"s":[0,4,1,1,0,0,0,2,1,2,0,2,2,0]},"26":{"tv":21,"ti":5,"tr":7,"bo":6,"fa":-1,"s":[0,2,2,0,0,0,1,1,0,2,1,1,1,1]},"27":{"tv":16,"ti":9,"tr":4,"bo":3,"fa":-1,"s":[1,2,1,1,0,0,2,0,2,0,1,1,2,0]}}},"Fenix Chocolate":{"sku":"BDGFENCH","cat":"A","tallas":{"23":{"tv":19,"ti":4,"tr":9,"bo":1,"fa":-8,"s":[0,3,0,2,0,0,1,1,1,1,1,1,1,1]},"24":{"tv":38,"ti":0,"tr":15,"bo":1,"fa":-14,"s":[0,4,0,2,0,0,0,2,0,3,0,2,0,2]},"25":{"tv":45,"ti":1,"tr":15,"bo":1,"fa":-14,"s":[0,4,0,2,0,0,0,2,0,4,0,2,1,1]},"26":{"tv":38,"ti":3,"tr":12,"bo":0,"fa":-12,"s":[0,4,1,1,0,0,0,2,0,3,1,1,1,1]},"27":{"tv":15,"ti":7,"tr":5,"bo":0,"fa":-5,"s":[0,2,2,0,0,0,2,0,2,0,1,1,0,2]}}},"Lyra Silver":{"sku":"BDGLSI","cat":"B","tallas":{"23":{"tv":1,"ti":2,"tr":10,"bo":3,"fa":-7,"s":[0,2,0,2,0,0,0,2,1,1,0,2,1,1]},"24":{"tv":9,"ti":2,"tr":10,"bo":3,"fa":-7,"s":[0,2,0,2,0,0,0,2,0,2,1,1,1,1]},"25":{"tv":6,"ti":3,"tr":10,"bo":3,"fa":-7,"s":[0,2,0,2,1,0,1,1,0,2,0,2,1,1]},"26":{"tv":10,"ti":3,"tr":9,"bo":3,"fa":-6,"s":[0,2,0,2,0,0,1,1,0,2,1,1,1,1]},"27":{"tv":6,"ti":0,"tr":12,"bo":3,"fa":-9,"s":[0,2,0,2,0,0,0,2,0,2,0,2,0,2]}}},"Flux Baby Blue":{"sku":"BDGFLUBBLU","cat":"C","tallas":{"23":{"tv":0,"ti":1,"tr":0,"bo":0,"fa":0,"s":[0,0,0,0,0,0,0,0,0,0,0,0,1,0]},"24":{"tv":0,"ti":2,"tr":0,"bo":0,"fa":0,"s":[0,0,0,0,0,0,0,0,0,0,0,0,2,0]},"25":{"tv":0,"ti":2,"tr":0,"bo":0,"fa":0,"s":[0,0,0,0,0,0,0,0,0,0,0,0,2,0]},"26":{"tv":0,"ti":2,"tr":0,"bo":0,"fa":0,"s":[0,0,0,0,0,0,0,0,0,0,0,0,2,0]},"27":{"tv":0,"ti":1,"tr":0,"bo":0,"fa":0,"s":[0,0,0,0,0,0,0,0,0,0,0,0,1,0]}}},"Hudson Chocolate":{"sku":"BDGHUDSCC","cat":"C","tallas":{"23":{"tv":0,"ti":2,"tr":0,"bo":0,"fa":0,"s":[0,0,0,0,0,0,0,0,0,0,0,0,2,0]},"24":{"tv":1,"ti":1,"tr":1,"bo":0,"fa":0,"s":[0,0,0,0,0,0,0,0,0,0,0,0,1,1]},"25":{"tv":1,"ti":1,"tr":1,"bo":0,"fa":0,"s":[0,0,0,0,0,0,0,0,0,0,0,0,1,1]},"26":{"tv":0,"ti":2,"tr":0,"bo":0,"fa":0,"s":[0,0,0,0,0,0,0,0,0,0,0,0,2,0]},"27":{"tv":1,"ti":1,"tr":1,"bo":0,"fa":0,"s":[0,0,0,0,0,0,0,0,0,0,0,0,1,1]}}},"Penny Black Honey":{"sku":"BDGPENCLI","cat":"C","tallas":{"23":{"tv":1,"ti":15,"tr":3,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,3,0,3,0,3,0]},"24":{"tv":2,"ti":13,"tr":5,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,1,2,3,0,3,0]},"25":{"tv":4,"ti":12,"tr":6,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,3,0,0,3,3,0]},"26":{"tv":2,"ti":13,"tr":5,"bo":0,"fa":0,"s":[3,0,0,3,0,0,2,1,2,1,3,0,3,0]},"27":{"tv":3,"ti":12,"tr":6,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,2,1,2,1,2,1]}}},"Penny Black Suede":{"sku":"BDGPENBLA","cat":"C","tallas":{"23":{"tv":1,"ti":14,"tr":4,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,3,0,2,1,3,0]},"24":{"tv":5,"ti":10,"tr":8,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,1,2,0,3,3,0]},"25":{"tv":4,"ti":12,"tr":6,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,1,2,2,1,3,0]},"26":{"tv":0,"ti":15,"tr":3,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,3,0,3,0,3,0]},"27":{"tv":1,"ti":14,"tr":4,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,3,0,3,0,2,1]}}},"Penny Brown":{"sku":"BDGPENBR23MX","cat":"C","tallas":{"23":{"tv":1,"ti":14,"tr":4,"bo":0,"fa":0,"s":[2,1,0,3,0,0,3,0,3,0,3,0,3,0]},"24":{"tv":5,"ti":10,"tr":8,"bo":0,"fa":0,"s":[3,0,0,3,0,0,2,1,0,3,2,1,3,0]},"25":{"tv":5,"ti":9,"tr":9,"bo":0,"fa":0,"s":[0,3,0,3,0,0,2,1,2,1,2,1,3,0]},"26":{"tv":5,"ti":10,"tr":8,"bo":0,"fa":0,"s":[2,1,0,3,0,0,2,1,1,2,3,0,2,1]},"27":{"tv":4,"ti":12,"tr":6,"bo":0,"fa":0,"s":[2,1,0,3,0,0,3,0,1,2,3,0,3,0]}}},"Penny Taupe":{"sku":"BDGPENTAU23MX","cat":"C","tallas":{"23":{"tv":2,"ti":13,"tr":5,"bo":0,"fa":0,"s":[2,1,0,3,0,0,3,0,3,0,2,1,3,0]},"24":{"tv":5,"ti":12,"tr":6,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,1,2,2,1,3,0]},"25":{"tv":4,"ti":10,"tr":8,"bo":0,"fa":0,"s":[2,1,0,3,0,0,1,2,3,0,2,1,2,1]},"26":{"tv":2,"ti":12,"tr":6,"bo":0,"fa":0,"s":[2,1,0,3,0,0,2,1,2,1,3,0,3,0]},"27":{"tv":2,"ti":13,"tr":5,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,2,1,3,0,2,1]}}}};
+
+// s indices: CE[0,1] LEN[2,3] MTY[4,5] COY[6,7] POL[8,9] SAT[10,11] GDL[12,13]
+const STORES = [
+  {key:'CE',  label:'EC',         inv:0, rst:1, vtaKey:'cedis_ecommerce'},
+  {key:'LEN', label:'León',       inv:2, rst:3},
+  {key:'COY', label:'Coyoacán',   inv:6, rst:7},
+  {key:'POL', label:'Polanco',    inv:8, rst:9},
+  {key:'SAT', label:'Satélite',   inv:10,rst:11},
+  {key:'GDL', label:'Guadalajara',inv:12,rst:13},
+];
+const SIZES = [23,24,25,26,27];
+
+let _mode = 'inv'; // inv | rst | vta
+let _cat  = 'ALL';
+let _open = new Set();
+
+// ── State ─────────────────────────────────────────────────────────────────────
+function setMode(m) {
+  _mode = m;
+  document.querySelectorAll('#modeSeg .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+  render();
+}
+function setCat(c) {
+  _cat = c;
+  document.querySelectorAll('#catSeg .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === c));
+  render();
+}
+
+// ── Color helpers ─────────────────────────────────────────────────────────────
+function invClass(v) {
+  if (v <= 0)  return 'c0';
+  if (v === 1) return 'c1';
+  if (v <= 3)  return 'c2';
+  if (v <= 6)  return 'c3';
+  return 'c4';
+}
+function rstClass(v) {
+  if (!v || v <= 0) return 'r0';
+  if (v <= 2)       return 'r1';
+  if (v <= 5)       return 'r2';
+  return 'r3';
+}
+function vtaClass(v) {
+  if (!v || v <= 0)  return 'c0';
+  if (v <= 5)        return 'c2';
+  if (v <= 15)       return 'c3';
+  return 'c4';
+}
+
+// ── Per-store value aggregated across all sizes ───────────────────────────────
+function storeAgg(modelData, storeIdx, isInv) {
+  return SIZES.reduce((s, t) => s + (modelData.tallas[t]?.s[storeIdx] || 0), 0);
+}
+function storeVta(modelData, storeIdx) {
+  // ventas_acum from total (approximation — we don't have per-store ventas split in compact data)
+  // We'll show total ventas in "total" col; per-store ventas not stored in compact form
+  return null;
+}
+
+// ── KPI Strip ─────────────────────────────────────────────────────────────────
+function renderKPIs(models) {
+  const totalInv  = models.reduce((s, [, d]) => s + Object.values(d.tallas).reduce((a, t) => a + t.ti, 0), 0);
+  const totalRst  = models.reduce((s, [, d]) => s + Object.values(d.tallas).reduce((a, t) => a + t.tr, 0), 0);
+  const totalVta  = models.reduce((s, [, d]) => s + Object.values(d.tallas).reduce((a, t) => a + t.tv, 0), 0);
+  const totalFalt = models.reduce((s, [, d]) => s + Object.values(d.tallas).reduce((a, t) => a + (t.fa < 0 ? t.fa : 0), 0), 0);
+
+  document.getElementById('kpiStrip').innerHTML = `
+    <div class="kpi-cell">
+      <div class="kpi-lbl">Modelos</div>
+      <div class="kpi-val">${models.length}</div>
+      <div class="kpi-sub">${_cat === 'ALL' ? '17 total' : 'Cat. '+_cat}</div>
+    </div>
+    <div class="kpi-cell">
+      <div class="kpi-lbl">Inv. Total PDH</div>
+      <div class="kpi-val" style="color:var(--blue)">${totalInv}</div>
+      <div class="kpi-sub">pares en tiendas</div>
+    </div>
+    <div class="kpi-cell">
+      <div class="kpi-lbl">Restock Propuesto</div>
+      <div class="kpi-val" style="color:var(--yellow)">${totalRst}</div>
+      <div class="kpi-sub">pares pendientes</div>
+    </div>
+    <div class="kpi-cell">
+      <div class="kpi-lbl">Ventas Acum.</div>
+      <div class="kpi-val" style="color:var(--green)">${totalVta}</div>
+      <div class="kpi-sub">pares vendidos</div>
+    </div>
+    <div class="kpi-cell">
+      <div class="kpi-lbl">Faltante Total</div>
+      <div class="kpi-val" style="color:var(--red)">${Math.abs(totalFalt)}</div>
+      <div class="kpi-sub">pares sin cubrir</div>
+    </div>`;
+}
+
+// ── Main render ───────────────────────────────────────────────────────────────
+function render() {
+  const models = Object.entries(DATA).filter(([, d]) => _cat === 'ALL' || d.cat === _cat);
+  renderKPIs(models);
+
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+
+  for (const [name, d] of models) {
+    const isOpen = _open.has(name);
+
+    // Aggregate values per store
+    const storeVals = STORES.map(st => {
+      const inv = SIZES.reduce((s, t) => s + (d.tallas[t]?.s[st.inv] || 0), 0);
+      const rst = SIZES.reduce((s, t) => s + (d.tallas[t]?.s[st.rst] || 0), 0);
+      const tv  = SIZES.reduce((s, t) => s + (d.tallas[t]?.tv || 0), 0); // only in total
+      return {inv, rst};
+    });
+
+    const totalInv = SIZES.reduce((s, t) => s + (d.tallas[t]?.ti || 0), 0);
+    const totalRst = SIZES.reduce((s, t) => s + (d.tallas[t]?.tr || 0), 0);
+    const totalVta = SIZES.reduce((s, t) => s + (d.tallas[t]?.tv || 0), 0);
+    const bodega   = SIZES.reduce((s, t) => s + (d.tallas[t]?.bo || 0), 0);
+    const faltante = SIZES.reduce((s, t) => s + (d.tallas[t]?.fa || 0), 0);
+
+    const storeCells = storeVals.map(sv => {
+      if (_mode === 'inv') {
+        return `<td class="inv-cell"><span class="${invClass(sv.inv)}">${sv.inv}</span></td>`;
+      } else if (_mode === 'rst') {
+        return `<td class="inv-cell"><span class="${rstClass(sv.rst)}">${sv.rst > 0 ? sv.rst : '—'}</span></td>`;
+      } else {
+        // ventas: we only have per-model total, not per-store — show dash
+        return `<td class="inv-cell"><span class="c0">—</span></td>`;
+      }
+    }).join('');
+
+    const totalCell = _mode === 'inv'
+      ? `<span class="${invClass(totalInv)}">${totalInv}</span>`
+      : _mode === 'rst'
+        ? `<span class="${rstClass(totalRst)}">${totalRst > 0 ? totalRst : '—'}</span>`
+        : `<span class="${vtaClass(totalVta)}">${totalVta}</span>`;
+
+    const faltEl = faltante < 0
+      ? `<div class="faltante-lbl">${faltante} falt.</div>`
+      : faltante > 0
+        ? `<div class="sobrante-lbl">+${faltante}</div>`
+        : '';
+
+    // Model row
+    const mRow = document.createElement('tr');
+    mRow.className = 'model-row';
+    mRow.dataset.model = name;
+    mRow.innerHTML = `
+      <td>
+        <div class="model-name">
+          <span class="chevron ${isOpen ? 'open' : ''}">▶</span>
+          <span class="cat-badge cat-${d.cat}">${d.cat}</span>
+          ${name}
+        </div>
+      </td>
+      ${storeCells}
+      <td class="inv-cell td-total">${totalCell}</td>
+      <td class="td-bodega">
+        <div class="bodega-val ${bodega === 0 ? 'zero' : ''}">${bodega}</div>
+        ${faltEl}
+      </td>`;
+    mRow.addEventListener('click', () => toggleRow(name));
+    tbody.appendChild(mRow);
+
+    // Size rows
+    for (const t of SIZES) {
+      const td = d.tallas[t];
+      if (!td) continue;
+
+      const szStoreCells = STORES.map(st => {
+        const inv = td.s[st.inv] || 0;
+        const rst = td.s[st.rst] || 0;
+        if (_mode === 'inv') {
+          const pill = rst > 0 ? `<span class="restock-pill">+${rst} rst</span>` : '';
+          return `<td class="inv-cell sz"><span class="${invClass(inv)}">${inv}</span>${pill}</td>`;
+        } else if (_mode === 'rst') {
+          return `<td class="inv-cell sz"><span class="${rstClass(rst)}">${rst > 0 ? rst : '—'}</span></td>`;
+        } else {
+          return `<td class="inv-cell sz"><span class="c0">—</span></td>`;
+        }
+      }).join('');
+
+      const szTotal = _mode === 'inv'
+        ? `<span class="${invClass(td.ti)}">${td.ti}</span>`
+        : _mode === 'rst'
+          ? `<span class="${rstClass(td.tr)}">${td.tr > 0 ? td.tr : '—'}</span>`
+          : `<span class="${vtaClass(td.tv)}">${td.tv}</span>`;
+
+      const szFalt = td.fa < 0
+        ? `<div class="faltante-lbl">${td.fa}</div>`
+        : td.fa > 0 ? `<div class="sobrante-lbl">+${td.fa}</div>` : '';
+
+      const szRow = document.createElement('tr');
+      szRow.className = `size-row ${isOpen ? 'open' : ''}`;
+      szRow.dataset.model = name;
+      szRow.innerHTML = `
+        <td><div class="sz-lbl">T${t}</div></td>
+        ${szStoreCells}
+        <td class="inv-cell sz td-total">${szTotal}</td>
+        <td class="td-bodega">
+          <div class="bodega-val ${td.bo === 0 ? 'zero' : ''}" style="font-size:11px;">${td.bo}</div>
+          ${szFalt}
+        </td>`;
+      tbody.appendChild(szRow);
+    }
+  }
+}
+
+function toggleRow(name) {
+  if (_open.has(name)) {
+    _open.delete(name);
+  } else {
+    _open.add(name);
+  }
+  // Update chevron + size rows without full re-render
+  document.querySelectorAll(`[data-model="${CSS.escape(name)}"]`).forEach(el => {
+    if (el.classList.contains('model-row')) {
+      el.querySelector('.chevron').classList.toggle('open', _open.has(name));
+    } else {
+      el.classList.toggle('open', _open.has(name));
+    }
+  });
+}
+
+render();
+</script>
+</body>
+</html>
