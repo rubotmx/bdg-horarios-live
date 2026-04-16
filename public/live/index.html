@@ -143,28 +143,22 @@ body{display:flex;flex-direction:column;}
 /* Section divider */
 .ads-section-hdr{font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.18);font-weight:700;padding:4px 2px 2px;}
 
-/* ── AD CARD with data ───────────────────────── */
-.ad-card{border-radius:8px;overflow:hidden;background:var(--s2);border:1px solid rgba(255,255,255,.06);transition:border-color .15s;}
-.ad-card:hover{border-color:rgba(255,255,255,.15);}
-.ad-card-banner{position:relative;width:100%;height:110px;overflow:hidden;background:var(--s3);background-size:cover;background-position:center;}
-.ad-card-banner-grad{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(8,8,8,0) 20%,rgba(8,8,8,.55) 100%);}
-.ad-card-rank{position:absolute;top:6px;left:7px;font-size:14px;line-height:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,.8));}
-.ad-card-roas-badge{position:absolute;top:6px;right:7px;font-size:11px;font-weight:900;padding:2px 7px;border-radius:4px;backdrop-filter:blur(8px);}
-.ad-card-foot{padding:8px 10px 9px;}
-.ad-card-name{font-size:9px;font-weight:700;color:#e8e4de;line-height:1.3;margin-bottom:7px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.ad-card-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid rgba(255,255,255,.07);border-radius:5px;overflow:hidden;margin-bottom:6px;}
-.ad-stat{padding:5px 4px;text-align:center;border-right:1px solid rgba(255,255,255,.07);}
-.ad-stat:last-child{border-right:none;}
-.ad-stat-val{font-size:11px;font-weight:900;line-height:1;letter-spacing:-.01em;}
-.ad-stat-lbl{font-size:6px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:2px;}
-.ad-card-bar{height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
-.ad-card-bar-fill{height:100%;border-radius:2px;}
-
-/* ── AD ROW (no data) ───────────────────────── */
-.ad-row{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:5px;background:var(--s2);border:1px solid rgba(255,255,255,.04);}
-.ad-row-img{width:36px;height:36px;border-radius:3px;object-fit:cover;flex-shrink:0;background:var(--s3);}
-.ad-row-name{flex:1;font-size:8px;color:rgba(255,255,255,.4);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.ad-row-dot{width:4px;height:4px;border-radius:50%;background:rgba(62,207,142,.4);flex-shrink:0;}
+/* ── AD ROW (con y sin data) ─────────────────── */
+.ad-row{display:flex;align-items:center;gap:8px;padding:6px 6px;border-radius:6px;background:var(--s2);border:1px solid rgba(255,255,255,.05);transition:border-color .12s;}
+.ad-row:hover{border-color:rgba(255,255,255,.12);}
+.ad-row-thumb{width:40px;height:40px;border-radius:4px;flex-shrink:0;background:var(--s3);background-size:cover;background-position:center;}
+.ad-row-body{flex:1;min-width:0;}
+.ad-row-top{display:flex;align-items:center;gap:4px;margin-bottom:3px;}
+.ad-row-rank{font-size:10px;line-height:1;flex-shrink:0;}
+.ad-row-name{font-size:8px;font-weight:700;color:#e8e4de;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ad-row-stats{display:flex;align-items:center;gap:6px;}
+.ad-row-stat{font-size:9px;font-weight:700;line-height:1;}
+.ad-row-stat span{font-size:7px;font-weight:400;color:var(--muted);margin-left:1px;}
+.ad-row-bar{height:2px;background:rgba(255,255,255,.06);border-radius:1px;overflow:hidden;margin-top:4px;}
+.ad-row-bar-fill{height:100%;border-radius:1px;}
+/* no-data variant */
+.ad-row.no-data .ad-row-name{color:rgba(255,255,255,.3);}
+.ad-row-dot{width:5px;height:5px;border-radius:50%;background:rgba(62,207,142,.35);flex-shrink:0;}
 
 /* ── SALE FLASH ─────────────────────────────────────────────── */
 #saleFlash{position:fixed;inset:0;pointer-events:none;z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;}
@@ -916,58 +910,44 @@ function renderAds(meta) {
       <div class="ads-sum-lbl">Compras Meta</div>
     </div>`;
 
-  // ── Per-ad cards ────────────────────────────────────────────────────────────
-  // Split: ads with spend today vs no spend (just active)
+  // ── Per-ad rows ─────────────────────────────────────────────────────────────
   const withData    = ads.filter(a => a.insights?.spend > 0);
   const withoutData = ads.filter(a => !(a.insights?.spend > 0));
   const maxSpend    = Math.max(1, ...withData.map(a => a.insights.spend));
+  const MEDALS      = ['🥇','🥈','🥉'];
 
-  const RANK_EMOJIS = ['🥇', '🥈', '🥉'];
-
-  const cardHtml = withData.map((ad, i) => {
+  const dataRows = withData.map((ad, i) => {
     const ins      = ad.insights;
     const roas     = ins.revenue > 0 ? ins.revenue / ins.spend : null;
     const roasClr  = roas === null ? 'var(--muted)' : roas >= 5 ? 'var(--green)' : roas >= 2.5 ? 'var(--yellow)' : 'var(--red)';
-    const roasBg   = roas === null ? 'rgba(255,255,255,.08)' : roas >= 5 ? 'rgba(62,207,142,.18)' : roas >= 2.5 ? 'rgba(245,197,24,.15)' : 'rgba(242,107,107,.15)';
-    const spendPct = Math.round((ins.spend / maxSpend) * 100);
-    const rank     = RANK_EMOJIS[i] || `#${i + 1}`;
-    const roasLbl  = roas !== null ? roas.toFixed(1) + '×' : '—';
+    const spendPct = Math.round(ins.spend / maxSpend * 100);
+    const rank     = MEDALS[i] || `<span style="font-size:8px;color:var(--muted)">#${i+1}</span>`;
+    const bg       = ad.thumbnail ? `background-image:url('${ad.thumbnail}')` : '';
 
-    const bgStyle = ad.thumbnail ? `background-image:url('${ad.thumbnail}')` : '';
-    return `<div class="ad-card">
-      <div class="ad-card-banner" style="${bgStyle}">
-        <div class="ad-card-banner-grad"></div>
-        <div class="ad-card-rank">${rank}</div>
-        <div class="ad-card-roas-badge" style="color:${roasClr};background:${roasBg};">${roasLbl} ROAS</div>
-      </div>
-      <div class="ad-card-foot">
-        <div class="ad-card-name">${ad.name}</div>
-        <div class="ad-card-stats">
-          <div class="ad-stat">
-            <div class="ad-stat-val" style="color:var(--yellow)">${MXN(ins.spend)}</div>
-            <div class="ad-stat-lbl">Gasto</div>
-          </div>
-          <div class="ad-stat">
-            <div class="ad-stat-val" style="color:var(--blue)">${ins.clicks > 0 ? N(ins.clicks) : '—'}</div>
-            <div class="ad-stat-lbl">Clicks</div>
-          </div>
-          <div class="ad-stat">
-            <div class="ad-stat-val" style="color:var(--green)">${ins.purchases > 0 ? ins.purchases : '—'}</div>
-            <div class="ad-stat-lbl">Compras</div>
-          </div>
+    return `<div class="ad-row">
+      <div class="ad-row-thumb" style="${bg}"></div>
+      <div class="ad-row-body">
+        <div class="ad-row-top">
+          <div class="ad-row-rank">${rank}</div>
+          <div class="ad-row-name">${ad.name}</div>
         </div>
-        <div class="ad-card-bar">
-          <div class="ad-card-bar-fill" style="width:${spendPct}%;background:${roasClr};"></div>
+        <div class="ad-row-stats">
+          <div class="ad-row-stat" style="color:var(--yellow)">${MXN(ins.spend)}<span>gasto</span></div>
+          <div style="width:1px;height:10px;background:rgba(255,255,255,.08);flex-shrink:0;"></div>
+          <div class="ad-row-stat" style="color:${roasClr}">${roas !== null ? roas.toFixed(1)+'×' : '—'}<span>ROAS</span></div>
+          ${ins.purchases > 0 ? `<div style="width:1px;height:10px;background:rgba(255,255,255,.08);flex-shrink:0;"></div>
+          <div class="ad-row-stat" style="color:var(--green)">${ins.purchases}<span>comp.</span></div>` : ''}
         </div>
+        <div class="ad-row-bar"><div class="ad-row-bar-fill" style="width:${spendPct}%;background:${roasClr};"></div></div>
       </div>
     </div>`;
   }).join('');
 
-  const rowHtml = withoutData.map(ad => {
-    const bg = ad.thumbnail ? `background-image:url('${ad.thumbnail}');background-size:cover;background-position:center;` : '';
-    return `<div class="ad-row">
-      <div class="ad-row-img" style="${bg}"></div>
-      <div class="ad-row-name">${ad.name}</div>
+  const noDataRows = withoutData.map(ad => {
+    const bg = ad.thumbnail ? `background-image:url('${ad.thumbnail}')` : '';
+    return `<div class="ad-row no-data">
+      <div class="ad-row-thumb" style="${bg}"></div>
+      <div class="ad-row-name" style="flex:1;font-size:8px;">${ad.name}</div>
       <div class="ad-row-dot"></div>
     </div>`;
   }).join('');
@@ -975,11 +955,11 @@ function renderAds(meta) {
   let html = '';
   if (withData.length) {
     html += `<div class="ads-section-hdr">Con gasto hoy · ${withData.length} anuncio${withData.length !== 1 ? 's' : ''}</div>`;
-    html += cardHtml;
+    html += dataRows;
   }
   if (withoutData.length) {
     html += `<div class="ads-section-hdr" style="margin-top:${withData.length ? '6px' : '0'};">Sin gasto hoy · ${withoutData.length} activo${withoutData.length !== 1 ? 's' : ''}</div>`;
-    html += rowHtml;
+    html += noDataRows;
   }
   scroll.innerHTML = html;
 }
