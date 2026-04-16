@@ -189,6 +189,14 @@ const ALLOWED_MODELS = [
 const ALLOWED_SET = new Set(ALLOWED_MODELS.map(s => s.toLowerCase()));
 
 function effectiveQty(qty){ return _mode === 'positive' ? Math.max(0, qty) : qty; }
+
+// Extrae talla de una variante — busca en option1 y option2, devuelve el que sea número de 2 dígitos
+function extractSizeFromVariant(v){
+  const opts = [v.option1, v.option2, v.title].map(o => String(o||'').trim());
+  for(const o of opts){ const m = o.match(/^(\d{2}(?:\.\d)?)$/); if(m) return m[1]; }
+  return opts[0]; // fallback
+}
+// Mantiene compatibilidad con llamadas que pasan string directamente
 function extractSize(s){ const m = String(s||'').trim().match(/^(\d{2}(?:\.\d)?)/); return m ? m[1] : String(s||'').trim(); }
 
 // ── TOGGLES ──────────────────────────────────────────────────────────────────
@@ -253,7 +261,7 @@ function render(){
   // Collect sizes
   const sizeSet = new Set();
   for(const p of base)
-    for(const v of (p.variants||[])){ const sz=extractSize(v.option1||v.title); if(/^\d{2}$/.test(sz)) sizeSet.add(sz); }
+    for(const v of (p.variants||[])){ const sz=extractSizeFromVariant(v); if(/^\d{2}$/.test(sz)) sizeSet.add(sz); }
   const sizes = Array.from(sizeSet).sort((a,b)=>parseFloat(a)-parseFloat(b));
 
   // Filter
@@ -261,7 +269,7 @@ function render(){
   if(_filterCompl){
     filtered = filtered.filter(p => {
       const sizeMap = {};
-      for(const v of (p.variants||[])){ const sz=extractSize(v.option1||v.title); sizeMap[sz]=(sizeMap[sz]||0)+(v.inventory_quantity??0); }
+      for(const v of (p.variants||[])){ const sz=extractSizeFromVariant(v); sizeMap[sz]=(sizeMap[sz]||0)+(v.inventory_quantity??0); }
       return sizes.every(sz => (sizeMap[sz]??0) >= 1);
     });
   }
@@ -297,7 +305,7 @@ function render(){
   document.getElementById('tableBody').innerHTML = filtered.map(p => {
     const img     = p.images?.[0]?.src;
     const sizeMap = {};
-    for(const v of (p.variants||[])){ const sz=extractSize(v.option1||v.title); sizeMap[sz]=(sizeMap[sz]||0)+(v.inventory_quantity??0); }
+    for(const v of (p.variants||[])){ const sz=extractSizeFromVariant(v); sizeMap[sz]=(sizeMap[sz]||0)+(v.inventory_quantity??0); }
     const total   = sizes.reduce((s,sz)=>s+effectiveQty(sizeMap[sz]??0),0);
     const totalCl = total>0?'pos':total<0?'neg':'zero';
     const isCore  = !!_core[p.title];
