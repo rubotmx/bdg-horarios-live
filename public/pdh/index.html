@@ -221,17 +221,30 @@ const STORES = [
 ];
 const SIZES = [23,24,25,26,27];
 
-let _mode   = 'inv'; // inv | rst | vta
-let _cat    = 'ALL';
-let _open   = new Set();
-let _images = {}; // title → image URL
+let _mode = 'inv'; // inv | rst | vta
+let _cat  = 'ALL';
+let _open = new Set();
 
-async function loadImages() {
-  try {
-    const r = await fetch('/api/images');
-    if (r.ok) { _images = await r.json(); render(); }
-  } catch(e) {}
-}
+// Imágenes hardcodeadas desde Shopify CDN
+const IMAGES = {
+  'Bala Black':        'https://cdn.shopify.com/s/files/1/2514/6232/files/balablack1.jpg?v=1723743956',
+  'Calf Pony':         'https://cdn.shopify.com/s/files/1/2514/6232/files/CALF-PONY-1.jpg?v=1723744365',
+  'Dallas Black':      'https://cdn.shopify.com/s/files/1/2514/6232/files/99d052657b00b74adf8322ab87c1be29_900x_b77d143d-71b8-465c-a470-dcfbb3b3cef2.webp?v=1723744408',
+  'Dallas Camel':      'https://cdn.shopify.com/s/files/1/2514/6232/files/DALLAS-CAMEL-1_df96deb4-678b-47ca-8c91-cfabb19a0bb9.jpg?v=1723744475',
+  'Monarch Red':       'https://cdn.shopify.com/s/files/1/2514/6232/files/monarchred1.jpg?v=1737756069',
+  'Tyro Black':        'https://cdn.shopify.com/s/files/1/2514/6232/files/TYRO-1_1.jpg?v=1723750994',
+  'Hudson Black':      'https://cdn.shopify.com/s/files/1/2514/6232/files/Hudson-black-lateral_9dc8acae-628f-45b4-8cc5-7e671ef1be8d.jpg?v=1754073271',
+  'Legacy Taupe':      'https://cdn.shopify.com/s/files/1/2514/6232/files/legacytaup1_eed9b2d8-d366-4d5a-b5c2-2f469114e944.jpg?v=1723749956',
+  'Legacy Studs':      'https://cdn.shopify.com/s/files/1/2514/6232/files/legacystuds1_8d6e28d7-d5b7-40fe-b91b-d614064da8a1.jpg?v=1723749921',
+  'Fenix Chocolate':   'https://cdn.shopify.com/s/files/1/2514/6232/files/fenixchocolate1.jpg?v=1727376962',
+  'Lyra Silver':       'https://cdn.shopify.com/s/files/1/2514/6232/files/c04e70ecb93fe7b962a3f16db0d13b61_900x_952b937e-975e-416c-9256-0f955089d541.webp?v=1746036042',
+  'Flux Baby Blue':    'https://cdn.shopify.com/s/files/1/2514/6232/files/fluxblue1.jpg?v=1749063702',
+  'Hudson Chocolate':  'https://cdn.shopify.com/s/files/1/2514/6232/files/HUDSON-CHOCOLATE-1_c0cf5404-4257-4f0c-bf4b-9447e6798a59.jpg?v=1757952551',
+  'Penny Black Honey': 'https://cdn.shopify.com/s/files/1/2514/6232/files/7506652103494_x1_fr_d0e4c472-eb8c-41b8-883e-70a97e89f617.jpg?v=1769802274',
+  'Penny Black Suede': 'https://cdn.shopify.com/s/files/1/2514/6232/files/PENNYBLACK.jpg?v=1776190431',
+  'Penny Brown':       'https://cdn.shopify.com/s/files/1/2514/6232/files/B1.jpg?v=1776190431',
+  'Penny Taupe':       'https://cdn.shopify.com/s/files/1/2514/6232/files/PEN1_e207f618-1c9b-44f3-a549-3c769cf34758.jpg?v=1776190431',
+};
 
 // ── State ─────────────────────────────────────────────────────────────────────
 function setMode(m) {
@@ -336,9 +349,9 @@ function renderAparadores(models) {
     const modelsHtml = storeModels.length === 0
       ? `<div class="apr-no-stock">Sin inventario</div>`
       : storeModels.map(({ name, d, sizes }) => {
-          const imgUrl = _images[name] || null;
+          const imgUrl = IMAGES[name] || null;
           const imgEl = imgUrl
-            ? `<img class="apr-thumb" src="${imgUrl}" loading="lazy" onerror="this.outerHTML='<div class=apr-thumb-ph>👟</div>'"/>`
+            ? `<img class="apr-thumb" src="${imgUrl}" loading="lazy" crossorigin="anonymous" onerror="this.style.display='none'"/>`
             : `<div class="apr-thumb-ph">👟</div>`;
           const szBadges = sizes.map(({ t, inv }) =>
             `<span class="apr-sz ${invClass(inv)}" title="T${t}: ${inv} par${inv !== 1 ? 'es' : ''}">T${t} <b>${inv}</b></span>`
@@ -414,9 +427,9 @@ function render() {
         : '';
 
     // Model row
-    const imgUrl = _images[name] || null;
+    const imgUrl = IMAGES[name] || null;
     const imgEl  = imgUrl
-      ? `<img class="prod-thumb" src="${imgUrl}" loading="lazy" onerror="this.outerHTML='<div class=prod-thumb-ph>👟</div>'"/>`
+      ? `<img class="prod-thumb" src="${imgUrl}" loading="lazy" crossorigin="anonymous" onerror="this.style.display='none'"/>`
       : `<div class="prod-thumb-ph">👟</div>`;
 
     const mRow = document.createElement('tr');
@@ -500,7 +513,6 @@ function toggleRow(name) {
 }
 
 render();
-loadImages();
 </script>
 </body>
 </html>
