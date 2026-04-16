@@ -189,6 +189,28 @@ let _products = [];
 let _mode     = 'positive'; // 'positive' | 'all'
 let _core     = JSON.parse(localStorage.getItem('bdg_core') || '{}');
 
+// Modelos visibles — solo estos aparecen en la tabla
+const ALLOWED_MODELS = new Set([
+  'BALA BLACK',
+  'BECCA VINTAGE BLACK',
+  'DALLAS BLACK',
+  'DALLAS CAMEL',
+  'FENIX CHOCOLATE',
+  'FENIX TAUPE',
+  'HUDSON BLACK',
+  'HUDSON BLACK HONEY x Clinique',
+  'HUDSON BLUE',
+  'LEGACY STUDS',
+  'LEGACY TAUPE',
+  'LYRA SILVER',
+  'MEXICO IS THE SHIT x BDG',
+  'MONARCH CHERRY RED',
+  'NOVA BLACK',
+  'TYRO BLACK',
+  'HUDSON CHOCOLATE CC X BDG',
+  'TAURI BLACK',
+].map(s => s.toLowerCase()));
+
 function effectiveQty(qty){ return _mode === 'positive' ? Math.max(0, qty) : qty; }
 
 function extractSize(option1){
@@ -220,7 +242,9 @@ async function init(){
     const res = await fetch('/api/shopify?mode=products');
     if (!res.ok) throw new Error(`Error ${res.status}`);
     const data = await res.json();
-    _products = (data.products || []).filter(p => p.status === 'active');
+    _products = (data.products || []).filter(p =>
+      p.status === 'active' && ALLOWED_MODELS.has(p.title.toLowerCase())
+    );
     _products.sort((a, b) => a.title.localeCompare(b.title));
     render();
   } catch (e) {
