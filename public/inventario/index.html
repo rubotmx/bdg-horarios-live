@@ -91,7 +91,8 @@ td.core-cell{text-align:center;padding:4px 16px 4px 6px;}
 
 
 /* Color pill (para clogs) */
-.color-pill{display:inline-block;font-size:9px;font-weight:600;letter-spacing:.06em;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 6px;margin-top:2px;}
+.color-pill{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:600;letter-spacing:.06em;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 6px;margin-top:2px;}
+.color-swatch{width:8px;height:8px;border-radius:50%;border:1px solid rgba(0,0,0,.12);flex-shrink:0;display:inline-block;}
 .thumb-indent{width:32px;height:32px;flex-shrink:0;}
 
 /* Skeleton */
@@ -182,6 +183,36 @@ let _showClogs     = false;
 let _core          = JSON.parse(localStorage.getItem('bdg_core') || '{}');
 
 const CLOGS_KEYWORDS = ['penny', 'frankie', 'parker'];
+
+const COLOR_MAP = {
+  'black':       '#1a1a1a',
+  'negro':       '#1a1a1a',
+  'black x honey':'linear-gradient(135deg,#1a1a1a 50%,#c8943a 50%)',
+  'brown':       '#7b4f2e',
+  'taupe':       '#b5a090',
+  'olivo':       '#6b7a42',
+  'terracota':   '#c16452',
+  'honey':       '#c8943a',
+  'camel':       '#c19a6b',
+  'sand':        '#d4bc94',
+  'white':       '#f0ede9',
+  'ivory':       '#f5f0e6',
+  'silver':      '#b0b8c1',
+  'chocolate':   '#4a2c1a',
+  'cognac':      '#a0522d',
+  'red':         '#c93a28',
+  'blue':        '#3a7bd5',
+};
+
+function swatchFor(colorName) {
+  const key = colorName.toLowerCase().trim();
+  const val = COLOR_MAP[key];
+  if (!val) return '';
+  const style = val.startsWith('linear')
+    ? `background:${val}`
+    : `background:${val}`;
+  return `<span class="color-swatch" style="${style}"></span>`;
+}
 
 const ALLOWED_MODELS = [
   'BALA BLACK','BECCA VINTAGE BLACK','DALLAS BLACK','DALLAS CAMEL',
@@ -342,9 +373,10 @@ function render(){
         }).join('');
 
         // First color row shows thumb, subsequent rows show color pill only
+        const pill = `<div class="color-pill">${swatchFor(color)}${color}</div>`;
         const nameCell = ci === 0
-          ? `${thumb}<div><div class="model-name">${p.title}</div><div class="color-pill">${color}</div></div>`
-          : `<div class="thumb-indent"></div><div><div class="model-name" style="color:var(--muted);font-weight:500;">${p.title}</div><div class="color-pill">${color}</div></div>`;
+          ? `${thumb}<div><div class="model-name">${p.title}</div>${pill}</div>`
+          : `<div class="thumb-indent"></div><div><div class="model-name" style="color:var(--muted);font-weight:500;">${p.title}</div>${pill}</div>`;
 
         return `<tr>
           <td><div class="col-model-cell">${nameCell}</div></td>
