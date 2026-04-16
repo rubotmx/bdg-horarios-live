@@ -141,6 +141,9 @@ td.core-cell{text-align:center;padding:4px 16px 4px 6px;}
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
       Negativos
     </button>
+    <button class="btn-toolbar" id="clogsBtn" onclick="toggleClogs()">
+      🪵 Clogs
+    </button>
   </div>
 
   <!-- SUMMARY -->
@@ -168,9 +171,13 @@ td.core-cell{text-align:center;padding:4px 16px 4px 6px;}
 
 <script>
 let _products      = [];
+let _clogsProducts = [];
 let _mode          = 'positive';  // 'positive' | 'all'
 let _filterCompl   = false;
+let _showClogs     = false;
 let _core          = JSON.parse(localStorage.getItem('bdg_core') || '{}');
+
+const CLOGS_KEYWORDS = ['penny', 'frankie', 'parker'];
 
 const ALLOWED_MODELS = [
   'BALA BLACK','BECCA VINTAGE BLACK','DALLAS BLACK','DALLAS CAMEL',
@@ -195,6 +202,11 @@ function toggleCompletos(){
   document.getElementById('completosBtn').classList.toggle('active', _filterCompl);
   render();
 }
+function toggleClogs(){
+  _showClogs = !_showClogs;
+  document.getElementById('clogsBtn').classList.toggle('active', _showClogs);
+  render();
+}
 function toggleCore(title, e){
   e.stopPropagation();
   _core[title] = !_core[title];
@@ -209,10 +221,17 @@ async function init(){
     const res  = await fetch('/api/shopify?mode=products');
     if(!res.ok) throw new Error(`Error ${res.status}`);
     const data = await res.json();
-    _products  = (data.products || []).filter(p =>
-      p.status === 'active' && ALLOWED_SET.has(p.title.toLowerCase())
-    );
+    const all  = (data.products || []).filter(p => p.status === 'active');
+
+    _products = all.filter(p => ALLOWED_SET.has(p.title.toLowerCase()));
     _products.sort((a,b) => a.title.localeCompare(b.title));
+
+    _clogsProducts = all.filter(p => {
+      const tl = p.title.toLowerCase();
+      return CLOGS_KEYWORDS.some(k => tl.includes(k)) && !ALLOWED_SET.has(tl);
+    });
+    _clogsProducts.sort((a,b) => a.title.localeCompare(b.title));
+
     render();
   } catch(e){
     document.getElementById('tableBody').innerHTML =
@@ -228,14 +247,17 @@ async function init(){
 function render(){
   const query = (document.getElementById('searchInput')?.value||'').toLowerCase();
 
+  // Combine product lists
+  const base = _showClogs ? [..._products, ..._clogsProducts] : _products;
+
   // Collect sizes
   const sizeSet = new Set();
-  for(const p of _products)
+  for(const p of base)
     for(const v of (p.variants||[])){ const sz=extractSize(v.option1||v.title); if(/^\d{2}$/.test(sz)) sizeSet.add(sz); }
   const sizes = Array.from(sizeSet).sort((a,b)=>parseFloat(a)-parseFloat(b));
 
   // Filter
-  let filtered = _products.filter(p => !query || p.title.toLowerCase().includes(query));
+  let filtered = base.filter(p => !query || p.title.toLowerCase().includes(query));
   if(_filterCompl){
     filtered = filtered.filter(p => {
       const sizeMap = {};
