@@ -513,7 +513,7 @@ td{padding:10px 14px;vertical-align:middle;}
     <div class="landing-title-block">
       <span class="landing-title-small">Horarios LIVE</span>
       <div class="landing-access-btns">
-        <button class="access-btn" onclick="openAccess('anfitriona')">🎙️ Anfitriona</button>
+        <button class="access-btn" onclick="openAccess('anfitriona')">🎙️ Host</button>
         <button class="access-btn" onclick="openAccess('backend')">💻 Backend</button>
         <button class="access-btn admin-btn" onclick="openAccess('admin')">⚙️ Admin</button>
       </div>
@@ -563,7 +563,7 @@ td{padding:10px 14px;vertical-align:middle;}
       <div style="text-align:center;margin-bottom:8px;">
         <div style="font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">Últimos 15 días</div>
         <div style="font-family:var(--fh);font-size:26px;font-weight:600;letter-spacing:-.01em;">Mejor GMV / hora</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Anfitrionas · promedio entre sesiones</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Hosts · promedio entre sesiones</div>
       </div>
       <div id="pubRankPodium"></div>
       <div id="pubRankList" style="margin-top:8px;"></div>
@@ -680,7 +680,7 @@ td{padding:10px 14px;vertical-align:middle;}
 <div class="modal-overlay" id="slotModal" style="display:none;">
   <div class="modal">
     <h2>Nueva sesión</h2>
-    <p class="modal-sub">Sesiones de 1.5 hrs · 1 anfitriona + 1 backend</p>
+    <p class="modal-sub">Sesiones de 1.5 hrs · 1 host + 1 backend</p>
     <div class="form-row" style="margin-bottom:12px;">
       <div class="field">
         <label>Fecha</label>
@@ -831,17 +831,35 @@ function initFirebase(){
       if(!_fbReady){
         _fbReady = true;
         if(remote){
-          // Firebase tiene datos → siempre es la fuente de verdad
-          _applyRemote(remote);
+          const remoteTs = remote.lastModified || 0;
+          const localTs  = STATE.lastModified  || 0;
+          if(remoteTs >= localTs){
+            // Firebase tiene datos más recientes → fuente de verdad
+            _applyRemote(remote);
+          } else {
+            // Local es más reciente (ej. write previo no confirmado) → subir a Firebase
+            console.info("[Firebase] datos locales más recientes (local:", localTs, "remote:", remoteTs, ") — subiendo a Firebase");
+            _pushToFirebase();
+          }
         } else {
           // Firebase vacío (primera vez) → subir datos locales si los hay
-          if((STATE.slots||[]).length > 0) _pushToFirebase();
+          if((STATE.slots||[]).length > 0 || (STATE.members||[]).length > 0) _pushToFirebase();
         }
         return;
       }
 
-      // Actualización en tiempo real de otro dispositivo → aplicar siempre
-      if(remote) _applyRemote(remote);
+      // Actualización en tiempo real de otro dispositivo → aplicar solo si es más reciente
+      if(remote){
+        const remoteTs = remote.lastModified || 0;
+        const localTs  = STATE.lastModified  || 0;
+        if(remoteTs >= localTs){
+          _applyRemote(remote);
+        } else {
+          // Nuestros datos son más nuevos — ignorar update remoto y re-subir
+          console.info("[Firebase] update remoto ignorado (local más reciente), re-subiendo");
+          if(!_fbWriting) _pushToFirebase();
+        }
+      }
     });
   } catch(e) {
     console.warn("Firebase init error:", e);
@@ -895,8 +913,13 @@ function _pushToFirebase(){
   _sanitizeBeforePush();
   _fbWriting = true;
   _db.ref(FB_PATH).set(STATE)
-    .catch(e => console.warn("Firebase write error:", e))
-    .finally(() => setTimeout(() => { _fbWriting = false; }, 1000));
+    .then(() => { console.info("[Firebase] write OK, lastModified:", STATE.lastModified); })
+    .catch(e => {
+      console.warn("[Firebase] write FAILED — datos solo en localStorage:", e);
+      // Si el write falla, forzar que el timestamp local sea protegido
+      // (ya está en localStorage; cuando reconecte, el timestamp local ganará)
+    })
+    .finally(() => setTimeout(() => { _fbWriting = false; }, 3000)); // 3s > RTT típico
 }
 
 // ── PERSISTENCIA ──────────────────────────────────────────────────────────────
@@ -1087,7 +1110,7 @@ function openAccess(role){
     document.getElementById("googleSignInWrap").style.display = "block";
     setTimeout(()=>document.getElementById("adminPass").focus(),100);
   } else {
-    document.getElementById("modalTitle").textContent = role === "anfitriona" ? "Anfitriona" : "Staff Backend";
+    document.getElementById("modalTitle").textContent = role === "anfitriona" ? "Host" : "Staff Backend";
     document.getElementById("modalSub").textContent   = "Ingresa tu código personal";
     document.getElementById("adminPassField").style.display = "none";
     document.getElementById("codeField").style.display      = "block";
@@ -1218,7 +1241,7 @@ function cancelVincular(){
 function renderApp(){
   document.getElementById("landing").style.display = "none";
   document.getElementById("app").style.display     = "block";
-  const labels = { admin:"Administradora", anfitriona:"Anfitriona", backend:"Staff Backend" };
+  const labels = { admin:"Admin", anfitriona:"Host", backend:"Staff Backend" };
   document.getElementById("appViewLabel").textContent = labels[SESSION.role];
   const chipPhoto = SESSION.role!=="admin" ? avatarHtml(SESSION.code,"sm") : "";
   document.getElementById("userChip").innerHTML = SESSION.role==="admin"
@@ -1273,7 +1296,7 @@ function renderAdminEquipo(){
           <input id="newPhone" type="tel" placeholder="ej. 5512345678" maxlength="10" style="font-family:var(--fh);font-size:15px;"/></div>
         <div class="field"><label>Rol</label>
           <select id="newRole" onchange="previewCode()">
-            <option value="anfitriona">Anfitriona (máx ${MAX_ANFI} ses/día)</option>
+            <option value="anfitriona">Host (máx ${MAX_ANFI} ses/día)</option>
             <option value="backend">Staff Backend (máx ${MAX_BACKEND} ses/día)</option>
           </select></div>
         <div class="field" style="min-width:120px;">
@@ -1284,7 +1307,7 @@ function renderAdminEquipo(){
       </div>
       <div class="form-err" id="memberErr"></div>
     </div>
-    <div class="section-title">${STATE.members.length} persona${STATE.members.length!==1?"s":""} registradas · ${anfiTotal} anfitriona${anfiTotal!==1?"s":""} · ${backTotal} backend</div>
+    <div class="section-title">${STATE.members.length} persona${STATE.members.length!==1?"s":""} registradas · ${anfiTotal} host${anfiTotal!==1?"s":""} · ${backTotal} backend</div>
     ${STATE.members.length === 0
       ? `<div class="empty-state"><div class="empty-icon">👥</div>Aún no hay personas registradas.<br>Agrega a tu equipo arriba.</div>`
       : `<div class="table-wrap"><table>
@@ -1296,7 +1319,7 @@ function renderAdminEquipo(){
             return `<tr>
               <td style="display:flex;align-items:center;gap:10px;">${avatarHtml(m.code,"md")}<strong>${m.name}</strong></td>
               <td><span class="code-badge">${m.code}</span></td>
-              <td><span class="role-pill ${m.role}">${m.role==="anfitriona"?"Anfitriona":"Backend"}</span></td>
+              <td><span class="role-pill ${m.role}">${m.role==="anfitriona"?"Host":"Backend"}</span></td>
               <td>${googleChip}</td>
               <td style="display:flex;gap:6px;align-items:center;">
                 <button class="avatar-upload-btn" onclick="uploadPhoto('${m.code}',()=>renderAdmin('equipo'))">📷 Foto</button>
@@ -1504,7 +1527,7 @@ function renderSlotCard(slot, grid, anfiMembers, backMembers){
     <div class="slot-day">${slot.day} · ${fmtDate(slot.date)}${isPast?` <span style="font-size:9px;background:var(--surface3);color:var(--muted);padding:1px 5px;vertical-align:middle;letter-spacing:.1em;">PASADO</span>`:""}</div>
     <div class="slot-time">${slot.timeStart} – ${slot.timeEnd}</div>
     <div class="slot-spots">
-      ${spotHtml("🎙️","Anfitriona",anfiPick,anfiName,"anfitriona")}
+      ${spotHtml("🎙️","Host",anfiPick,anfiName,"anfitriona")}
       ${spotHtml("💻","Backend",backPick,backName,"backend")}
     </div>
     <div class="slot-report">
@@ -1596,7 +1619,7 @@ function renderAdminResumen(){
     const anfiPick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)==="anfitriona");
     const backPick = STATE.picks.find(p=>p.slotId===slot.id&&p.status!=="cancelled"&&memberRole(p.memberCode)==="backend");
     const rows = [
-      { icon:"🎙️", label:"Anfitriona", pick:anfiPick },
+      { icon:"🎙️", label:"Host", pick:anfiPick },
       { icon:"💻",  label:"Backend",    pick:backPick },
     ].map(({icon,label,pick})=>{
       if(!pick) return `<div class="sum-row"><span class="sum-role-icon">${icon}</span><span class="sum-name" style="color:var(--muted)">${label} — libre</span><span class="sum-status open">Libre</span></div>`;
@@ -1711,7 +1734,7 @@ function renderMember(){
     .sort((a,b)=>a.date.localeCompare(b.date)||a.timeStart.localeCompare(b.timeStart));
 
   const overallCount= myActivePicks.length;
-  const roleLabel   = SESSION.role==="anfitriona" ? "Anfitriona" : "Staff Backend";
+  const roleLabel   = SESSION.role==="anfitriona" ? "Host" : "Staff Backend";
   const emoji       = SESSION.role==="anfitriona" ? "🎙️" : "💻";
 
   // Limit bar — muestra sesiones de hoy vs límite diario
@@ -1801,7 +1824,7 @@ function renderMember(){
             <div class="slot-spots">
               <div class="spot-row ${mine?"filled-mine":"open"}">
                 <span class="spot-icon">${SESSION.role==="anfitriona"?"🎙️":"💻"}</span>
-                <span class="spot-label">${SESSION.role==="anfitriona"?"Anfitriona":"Backend"}</span>
+                <span class="spot-label">${SESSION.role==="anfitriona"?"Host":"Backend"}</span>
                 <span class="spot-name">${mine ? SESSION.name : "Libre"}</span>
                 ${mine?`<span class="spot-status ${mine.status}">${mine.status==="confirmed"?"✓ Conf.":"Pendiente"}</span>`:`<span class="spot-status open">Libre</span>`}
               </div>
