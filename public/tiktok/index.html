@@ -1791,7 +1791,7 @@ function renderMember(){
             ${p.notes?`<div class="my-slot-note">📝 ${p.notes}</div>`:""}
           </div>
           <div class="my-slot-actions">
-            <button class="confirm-btn confirm ${p.status==="confirmed"?"active":""}" onclick="setPickStatus('${slot.id}','confirmed')">✓ Confirmar</button>
+            ${SESSION.role !== "backend" ? `<button class="confirm-btn confirm ${p.status==="confirmed"?"active":""}" onclick="setPickStatus('${slot.id}','confirmed')">✓ Confirmar</button>` : ""}
             <button class="confirm-btn cancel-btn" onclick="cancelPick('${slot.id}')">Quitar</button>
             <button class="btn ghost" style="font-size:11px;padding:6px 12px;" onclick="openNotes('${slot.id}')">📝</button>
           </div>
@@ -1826,7 +1826,7 @@ function renderMember(){
                 <span class="spot-icon">${SESSION.role==="anfitriona"?"🎙️":"💻"}</span>
                 <span class="spot-label">${SESSION.role==="anfitriona"?"Host":"Backend"}</span>
                 <span class="spot-name">${mine ? SESSION.name : "Libre"}</span>
-                ${mine?`<span class="spot-status ${mine.status}">${mine.status==="confirmed"?"✓ Conf.":"Pendiente"}</span>`:`<span class="spot-status open">Libre</span>`}
+                ${mine?`<span class="spot-status ${mine.status}">${mine.status==="confirmed"?"✓ Conf.":(SESSION.role==="backend"?"✓ Conf.":"Pendiente")}</span>`:`<span class="spot-status open">Libre</span>`}
               </div>
               <div class="spot-row ${otherName?"filled":"open"}">
                 <span class="spot-icon">${otherIcon}</span>
@@ -1892,7 +1892,9 @@ function selectSlot(slotId){
   const limit = memberLimit(SESSION.role);
   const count = dayPickCount(SESSION.code, slot.date);
   if(count >= limit){ showAlert(`Ya tienes ${limit} sesion${limit!==1?"es":""} ese día (límite diario).`); return; }
-  STATE.picks.push({ slotId, memberCode:SESSION.code, status:"pending", notes:"" });
+  // Backend se confirma automático; anfitrionas siguen con flujo de confirmación manual
+  const autoStatus = SESSION.role === "backend" ? "confirmed" : "pending";
+  STATE.picks.push({ slotId, memberCode:SESSION.code, status:autoStatus, notes:"" });
   save(); renderMember(); renderPublicCal();
 }
 
