@@ -822,6 +822,7 @@ function initFirebase(){
     if(FIREBASE_CONFIG.apiKey.startsWith("REEMPLAZA")) return;
     if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     _db = firebase.database();
+    try { _db.setPersistenceEnabled(true); } catch(e) {} // caché offline — sobrevive desconexiones
 
     _db.ref(FB_PATH).on("value", snap => {
       if(_fbWriting) return; // escribimos nosotros, ignorar eco
@@ -867,13 +868,22 @@ function initFirebase(){
 }
 
 function _applyRemote(remote){
+  // Preservar fotos locales — Firebase solo guarda flags (true/false), no el base64
+  const localPhotos = (STATE.photos && typeof STATE.photos === "object") ? STATE.photos : {};
   STATE = remote;
   if(!STATE.members)   STATE.members   = [];
   if(!STATE.slots)     STATE.slots     = [];
   if(!STATE.picks)     STATE.picks     = [];
   if(!STATE.changelog) STATE.changelog = [];
   if(!STATE.admins)    STATE.admins    = [];
-  if(!STATE.photos)    STATE.photos    = {};
+  // Reconstruir photos: combinar flags remotos con imágenes locales
+  const remotePhotos = (remote.photos && typeof remote.photos === "object") ? remote.photos : {};
+  STATE.photos = {};
+  Object.keys(remotePhotos).forEach(k => {
+    // Si tenemos la foto en local (base64), usarla; si no, ignorar el flag
+    if(localPhotos[k] && typeof localPhotos[k] === "string" && localPhotos[k].startsWith("data:"))
+      STATE.photos[k] = localPhotos[k];
+  });
   // Rechazar datos de prueba que vengan de Firebase
   const hadTestMembers = STATE.members.some(m => TEST_CODES.has(m.code));
   if(hadTestMembers){
@@ -911,15 +921,25 @@ function _sanitizeBeforePush(){
 function _pushToFirebase(){
   if(!_db) return;
   _sanitizeBeforePush();
+
+  // Las fotos (base64) pueden ser muy pesadas — se guardan solo en localStorage.
+  // Firebase solo almacena referencias (flag), no la imagen completa.
+  const photoKeys = STATE.photos ? Object.keys(STATE.photos) : [];
+  const photoFlags = {};
+  photoKeys.forEach(k => { photoFlags[k] = true; }); // solo marca "tiene foto"
+  const payload = { ...STATE, photos: photoFlags };
+
+  // Aviso si el payload es grande (>2MB)
+  const payloadSize = JSON.stringify(payload).length;
+  if(payloadSize > 2_000_000) console.warn("[Firebase] payload grande:", Math.round(payloadSize/1024), "KB");
+
   _fbWriting = true;
-  _db.ref(FB_PATH).set(STATE)
+  _db.ref(FB_PATH).set(payload)
     .then(() => { console.info("[Firebase] write OK, lastModified:", STATE.lastModified); })
     .catch(e => {
       console.warn("[Firebase] write FAILED — datos solo en localStorage:", e);
-      // Si el write falla, forzar que el timestamp local sea protegido
-      // (ya está en localStorage; cuando reconecte, el timestamp local ganará)
     })
-    .finally(() => setTimeout(() => { _fbWriting = false; }, 3000)); // 3s > RTT típico
+    .finally(() => setTimeout(() => { _fbWriting = false; }, 3000));
 }
 
 // ── PERSISTENCIA ──────────────────────────────────────────────────────────────
@@ -981,7 +1001,13 @@ function migrateSlotDays(){
     const correct = dayFromDate(slot.date);
     if(slot.day !== correct){ slot.day = correct; changed = true; }
   });
-  if(changed) save();
+  if(changed){
+    // NO llamar save() — eso actualizaría lastModified y rompería la resolución de conflictos
+    // durante la carga inicial (antes de que Firebase conecte).
+    // Solo persistir localmente; si Firebase ya está listo, subir sin tocar lastModified.
+    localStorage.setItem("bdg_horarios_v2", JSON.stringify(STATE));
+    if(_db && _fbReady) _pushToFirebase();
+  }
 }
 
 // ── FOTOS DE PERFIL ───────────────────────────────────────────────────────────
@@ -3393,10 +3419,10 @@ function renderAdminInventario(){
 // ── INIT ──────────────────────────────────────────────────────────────────────
 load();
 renderPublicCal();
-// Pre-carga inventario en background para que esté listo al abrir la pestaña
-setTimeout(() => invSync(), 2000);
-// GMV en background al cargar — actualiza sesiones pasadas sin tener que abrir Historial
-setTimeout(() => loadLiveGMV(), 4000);
+// Pre-carga inventario en background — espera a que Firebase termine (tipicamente <2s)
+setTimeout(() => invSync(), 5000);
+// GMV en background — después del inventario para no competir por banda
+setTimeout(() => loadLiveGMV(), 8000);
 // Re-calcula cada hora para que la sesión actual aparezca actualizada
 setInterval(() => loadLiveGMV(), 60 * 60 * 1000);
 </script>
