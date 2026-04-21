@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metas Mayo 2026 · Bala Di Gala</title>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #000000;
+    --white: #FFFFFF;
+    --off: #F5F5F4;
+    --line: #E0E0DC;
+    --line2: #CBCBC6;
+    --text: #000000;
+    --text2: #444440;
+    --muted: #888884;
+    --red: #B8432A;
+    --red2: #D4573E;
+    --red-l: #FAEAE7;
+    --pos: #1A5C2E;
+    --pos-l: #E6F4EA;
+    --warn: #7A5C1E;
+    --warn-l: #F5EDD6;
+    --neg: #8B2020;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    background: var(--white);
+    color: var(--black);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ANNOUNCEMENT BAR */
+  .announce {
+    background: var(--black);
+    color: var(--white);
+    text-align: center;
+    padding: 7px 20px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+  }
+
+  /* NAV */
+  nav {
+    background: var(--white);
+    border-bottom: 1px solid var(--black);
+    padding: 16px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .nav-left {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .nav-logo {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .nav-right {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .live-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--red);
+    display: inline-block;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* HERO HEADER */
+  .hero {
+    background: var(--black);
+    padding: 40px 40px 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .hero-left {}
+  .hero-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 10px;
+  }
+  .hero-title {
+    font-size: 52px;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--white);
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+  }
+  .hero-title span { color: var(--red); }
+  .hero-tags {
+    display: flex;
+    gap: 6px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    display: inline-block;
+    padding: 4px 12px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.7);
+  }
+  .tag-red { border-color: var(--red); color: var(--red); }
+
+  .hero-right { text-align: right; }
+  .hero-meta-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 6px;
+  }
+  .hero-total {
+    font-size: 58px;
+    font-weight: 900;
+    color: var(--red);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .hero-sub {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    margin-top: 4px;
+  }
+
+  /* MAIN */
+  main { padding: 32px 40px; display: flex; flex-direction: column; gap: 32px; }
+
+  /* SECTION LABEL */
+  .sec-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 8px;
+  }
+
+  /* ABRIL STRIP */
+  .abril-strip {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    border: 1px solid var(--black);
+  }
+  .abril-cell {
+    padding: 14px 16px;
+    border-right: 1px solid var(--black);
+    text-align: center;
+  }
+  .abril-cell:last-child { border-right: none; background: var(--black); }
+  .abril-cell-label {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .abril-cell:last-child .abril-cell-label { color: rgba(255,255,255,0.4); }
+  .abril-cell-val {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--black);
+  }
+  .abril-cell:last-child .abril-cell-val { color: var(--red); font-size: 16px; }
+
+  /* CANAL GRID */
+  .canales-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border: 1px solid var(--black);
+  }
+  .canal-card {
+    padding: 22px 24px;
+    border-right: 1px solid var(--black);
+    border-bottom: 1px solid var(--black);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .canal-card:nth-child(3), .canal-card:nth-child(6) { border-right: none; }
+  .canal-card:nth-child(4), .canal-card:nth-child(5), .canal-card:nth-child(6) { border-bottom: none; }
+  .canal-card.black { background: var(--black); }
+  .canal-card.red { background: var(--red); }
+
+  .canal-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .canal-nombre {
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .black .canal-nombre, .red .canal-nombre { color: rgba(255,255,255,0.45); }
+
+  .canal-owner {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--text2);
+    text-transform: uppercase;
+  }
+  .black .canal-owner, .red .canal-owner { color: rgba(255,255,255,0.55); }
+
+  .canal-meta {
+    font-size: 30px;
+    font-weight: 900;
+    color: var(--black);
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+  .black .canal-meta { color: var(--white); }
+  .red .canal-meta { color: var(--white); }
+
+  /* PROGRESS */
+  .canal-prog { display: flex; flex-direction: column; gap: 5px; border-top: 1px solid var(--line); padding-top: 10px; }
+  .black .canal-prog { border-color: rgba(255,255,255,0.12); }
+  .red .canal-prog { border-color: rgba(255,255,255,0.2); }
+
+  .prog-row { display: flex; justify-content: space-between; align-items: center; }
+  .prog-text {
+    font-size: 8.5px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .black .prog-text, .red .prog-text { color: rgba(255,255,255,0.4); }
+
+  .prog-pct {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+  }
+  .pct-green { color: var(--pos); }
+  .pct-yellow { color: var(--warn); }
+  .pct-red { color: var(--neg); }
+  .pct-white { color: rgba(255,255,255,0.75); }
+
+  .prog-bar-bg {
+    height: 4px;
+    background: var(--line);
+    overflow: hidden;
+  }
+  .black .prog-bar-bg, .red .prog-bar-bg { background: rgba(255,255,255,0.12); }
+  .prog-bar { height: 100%; }
+  .bar-green { background: var(--pos); }
+  .bar-yellow { background: #C49A1E; }
+  .bar-neg { background: var(--neg); }
+  .bar-white { background: rgba(255,255,255,0.6); }
+
+  .prog-note {
+    font-size: 8.5px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .black .prog-note, .red .prog-note { color: rgba(255,255,255,0.3); }
+
+  /* PARES GRID */
+  .pares-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border: 1px solid var(--black);
+  }
+  .par-cell {
+    padding: 18px 22px;
+    border-right: 1px solid var(--black);
+    border-bottom: 1px solid var(--black);
+  }
+  .par-cell:nth-child(3), .par-cell:nth-child(6) { border-right: none; }
+  .par-cell:nth-child(4), .par-cell:nth-child(5), .par-cell:nth-child(6) { border-bottom: none; }
+  .par-label {
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .par-val {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--black);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .par-ticket {
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  /* TOTAL PARES */
+  .total-pares {
+    border: 1px solid var(--black);
+    border-top: none;
+    background: var(--black);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .total-pares-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+  }
+  .total-pares-val {
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--white);
+    letter-spacing: -0.01em;
+  }
+
+  /* ROI */
+  .roi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border: 1px solid var(--black);
+  }
+  .roi-cell {
+    padding: 22px 26px;
+    border-right: 1px solid var(--black);
+  }
+  .roi-cell:last-child { border-right: none; background: var(--black); }
+  .roi-label {
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .roi-cell:last-child .roi-label { color: rgba(255,255,255,0.35); }
+  .roi-val {
+    font-size: 38px;
+    font-weight: 900;
+    color: var(--black);
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+  .roi-cell:last-child .roi-val { color: var(--red); }
+  .roi-sub {
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-top: 6px;
+    line-height: 1.5;
+    letter-spacing: 0.04em;
+  }
+  .roi-cell:last-child .roi-sub { color: rgba(255,255,255,0.3); }
+
+  /* FOOTER */
+  footer {
+    background: var(--black);
+    padding: 14px 40px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+  }
+</style>
+</head>
+<body>
+
+<!-- ANNOUNCE BAR -->
+<div class="announce">BALA DI GALA &nbsp;·&nbsp; METAS MAYO 2026 &nbsp;·&nbsp; TODOS LOS CANALES &nbsp;·&nbsp; MXN</div>
+
+<!-- NAV -->
+<nav style="position:relative;">
+  <div class="nav-left">Plan Mayo 2026</div>
+  <div class="nav-logo">
+    <img src="https://baladigala.com/cdn/shop/files/TIPOGRAFIA_0eeef2c9-8447-407e-940f-5d63c2a8467c.webp?v=1737764437&width=610"
+         alt="BALA DI GALA" style="height:16px;width:auto;filter:brightness(0);">
+  </div>
+  <div class="nav-right"><div class="live-dot"></div> Shopify API · 21 Abr 2026</div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-left">
+    <div class="hero-label">Objetivos Mensuales</div>
+    <div class="hero-title">MAYO<br><span>2026.</span></div>
+    <div class="hero-tags">
+      <span class="tag tag-red">🌹 Día de las Madres · 10 May</span>
+      <span class="tag">⚡ Hot Sale · 25 May–2 Jun</span>
+      <span class="tag">🥾 Drop 1 FW26</span>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-meta-label">Meta Total · Todos los Canales</div>
+    <div class="hero-total">$4,210,000</div>
+    <div class="hero-sub">MXN · Mayo 2026</div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ABRIL REF -->
+  <div>
+    <div class="sec-label">Abril 2026 · Arranque de Referencia — Proyectado a 31 días</div>
+    <div class="abril-strip">
+      <div class="abril-cell">
+        <div class="abril-cell-label">TikTok Shop</div>
+        <div class="abril-cell-val">$1,040,238</div>
+      </div>
+      <div class="abril-cell">
+        <div class="abril-cell-label">Shopify Web</div>
+        <div class="abril-cell-val">$1,485,563</div>
+      </div>
+      <div class="abril-cell">
+        <div class="abril-cell-label">Palacio de Hierro</div>
+        <div class="abril-cell-val">$433,935</div>
+      </div>
+      <div class="abril-cell">
+        <div class="abril-cell-label">Mercado Libre</div>
+        <div class="abril-cell-val">$311,248</div>
+      </div>
+      <div class="abril-cell">
+        <div class="abril-cell-label">Amazon</div>
+        <div class="abril-cell-val">$17,156</div>
+      </div>
+      <div class="abril-cell">
+        <div class="abril-cell-label">Wholesale</div>
+        <div class="abril-cell-val">$37,717</div>
+      </div>
+      <div class="abril-cell">
+        <div class="abril-cell-label">Total Proyectado</div>
+        <div class="abril-cell-val">$3,325,857</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- METAS POR CANAL -->
+  <div>
+    <div class="sec-label">Meta por Canal · Barra = Ritmo Abril vs Meta Mayo</div>
+    <div class="canales-grid">
+
+      <!-- TikTok 58% -->
+      <div class="canal-card black">
+        <div class="canal-top">
+          <div class="canal-nombre">TikTok Shop</div>
+          <div class="canal-owner">Miranda Romero</div>
+        </div>
+        <div class="canal-meta">$1,800,000</div>
+        <div class="canal-prog">
+          <div class="prog-row">
+            <span class="prog-text">Ritmo Abr → $1.04M</span>
+            <span class="prog-pct pct-white">58%</span>
+          </div>
+          <div class="prog-bar-bg"><div class="prog-bar bar-white" style="width:58%;"></div></div>
+          <div class="prog-note">Falta +73% sobre ritmo actual · Madres + Hot Sale = upside</div>
+        </div>
+      </div>
+
+      <!-- Shopify 99% -->
+      <div class="canal-card red">
+        <div class="canal-top">
+          <div class="canal-nombre">Shopify Web</div>
+          <div class="canal-owner">Perla</div>
+        </div>
+        <div class="canal-meta">$1,500,000</div>
+        <div class="canal-prog">
+          <div class="prog-row">
+            <span class="prog-text">Ritmo Abr → $1.49M</span>
+            <span class="prog-pct pct-white">99%</span>
+          </div>
+          <div class="prog-bar-bg"><div class="prog-bar bar-white" style="width:99%;"></div></div>
+          <div class="prog-note">En camino · meta conservadora vs ritmo actual</div>
+        </div>
+      </div>
+
+      <!-- Palacio 108% -->
+      <div class="canal-card">
+        <div class="canal-top">
+          <div class="canal-nombre">Palacio de Hierro</div>
+          <div class="canal-owner">Cristian</div>
+        </div>
+        <div class="canal-meta">$400,000</div>
+        <div class="canal-prog">
+          <div class="prog-row">
+            <span class="prog-text">Ritmo Abr → $433K</span>
+            <span class="prog-pct pct-green">108%</span>
+          </div>
+          <div class="prog-bar-bg"><div class="prog-bar bar-green" style="width:100%;"></div></div>
+          <div class="prog-note">Por encima del ritmo · meta puede subir</div>
+        </div>
+      </div>
+
+      <!-- ML 82% -->
+      <div class="canal-card">
+        <div class="canal-top">
+          <div class="canal-nombre">Mercado Libre</div>
+          <div class="canal-owner">Jesús</div>
+        </div>
+        <div class="canal-meta">$380,000</div>
+        <div class="canal-prog">
+          <div class="prog-row">
+            <span class="prog-text">Ritmo Abr → $311K</span>
+            <span class="prog-pct pct-yellow">82%</span>
+          </div>
+          <div class="prog-bar-bg"><div class="prog-bar bar-yellow" style="width:82%;"></div></div>
+          <div class="prog-note">Necesita +22% sobre ritmo actual</div>
+        </div>
+      </div>
+
+      <!-- Wholesale 47% -->
+      <div class="canal-card">
+        <div class="canal-top">
+          <div class="canal-nombre">Wholesale</div>
+          <div class="canal-owner">Mariana Muñoz</div>
+        </div>
+        <div class="canal-meta">$80,000</div>
+        <div class="canal-prog">
+          <div class="prog-row">
+            <span class="prog-text">Ritmo Abr → $38K</span>
+            <span class="prog-pct pct-red">47%</span>
+          </div>
+          <div class="prog-bar-bg"><div class="prog-bar bar-neg" style="width:47%;"></div></div>
+          <div class="prog-note">Depende de órdenes activas · validar pipeline</div>
+        </div>
+      </div>
+
+      <!-- Amazon 34% -->
+      <div class="canal-card">
+        <div class="canal-top">
+          <div class="canal-nombre">Amazon</div>
+          <div class="canal-owner">Jesús</div>
+        </div>
+        <div class="canal-meta">$50,000</div>
+        <div class="canal-prog">
+          <div class="prog-row">
+            <span class="prog-text">Ritmo Abr → $17K</span>
+            <span class="prog-pct pct-red">34%</span>
+          </div>
+          <div class="prog-bar-bg"><div class="prog-bar bar-neg" style="width:34%;"></div></div>
+          <div class="prog-note">Canal en desarrollo · requiere acción proactiva</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PARES -->
+  <div>
+    <div class="sec-label">Pares a Vender · Basado en Ticket Promedio Real</div>
+    <div class="pares-grid">
+      <div class="par-cell">
+        <div class="par-label">TikTok Shop · ticket $1,075</div>
+        <div class="par-val">1,674</div>
+        <div class="par-ticket">pares · ticket real API Ene–Abr</div>
+      </div>
+      <div class="par-cell">
+        <div class="par-label">Shopify Web · ticket $1,680</div>
+        <div class="par-val">893</div>
+        <div class="par-ticket">pares · ticket real API Ene–Abr</div>
+      </div>
+      <div class="par-cell">
+        <div class="par-label">Palacio de Hierro · ticket $1,800</div>
+        <div class="par-val">222</div>
+        <div class="par-ticket">pares · ticket estimado PDV premium</div>
+      </div>
+      <div class="par-cell">
+        <div class="par-label">Mercado Libre · ticket $1,618</div>
+        <div class="par-val">235</div>
+        <div class="par-ticket">pares · ticket real ML Analytics</div>
+      </div>
+      <div class="par-cell">
+        <div class="par-label">Wholesale · ticket $1,500</div>
+        <div class="par-val">53</div>
+        <div class="par-ticket">pares · ticket estimado</div>
+      </div>
+      <div class="par-cell">
+        <div class="par-label">Amazon · ticket $1,600</div>
+        <div class="par-val">31</div>
+        <div class="par-ticket">pares · ticket estimado</div>
+      </div>
+    </div>
+    <div class="total-pares">
+      <div class="total-pares-label">Total Pares · Mayo 2026 &nbsp;·&nbsp; 1,674 + 893 + 222 + 235 + 53 + 31</div>
+      <div class="total-pares-val">3,108 pares</div>
+    </div>
+  </div>
+
+  <!-- ROI -->
+  <div>
+    <div class="sec-label">Gasto en Ads · Para un ROI de 7×</div>
+    <div class="roi-grid">
+      <div class="roi-cell">
+        <div class="roi-label">Meta Total Mayo</div>
+        <div class="roi-val">$4,210,000</div>
+        <div class="roi-sub">MXN · todos los canales</div>
+      </div>
+      <div class="roi-cell">
+        <div class="roi-label">ROI Objetivo</div>
+        <div class="roi-val">7×</div>
+        <div class="roi-sub">Ingreso ÷ Gasto en Ads</div>
+      </div>
+      <div class="roi-cell">
+        <div class="roi-label">Presupuesto Máximo Ads</div>
+        <div class="roi-val">$601,000</div>
+        <div class="roi-sub">MXN · no rebasar para mantener el 7× · $4,210,000 ÷ 7</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <span>Bala Di Gala · Hand Detail SA de CV · Mayo 2026</span>
+  <span>Shopify API · ML Analytics · TikTok Shop · MXN</span>
+</footer>
+
+</body>
+</html>
