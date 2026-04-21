@@ -1661,7 +1661,7 @@ function renderMemberGmv(){
     .filter(p => p.memberCode === SESSION.code && p.status !== "cancelled")
     .map(p => STATE.slots.find(s => s.id === p.slotId))
     .filter(s => s && s.date < today && s.gmv > 0)
-    .sort((a,b) => b.date.localeCompare(b.date) || b.timeStart.localeCompare(a.timeStart));
+    .sort((a,b) => b.date.localeCompare(a.date) || b.timeStart.localeCompare(a.timeStart));
 
   const totalGmv   = gmvSlots.reduce((sum, s) => sum + (s.gmv || 0), 0);
   const totalSes   = gmvSlots.length;
@@ -1723,9 +1723,11 @@ function renderMember(){
 
   // Filter available slots by the current member week
   const memberWeekDates = getWeekDates(memberWeekOffset);
+  const todayStr = new Date().toLocaleDateString("en-CA", {timeZone:"America/Mexico_City"});
   const available = STATE.slots
     .filter(s=>{
       if(!memberWeekDates.includes(s.date)) return false;
+      if(s.date < todayStr) return false; // no mostrar sesiones pasadas
       const alreadyMine = myActivePicks.find(p=>p.slotId===s.id);
       if(alreadyMine) return true;
       const spotTaken = STATE.picks.find(p=>p.slotId===s.id&&p.status!=="cancelled"&&memberRole(p.memberCode)===SESSION.role);
@@ -1862,7 +1864,7 @@ function buildMemberLeaderboard(){
         <span style="font-size:18px;width:24px;text-align:center;">${medals[i]||i+1}</span>
         ${avatarHtml(b.code,"md")}
         <div style="flex:1;min-width:0;">
-          <div style="font-weight:500;font-size:13px;">${isMe?"✨ Tú":""}${b.name.split(" ")[0]}</div>
+          <div style="font-weight:500;font-size:13px;">${isMe?"✨ Tú · ":""}${b.name.split(" ")[0]}</div>
           <div style="font-size:10px;color:var(--muted);">${b.sesiones} sesión${b.sesiones!==1?"es":""}</div>
         </div>
         <div style="text-align:right;">
@@ -1908,7 +1910,13 @@ function cancelPick(slotId){
 
 function confirmCancelPick(){
   const reasonEl = document.querySelector('input[name="cancelReason"]:checked');
-  if(!reasonEl){ return; }
+  if(!reasonEl){
+    // Dar feedback visual al usuario
+    const btns = document.querySelectorAll('#cancelReasonModal input[name="cancelReason"]');
+    btns.forEach(b => b.closest('label') && (b.closest('label').style.color = 'var(--neg)'));
+    setTimeout(() => btns.forEach(b => b.closest('label') && (b.closest('label').style.color = '')), 1500);
+    return;
+  }
   const p = STATE.picks.find(pk => pk.slotId === _pendingCancelSlotId && pk.memberCode === SESSION.code && pk.status !== 'cancelled');
   if(p){
     p.status       = 'cancelled';
@@ -3058,10 +3066,13 @@ function clearBitacora(){
 // ── ESCAPE PARA CERRAR MODALES ────────────────────────────────────────────────
 document.addEventListener("keydown", e => {
   if(e.key !== "Escape") return;
-  ["accessModal","slotModal","notesModal","confirmModal","reporteModal"].forEach(id => {
+  ["accessModal","slotModal","notesModal","confirmModal","reporteModal","vincularModal"].forEach(id => {
     const el = document.getElementById(id);
     if(el && el.style.display !== "none") closeModal(id);
   });
+  // cancelReasonModal no tiene closeModal, se cierra con display:none
+  const crm = document.getElementById("cancelReasonModal");
+  if(crm && crm.style.display !== "none") crm.style.display = "none";
 });
 
 // ── INVENTARIO ────────────────────────────────────────────────────────────────
@@ -3367,7 +3378,7 @@ function renderAdminInventario(){
   document.getElementById("tabContent").innerHTML = `
     <div class="inv-toolbar">
       <div class="inv-cat-btns">
-        ${cats.map(c=>`<button class="inv-cat-btn ${_invCat===c.k?"active":""}" onclick="_invCat='${c.k}';invRender();renderAdminInventario()">${c.label}</button>`).join("")}
+        ${cats.map(c=>`<button class="inv-cat-btn ${_invCat===c.k?"active":""}" onclick="_invCat='${c.k}';renderAdminInventario()">${c.label}</button>`).join("")}
       </div>
       <button class="inv-sync-btn" id="invSyncBtn" onclick="invSync()">
         <span id="invSyncIcon">↻</span> Actualizar
