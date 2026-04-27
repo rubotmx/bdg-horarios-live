@@ -96,6 +96,12 @@ html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var
 }
 .filter-pill:hover{border-color:var(--terra);color:var(--terra-dark);}
 .filter-pill.active{background:var(--terra);color:#fff;border-color:var(--terra);}
+.ad-pill-green{color:#1B6E3E;}
+.ad-pill-green.active{background:var(--green-bg);color:var(--green-txt);border-color:var(--green-txt);}
+.ad-pill-yellow{color:var(--amber-txt);}
+.ad-pill-yellow.active{background:var(--amber-bg);color:var(--amber-txt);border-color:var(--amber-txt);}
+.ad-pill-red{color:var(--red-txt);}
+.ad-pill-red.active{background:var(--red-bg);color:var(--red-txt);border-color:var(--red-txt);}
 
 /* ── SUMMARY ── */
 .summary-strip{
@@ -209,6 +215,20 @@ html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var
 @keyframes pulse-red{0%,100%{opacity:1}50%{opacity:.55}}
 .sz-val.critical{animation:pulse-red 1.8s ease-in-out infinite;}
 
+/* ── AD STATUS BADGE ── */
+.ad-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:8px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;margin-top:5px;
+}
+.ad-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.ad-green .ad-dot{background:var(--green-txt);}
+.ad-green{color:var(--green-txt);}
+.ad-yellow .ad-dot{background:var(--amber-txt);}
+.ad-yellow{color:var(--amber-txt);}
+.ad-red .ad-dot{background:var(--red-txt);}
+.ad-red{color:var(--red-txt);}
+
 /* ── MISC VARIANTS ── */
 .misc-variants{display:flex;flex-direction:column;gap:4px;}
 .misc-variant{display:flex;align-items:center;justify-content:space-between;padding:2px 0;}
@@ -278,6 +298,10 @@ html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
       Mayor stock
     </button>
+    <div style="width:1px;height:20px;background:var(--border);flex-shrink:0;margin:0 2px;"></div>
+    <button class="filter-pill ad-pill-green" id="adGreenBtn" onclick="toggleAdFilter('green')">● Publicitar</button>
+    <button class="filter-pill ad-pill-yellow" id="adYellowBtn" onclick="toggleAdFilter('yellow')">● Precaución</button>
+    <button class="filter-pill ad-pill-red" id="adRedBtn" onclick="toggleAdFilter('red')">● No publicitar</button>
   </div>
 </div>
 
@@ -355,6 +379,7 @@ let _othersProducts = [];
 let _mode          = 'positive';   // 'positive' | 'all'
 let _filterCompl   = false;
 let _sortByStock   = false;
+let _adFilter      = null; // null | 'green' | 'yellow' | 'red'
 let _tab           = 'all';        // 'all' | 'main' | 'clogs' | 'others' | 'misc'
 let _allProducts   = [];
 let _miscProducts  = [];
@@ -395,6 +420,28 @@ const ALLOWED_SET = new Set(ALLOWED_MODELS.map(s => s.toLowerCase()));
 function hasSizes(p){
   return (p.variants||[]).some(v => /^\d{2}$/.test(extractSizeFromVariant(v)));
 }
+
+// Ad readiness based on key sizes 24 & 25 (50% of sales)
+// green = listo (>=10 en key sizes), yellow = precaución (3-9), red = no publicitar (<3)
+function adStatus(sizeMap){
+  const has24 = sizeMap['24'] !== undefined;
+  const has25 = sizeMap['25'] !== undefined;
+  if(!has24 && !has25){
+    // No key sizes — fallback to total effective stock
+    const total = Object.values(sizeMap).reduce((s,v) => s + Math.max(0,v), 0);
+    if(total >= 15) return 'green';
+    if(total >= 5)  return 'yellow';
+    return 'red';
+  }
+  const stocks = [has24 ? Math.max(0, sizeMap['24']) : null,
+                  has25 ? Math.max(0, sizeMap['25']) : null].filter(v => v !== null);
+  const minKey = Math.min(...stocks);
+  if(minKey >= 10) return 'green';
+  if(minKey >= 3)  return 'yellow';
+  return 'red';
+}
+
+const AD_LABEL = { green:'Publicitar', yellow:'Precaución', red:'No publicitar' };
 
 function effectiveQty(qty){ return _mode === 'positive' ? Math.max(0, qty) : qty; }
 
@@ -450,6 +497,13 @@ function toggleCompletos(){
 function toggleSort(){
   _sortByStock = !_sortByStock;
   document.getElementById('sortBtn').classList.toggle('active', _sortByStock);
+  render();
+}
+function toggleAdFilter(status){
+  _adFilter = _adFilter === status ? null : status;
+  document.getElementById('adGreenBtn').classList.toggle('active', _adFilter === 'green');
+  document.getElementById('adYellowBtn').classList.toggle('active', _adFilter === 'yellow');
+  document.getElementById('adRedBtn').classList.toggle('active', _adFilter === 'red');
   render();
 }
 function toggleCore(title, e){
@@ -568,7 +622,8 @@ function render(){
         for(const [color, sizeMap] of Object.entries(colorMap)){
           const total  = sizes.reduce((s,sz) => s + effectiveQty(sizeMap[sz]??0), 0);
           const imgSrc = (colorImgs[color] && imgByIdGlobal[colorImgs[color]]) || p.images?.[0]?.src || null;
-          items.push({ p, color, sizeMap, imgSrc, total, isMisc: false });
+          const status = adStatus(sizeMap);
+          items.push({ p, color, sizeMap, imgSrc, total, status, isMisc: false });
         }
       } else {
         const sizeMap = {};
@@ -578,10 +633,14 @@ function render(){
         }
         const total  = sizes.reduce((s,sz) => s + effectiveQty(sizeMap[sz]??0), 0);
         const imgSrc = p.images?.[0]?.src || null;
-        items.push({ p, color: null, sizeMap, imgSrc, total, isMisc: false });
+        const status = adStatus(sizeMap);
+        items.push({ p, color: null, sizeMap, imgSrc, total, status, isMisc: false });
       }
     }
   }
+
+  // Filter by ad status (only for non-misc tabs)
+  if(_adFilter && _tab !== 'misc') items = items.filter(it => it.status === _adFilter);
 
   // Sort each individual card by its own stock total
   if(_sortByStock) items.sort((a,b) => b.total - a.total);
@@ -648,7 +707,7 @@ function render(){
   }
 
   // ── Regular tabs render ───────────────────────────────────────────────────
-  document.getElementById('cardsList').innerHTML = items.map(({ p, color, sizeMap, imgSrc, total }, idx) => {
+  document.getElementById('cardsList').innerHTML = items.map(({ p, color, sizeMap, imgSrc, total, status }, idx) => {
     const hasColor  = color !== null;
     const titleSafe = hasColor ? (p.title+' '+color).replace(/'/g,"\\'") : p.title.replace(/'/g,"\\'");
     const isCore    = !!_core[titleSafe];
@@ -671,6 +730,7 @@ function render(){
         <div class="card-meta">
           <div class="prod-name">${p.title}</div>
           ${hasColor ? `<div class="color-pill">${swatchFor(color)}${color}</div>` : ''}
+          <div class="ad-badge ad-${status}"><span class="ad-dot"></span>${AD_LABEL[status]}</div>
         </div>
         <div class="card-right">
           <div class="card-total">
