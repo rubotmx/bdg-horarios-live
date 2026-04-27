@@ -356,24 +356,15 @@ td.td-bodega{text-align:center;background:var(--terra-light);}
   </table>
 </div>
 
-<!-- Firebase + SheetJS -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<!-- SheetJS -->
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script>
-// ── Firebase ──────────────────────────────────────────────────────────────────
-firebase.initializeApp({
-  apiKey:            "AIzaSyD6ZcB618WZ_pSE3CPgOFdwl60_PafDTec",
-  authDomain:        "bdg-horarios.firebaseapp.com",
-  projectId:         "bdg-horarios",
-  storageBucket:     "bdg-horarios.firebasestorage.app",
-  messagingSenderId: "888593583878",
-  appId:             "1:888593583878:web:65b1955ae0613558d3d887"
-});
-const db = firebase.firestore();
+// ── Firebase RTDB helpers ─────────────────────────────────────────────────────
+const RTDB_URL = 'https://bdg-horarios-default-rtdb.firebaseio.com/pdh_data/current';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-const BODEGA_RE = /cedis|ecommerce|e-commerce/i;
+const BODEGA_RE   = /cedis|ecommerce|e-commerce/i;
+const SKIP_STORES = /internet|tel[eé]fono|tel./i;  // not physical stores
 
 const STORE_COLORS = [
   '#5b9cf6','#3ecf8e','#c8943a','#c16452',
@@ -457,21 +448,22 @@ function vtaClass(v) {
   return 'c4';
 }
 
-// ── Load data from Firestore ──────────────────────────────────────────────────
+// ── Load data from RTDB ───────────────────────────────────────────────────────
 async function loadData() {
   try {
-    const doc = await db.collection('pdh_data').doc('current').get();
+    const res = await fetch(RTDB_URL + '.json');
+    const data = await res.json();
     document.getElementById('loadingState').classList.add('hidden');
 
-    if (doc.exists && doc.data().models) {
-      _data = doc.data();
+    if (data && data.models) {
+      _data = data;
       showDataUI();
       render();
     } else {
       document.getElementById('emptyState').classList.remove('hidden');
     }
   } catch(e) {
-    console.error('[PDH] Firestore error:', e);
+    console.error('[PDH] RTDB error:', e);
     document.getElementById('loadingState').classList.add('hidden');
     document.getElementById('emptyState').classList.remove('hidden');
   }
@@ -483,7 +475,7 @@ function showDataUI() {
   document.getElementById('tableWrap').classList.remove('hidden');
 
   if (_data.updatedAt) {
-    const d = _data.updatedAt.toDate ? _data.updatedAt.toDate() : new Date(_data.updatedAt);
+    const d = new Date(_data.updatedAt);
     document.getElementById('topDate').textContent =
       `· Al ${d.toLocaleDateString('es-MX', {day:'numeric', month:'long', year:'numeric'})}`;
   }
@@ -953,10 +945,10 @@ async function processAndSave() {
       // Collect all tienda stores (exclude bodega)
       for (const sz of sizes) {
         for (const st of Object.keys(inv.sizes[sz] || {})) {
-          if (!BODEGA_RE.test(st)) storeSet.add(st);
+          if (!BODEGA_RE.test(st) && !SKIP_STORES.test(st)) storeSet.add(st);
         }
         for (const st of Object.keys(vta.sizes[sz] || {})) {
-          if (!BODEGA_RE.test(st)) storeSet.add(st);
+          if (!BODEGA_RE.test(st) && !SKIP_STORES.test(st)) storeSet.add(st);
         }
       }
 
@@ -980,18 +972,22 @@ async function processAndSave() {
 
     setProgress(`Guardando en la nube (${Object.keys(models).length} modelos, ${stores.length} tiendas)...`);
 
-    await db.collection('pdh_data').doc('current').set({
-      models,
-      stores,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    const payload = {
+      models, stores,
+      updatedAt: new Date().toISOString(),
       updatedBy: _user?.nombre || 'Admin',
+    };
+    const saveRes = await fetch(RTDB_URL + '.json', {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
     });
+    if (!saveRes.ok) throw new Error(`RTDB ${saveRes.status}: ${await saveRes.text()}`);
 
     // Reload local state
-    _data = { models, stores, updatedAt: new Date() };
+    _data = payload;
     closeUpload();
     showDataUI();
-    _data.updatedAt = { toDate: () => new Date() };
     document.getElementById('topDate').textContent =
       `· Al ${new Date().toLocaleDateString('es-MX', {day:'numeric', month:'long', year:'numeric'})}`;
     render();
