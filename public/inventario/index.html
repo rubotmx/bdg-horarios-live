@@ -5,111 +5,232 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <link rel="icon" href="/favicon.ico"/>
 <meta name="robots" content="noindex, nofollow"/>
-<title>El Palacio de Hierro · Inventario BDG</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<title>BDG · Inventario</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;900&family=Jost:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#F7F5F2;--surface:#FFFFFF;--border:#E2DDD8;--border2:#EDE9E5;
-  --text:#0A0A0A;--muted:#8A847E;--muted2:#C2BCB6;
-  --gold:#B49A47;--gold-light:#F5EDD6;--gold-dark:#8C7835;
-  --green-bg:#EAF4EE;--green-txt:#1B6E3E;
-  --red-bg:#FAECEA;--red-txt:#B83327;
-  --zero-bg:#F0EDE9;--zero-txt:#A8A29C;
-  --orange:#C47A2A;
-  --serif:'Playfair Display',Georgia,serif;
-  --fn:'Inter',sans-serif;
+  --bg:#F4F2EF;
+  --surface:#FFFFFF;
+  --border:#E4E0DB;
+  --border2:#EDEAE6;
+  --text:#0E0E0E;
+  --muted:#8A857F;
+  --muted2:#C2BCB6;
+  --terra:#c16452;
+  --terra-light:#fdf0ed;
+  --terra-dark:#9d4f3f;
+  --green-bg:#EBF5EE;--green-txt:#1B6E3E;
+  --amber-bg:#FFF8E6;--amber-txt:#B75000;
+  --red-bg:#FDECEA;--red-txt:#C62828;
+  --zero-bg:#EBEBEB;--zero-txt:#9A9590;
+  --fn:'Archivo',sans-serif;
+  --fl:'Jost',sans-serif;
 }
 html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--fn);}
 
-/* ── TOPBAR PDH ── */
-.topbar{height:64px;background:#0A0A0A;display:flex;align-items:center;padding:0 32px;position:sticky;top:0;z-index:100;gap:20px;}
-.pdh-brand{display:flex;flex-direction:column;align-items:flex-start;gap:1px;}
-.pdh-crown{font-size:14px;color:var(--gold);letter-spacing:.3em;line-height:1;}
-.pdh-name{font-family:var(--serif);font-size:13px;font-weight:600;color:#fff;letter-spacing:.22em;text-transform:uppercase;line-height:1;}
-.pdh-divider{width:1px;height:28px;background:rgba(255,255,255,.15);}
-.pdh-sub{font-size:9px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.85;}
-.topbar-right{margin-left:auto;display:flex;align-items:center;gap:14px;}
-.back{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);text-decoration:none;transition:color .12s;}
-.back:hover{color:var(--gold);}
+/* ── TOPBAR ── */
+.topbar{
+  height:48px;background:#0E0E0E;
+  display:flex;align-items:center;padding:0 20px;
+  position:sticky;top:0;z-index:200;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  gap:12px;flex-shrink:0;
+}
+.logo{font-family:var(--fl);font-size:14px;font-weight:700;color:#fff;letter-spacing:.18em;}
+.logo span{color:var(--terra);}
+.topbar-divider{width:1px;height:20px;background:rgba(255,255,255,.12);flex-shrink:0;}
+.topbar-sub{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.32);font-family:var(--fn);}
+.topbar-right{margin-left:auto;}
+.back{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.28);text-decoration:none;transition:color .12s;}
+.back:hover{color:var(--terra);}
 
-/* ── PAGE ── */
-.page{max-width:1160px;margin:0 auto;padding:32px 28px 80px;}
-
-/* ── TITLE ROW ── */
-.title-row{display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap;padding-bottom:20px;border-bottom:1px solid var(--border);}
-.page-title{font-family:var(--serif);font-size:28px;font-weight:600;letter-spacing:.01em;flex:1;color:var(--text);}
-.page-title span{font-size:13px;font-family:var(--fn);font-weight:400;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-left:10px;vertical-align:middle;}
-.search-wrap{position:relative;}
-.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted2);pointer-events:none;}
-.search-input{padding:9px 14px 9px 34px;border:1px solid var(--border);border-radius:0;background:var(--surface);font-family:var(--fn);font-size:12px;color:var(--text);outline:none;width:210px;transition:border-color .15s;letter-spacing:.02em;}
-.search-input:focus{border-color:var(--gold);}
+/* ── STICKY CONTROLS ── */
+.controls{
+  position:sticky;top:48px;z-index:190;
+  background:#fff;border-bottom:1px solid var(--border);
+}
+.search-bar{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 16px;border-bottom:1px solid var(--border2);
+}
+.search-ico{color:var(--muted2);flex-shrink:0;}
+.search-input{
+  flex:1;border:none;outline:none;background:none;
+  font-family:var(--fn);font-size:13px;color:var(--text);
+}
 .search-input::placeholder{color:var(--muted2);}
+.search-clear{
+  color:var(--muted2);cursor:pointer;font-size:18px;
+  line-height:1;display:none;transition:color .12s;
+}
+.search-clear.show{display:block;}
+.search-clear:hover{color:var(--text);}
 
-/* Buttons */
-.btn-toolbar{display:flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--border);border-radius:0;background:var(--surface);font-family:var(--fn);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;font-weight:500;white-space:nowrap;transition:all .15s;}
-.btn-toolbar:hover{border-color:var(--gold);color:var(--gold-dark);}
-.btn-toolbar.active{background:var(--text);color:var(--gold);border-color:var(--text);}
+/* Tabs */
+.tabs-row{display:flex;border-bottom:1px solid var(--border);}
+.tab{
+  flex:1;padding:11px 0;
+  font-family:var(--fn);font-size:11px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);background:none;border:none;
+  border-bottom:2px solid transparent;cursor:pointer;
+  transition:all .14s;
+}
+.tab.active{color:var(--terra);border-bottom-color:var(--terra);}
+
+/* Filter pills */
+.filters-row{
+  display:flex;gap:6px;padding:10px 16px;
+  overflow-x:auto;scrollbar-width:none;
+}
+.filters-row::-webkit-scrollbar{display:none;}
+.filter-pill{
+  display:flex;align-items:center;gap:5px;
+  padding:5px 13px;border:1px solid var(--border);
+  border-radius:999px;background:#fff;
+  font-family:var(--fn);font-size:10px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);cursor:pointer;white-space:nowrap;
+  transition:all .14s;flex-shrink:0;
+}
+.filter-pill:hover{border-color:var(--terra);color:var(--terra-dark);}
+.filter-pill.active{background:var(--terra);color:#fff;border-color:var(--terra);}
 
 /* ── SUMMARY ── */
-.summary-row{display:flex;gap:1px;margin-bottom:28px;background:var(--border);border:1px solid var(--border);}
-.sum-chip{flex:1;padding:16px 20px;background:var(--surface);}
-.sum-chip .sv{font-family:var(--serif);font-size:24px;font-weight:600;color:var(--text);line-height:1;}
-.sum-chip .sl{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:5px;font-weight:500;}
-.sum-chip.neg .sv{color:var(--red-txt);}
-.sum-chip.gold .sv{color:var(--gold-dark);}
-
-/* ── TABLE ── */
-.table-wrap{background:var(--surface);border:1px solid var(--border);overflow:hidden;}
-.inv-table{width:100%;border-collapse:collapse;}
-.inv-table thead th{
-  padding:12px 10px;font-size:9px;font-weight:600;letter-spacing:.18em;
-  text-transform:uppercase;color:#fff;border-bottom:none;
-  text-align:center;white-space:nowrap;background:#0A0A0A;
+.summary-strip{
+  display:flex;gap:1px;background:var(--border);
+  border-bottom:2px solid var(--border);
 }
-.inv-table thead th.col-model{text-align:left;padding-left:20px;}
-.inv-table thead th.col-core{padding-right:20px;color:var(--gold);}
-.inv-table tbody tr{border-bottom:1px solid var(--border2);transition:background .12s;}
-.inv-table tbody tr:last-child{border-bottom:none;}
-.inv-table tbody tr:hover{background:#FDFCFB;}
-.col-model-cell{display:flex;align-items:center;gap:12px;padding:11px 10px 11px 20px;}
-.thumb{width:38px;height:38px;border-radius:2px;object-fit:cover;background:var(--bg);flex-shrink:0;}
-.thumb-ph{width:38px;height:38px;border-radius:2px;background:var(--bg);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--muted2);}
-.model-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;letter-spacing:.01em;}
+.sum-chip{
+  flex:1;padding:14px 16px;background:var(--surface);min-width:0;
+}
+.sum-chip .sv{
+  font-size:24px;font-weight:900;color:var(--text);
+  line-height:1;letter-spacing:-.03em;
+}
+.sum-chip .sl{
+  font-size:8px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--muted);margin-top:4px;font-weight:600;
+}
+.sum-chip.alert .sv{color:var(--red-txt);}
+.sum-chip.hi .sv{color:var(--terra);}
 
-/* Size badges */
-.sz-badge{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:0;font-size:12px;font-weight:600;font-family:var(--fn);}
-.sz-badge.pos{background:var(--gold-light);color:var(--gold-dark);}
-.sz-badge.neg{background:var(--red-bg);color:var(--red-txt);}
-.sz-badge.zero{background:var(--zero-bg);color:var(--zero-txt);}
-.sz-badge.total{width:36px;height:36px;font-size:13px;background:#0A0A0A;color:#fff;font-weight:700;}
-.sz-badge.total.pos{background:var(--gold-dark);color:#fff;}
-.sz-badge.total.neg{background:var(--red-txt);color:#fff;}
+/* ── CARDS ── */
+.cards-list{display:flex;flex-direction:column;gap:1px;background:var(--border);}
 
-td.sz-cell{text-align:center;padding:4px 6px;vertical-align:middle;}
-td.core-cell{text-align:center;padding:4px 20px 4px 6px;}
-.core-check{color:var(--gold);cursor:pointer;font-size:16px;}
-.core-x{color:var(--muted2);cursor:pointer;font-size:16px;}
+.prod-card{
+  background:var(--surface);
+  padding:14px 16px 16px;
+}
 
-/* Color pill (para clogs) */
-.color-pill{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:0;padding:2px 7px;margin-top:3px;}
-.color-swatch{width:8px;height:8px;border-radius:50%;border:1px solid rgba(0,0,0,.15);flex-shrink:0;display:inline-block;}
-.thumb-indent{width:38px;height:38px;flex-shrink:0;}
+.card-header{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:13px;
+}
+.prod-thumb{
+  width:54px;height:54px;border-radius:5px;
+  object-fit:cover;flex-shrink:0;background:var(--bg);
+  border:1px solid var(--border2);
+}
+.thumb-ph{
+  width:54px;height:54px;border-radius:5px;
+  background:var(--bg);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;border:1px solid var(--border2);
+}
+.card-meta{flex:1;min-width:0;}
+.prod-name{
+  font-size:12px;font-weight:700;
+  color:var(--text);letter-spacing:.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  margin-bottom:4px;text-transform:uppercase;
+}
+.color-pill{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:9px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:999px;padding:2px 8px;
+}
+.color-swatch{
+  width:8px;height:8px;border-radius:50%;
+  border:1px solid rgba(0,0,0,.12);flex-shrink:0;display:inline-block;
+}
 
-/* Sz wrap */
-.sz-wrap{display:flex;flex-direction:column;align-items:center;gap:2px;}
-.pv-dot{font-size:8px;font-weight:600;color:var(--orange);background:rgba(196,122,42,.1);padding:1px 4px;letter-spacing:.04em;}
+/* Total top-right */
+.card-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.card-total{display:flex;flex-direction:column;align-items:flex-end;}
+.total-num{
+  font-size:22px;font-weight:900;line-height:1;
+  letter-spacing:-.04em;
+}
+.total-num.good    {color:var(--green-txt);}
+.total-num.low     {color:var(--amber-txt);}
+.total-num.critical{color:var(--red-txt);}
+.total-num.zero    {color:var(--zero-txt);}
+.total-lbl{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted2);margin-top:1px;}
+
+/* Core toggle */
+.core-btn{
+  width:30px;height:30px;border-radius:50%;
+  border:1.5px solid var(--border);background:#fff;
+  cursor:pointer;font-size:14px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all .14s;
+}
+.core-btn.active{background:var(--terra);border-color:var(--terra);color:#fff;}
+.core-btn:not(.active){color:var(--muted2);}
+.core-btn:not(.active):hover{border-color:var(--terra);color:var(--terra);}
+
+/* ── SIZES ROW ── */
+.sizes-row{display:flex;gap:4px;align-items:flex-end;}
+.sz-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.sz-lbl{font-size:9px;font-weight:600;letter-spacing:.06em;color:var(--muted2);}
+.sz-item.key .sz-lbl{color:var(--terra);font-weight:700;}
+
+.sz-val{
+  width:100%;border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;height:36px;
+  transition:opacity .12s;
+}
+.sz-item.key .sz-val{height:44px;font-size:15px;font-weight:900;}
+
+/* Stock levels */
+.sz-val.good    {background:var(--green-bg);color:var(--green-txt);}
+.sz-val.low     {background:var(--amber-bg);color:var(--amber-txt);}
+.sz-val.critical{background:var(--red-bg);  color:var(--red-txt);font-weight:900;}
+.sz-val.zero    {background:var(--zero-bg); color:var(--zero-txt);}
+.sz-val.neg     {background:var(--red-txt); color:#fff;}
+.sz-val.empty   {background:var(--bg);      color:var(--muted2);font-weight:400;}
+
+/* Critical pulse */
+@keyframes pulse-red{0%,100%{opacity:1}50%{opacity:.55}}
+.sz-val.critical{animation:pulse-red 1.8s ease-in-out infinite;}
+
+/* ── EMPTY / ERROR ── */
+.empty-state{
+  text-align:center;padding:64px 24px;
+  color:var(--muted);font-size:14px;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
 
 /* Skeleton */
-.sk{background:linear-gradient(90deg,#EDEBE8 25%,#E5E2DE 50%,#EDEBE8 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:0;}
+.sk{
+  background:linear-gradient(90deg,#EDEBE8 25%,#E5E2DE 50%,#EDEBE8 75%);
+  background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:4px;
+}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.empty{text-align:center;padding:70px 20px;color:var(--muted);font-family:var(--serif);font-style:italic;font-size:15px;}
 
-@media(max-width:700px){
-  .page{padding:20px 16px 60px;}
-  .search-input{width:140px;}
-  .model-name{font-size:11px;}
-  .sz-badge{width:26px;height:26px;font-size:10px;}
+/* Fade in */
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.prod-card{animation:fadeUp .22s ease both;}
+
+/* Desktop */
+@media(min-width:640px){
+  .controls,.summary-strip,.cards-list{max-width:600px;margin-left:auto;margin-right:auto;}
+  .topbar{padding:0 28px;}
 }
 </style>
 </head>
@@ -117,102 +238,134 @@ td.core-cell{text-align:center;padding:4px 20px 4px 6px;}
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <div class="pdh-brand">
-    <div class="pdh-crown">♛</div>
-    <div class="pdh-name">El Palacio de Hierro</div>
-  </div>
-  <div class="pdh-divider"></div>
-  <div class="pdh-sub">Inventario BDG</div>
+  <div class="logo">BDG<span>·</span>HQ</div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-sub">Inventario</div>
   <div class="topbar-right">
     <a class="back" href="/">← HQ</a>
   </div>
 </div>
 
-
-<div class="page">
-
-  <!-- TITLE ROW -->
-  <div class="title-row">
-    <div class="page-title">Bodega <span>BDG × PDH</span></div>
-    <div class="search-wrap">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input class="search-input" id="searchInput" type="text" placeholder="Buscar..." oninput="render()"/>
-    </div>
-    <button class="btn-toolbar" id="completosBtn" onclick="toggleCompletos()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+<!-- STICKY CONTROLS -->
+<div class="controls">
+  <div class="search-bar">
+    <svg class="search-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input class="search-input" id="searchInput" type="text" placeholder="Buscar modelo..." oninput="onSearch()"/>
+    <span class="search-clear" id="searchClear" onclick="clearSearch()">×</span>
+  </div>
+  <div class="tabs-row">
+    <button class="tab active" id="tabMain"  onclick="switchTab('main')">Principal</button>
+    <button class="tab"        id="tabClogs" onclick="switchTab('clogs')">Clogs</button>
+  </div>
+  <div class="filters-row">
+    <button class="filter-pill" id="completosBtn" onclick="toggleCompletos()">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
       Completos
     </button>
-    <button class="btn-toolbar" id="filterBtn" onclick="toggleFilter()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
-      Negativos
-    </button>
-    <button class="btn-toolbar" id="clogsBtn" onclick="toggleClogs()">
-      🪵 Clogs
+    <button class="filter-pill" id="filterBtn" onclick="toggleFilter()">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+      Con negativos
     </button>
   </div>
+</div>
 
-  <!-- SUMMARY -->
-  <div class="summary-row" id="summaryRow"></div>
+<!-- SUMMARY -->
+<div class="summary-strip" id="summaryRow">
+  <div class="sum-chip" style="height:62px;">
+    <div class="sk" style="height:24px;width:60px;margin-bottom:6px;"></div>
+    <div class="sk" style="height:8px;width:44px;"></div>
+  </div>
+  <div class="sum-chip" style="height:62px;">
+    <div class="sk" style="height:24px;width:40px;margin-bottom:6px;"></div>
+    <div class="sk" style="height:8px;width:44px;"></div>
+  </div>
+</div>
 
-  <!-- TABLE -->
-  <div class="table-wrap">
-    <table class="inv-table">
-      <thead><tr id="tableHead">
-        <th class="col-model">MODELO</th>
-        <th>—</th><th>TOTAL</th><th class="col-core">CORE</th>
-      </tr></thead>
-      <tbody id="tableBody">
-        <tr><td colspan="10" style="padding:32px;">
-          <div class="sk" style="height:40px;margin-bottom:8px;"></div>
-          <div class="sk" style="height:40px;margin-bottom:8px;"></div>
-          <div class="sk" style="height:40px;margin-bottom:8px;"></div>
-          <div class="sk" style="height:40px;margin-bottom:8px;"></div>
-          <div class="sk" style="height:40px;"></div>
-        </td></tr>
-      </tbody>
-    </table>
+<!-- CARDS -->
+<div class="cards-list" id="cardsList">
+  <div class="prod-card">
+    <div class="card-header">
+      <div class="sk" style="width:54px;height:54px;border-radius:5px;flex-shrink:0;"></div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+        <div class="sk" style="height:13px;width:72%;border-radius:3px;"></div>
+        <div class="sk" style="height:9px;width:38%;border-radius:3px;"></div>
+      </div>
+      <div class="sk" style="width:32px;height:32px;border-radius:50%;"></div>
+    </div>
+    <div style="display:flex;gap:4px;align-items:flex-end;">
+      <div class="sk" style="flex:1;height:36px;border-radius:4px;"></div>
+      <div class="sk" style="flex:1;height:44px;border-radius:4px;"></div>
+      <div class="sk" style="flex:1;height:44px;border-radius:4px;"></div>
+      <div class="sk" style="flex:1;height:36px;border-radius:4px;"></div>
+      <div class="sk" style="flex:1;height:36px;border-radius:4px;"></div>
+    </div>
+  </div>
+  <div class="prod-card">
+    <div class="card-header">
+      <div class="sk" style="width:54px;height:54px;border-radius:5px;flex-shrink:0;"></div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+        <div class="sk" style="height:13px;width:80%;border-radius:3px;"></div>
+        <div class="sk" style="height:9px;width:30%;border-radius:3px;"></div>
+      </div>
+      <div class="sk" style="width:32px;height:32px;border-radius:50%;"></div>
+    </div>
+    <div style="display:flex;gap:4px;align-items:flex-end;">
+      <div class="sk" style="flex:1;height:36px;border-radius:4px;"></div>
+      <div class="sk" style="flex:1;height:44px;border-radius:4px;"></div>
+      <div class="sk" style="flex:1;height:44px;border-radius:4px;"></div>
+      <div class="sk" style="flex:1;height:36px;border-radius:4px;"></div>
+      <div class="sk" style="flex:1;height:36px;border-radius:4px;"></div>
+    </div>
+  </div>
+  <div class="prod-card">
+    <div class="card-header">
+      <div class="sk" style="width:54px;height:54px;border-radius:5px;flex-shrink:0;"></div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+        <div class="sk" style="height:13px;width:60%;border-radius:3px;"></div>
+        <div class="sk" style="height:9px;width:42%;border-radius:3px;"></div>
+      </div>
+      <div class="sk" style="width:32px;height:32px;border-radius:50%;"></div>
+    </div>
+    <div style="display:flex;gap:4px;align-items:flex-end;">
+      <div class="sk" style="flex:1;height:36px;border-radius:4px;"></div>
+      <div class="sk" style="flex:1;height:44px;border-radius:4px;"></div>
+      <div class="sk" style="flex:1;height:44px;border-radius:4px;"></div>
+      <div class="sk" style="flex:1;height:36px;border-radius:4px;"></div>
+      <div class="sk" style="flex:1;height:36px;border-radius:4px;"></div>
+    </div>
   </div>
 </div>
 
 <script>
 let _products      = [];
 let _clogsProducts = [];
-let _mode          = 'positive';  // 'positive' | 'all'
+let _mode          = 'positive';   // 'positive' | 'all'
 let _filterCompl   = false;
-let _showClogs     = false;
+let _tab           = 'main';       // 'main' | 'clogs'
 let _core          = JSON.parse(localStorage.getItem('bdg_core') || '{}');
 
-const CLOGS_KEYWORDS = ['penny', 'frankie', 'parker'];
+const KEY_SIZES      = new Set(['24','25']);
+const CLOGS_KEYWORDS = ['penny','frankie','parker'];
 
 const COLOR_MAP = {
-  'black':       '#1a1a1a',
-  'negro':       '#1a1a1a',
-  'black x honey':'linear-gradient(135deg,#1a1a1a 50%,#c8943a 50%)',
-  'brown':       '#7b4f2e',
-  'taupe':       '#b5a090',
-  'olivo':       '#6b7a42',
-  'terracota':   '#c16452',
-  'honey':       '#c8943a',
-  'camel':       '#c19a6b',
-  'sand':        '#d4bc94',
-  'white':       '#f0ede9',
-  'ivory':       '#f5f0e6',
-  'silver':      '#b0b8c1',
-  'chocolate':   '#4a2c1a',
-  'cognac':      '#a0522d',
-  'red':         '#c93a28',
-  'blue':        '#3a7bd5',
+  'black':          '#1a1a1a',
+  'negro':          '#1a1a1a',
+  'black x honey':  'linear-gradient(135deg,#1a1a1a 50%,#c8943a 50%)',
+  'brown':          '#7b4f2e',
+  'taupe':          '#b5a090',
+  'olivo':          '#6b7a42',
+  'terracota':      '#c16452',
+  'honey':          '#c8943a',
+  'camel':          '#c19a6b',
+  'sand':           '#d4bc94',
+  'white':          '#f0ede9',
+  'ivory':          '#f5f0e6',
+  'silver':         '#b0b8c1',
+  'chocolate':      '#4a2c1a',
+  'cognac':         '#a0522d',
+  'red':            '#c93a28',
+  'blue':           '#3a7bd5',
 };
-
-function swatchFor(colorName) {
-  const key = colorName.toLowerCase().trim();
-  const val = COLOR_MAP[key];
-  if (!val) return '';
-  const style = val.startsWith('linear')
-    ? `background:${val}`
-    : `background:${val}`;
-  return `<span class="color-swatch" style="${style}"></span>`;
-}
 
 const ALLOWED_MODELS = [
   'BALA BLACK','BECCA VINTAGE BLACK','DALLAS BLACK','DALLAS CAMEL',
@@ -225,16 +378,42 @@ const ALLOWED_SET = new Set(ALLOWED_MODELS.map(s => s.toLowerCase()));
 
 function effectiveQty(qty){ return _mode === 'positive' ? Math.max(0, qty) : qty; }
 
-// Extrae talla de una variante — busca en option1 y option2, devuelve el que sea número de 2 dígitos
+function stockClass(qty){
+  if(qty === null || qty === undefined) return 'empty';
+  if(qty < 0)  return 'neg';
+  if(qty === 0) return 'zero';
+  if(qty <= 2)  return 'critical';
+  if(qty <= 9)  return 'low';
+  return 'good';
+}
+
+function totalClass(n){
+  if(n <= 0) return 'zero';
+  if(n <= 2)  return 'critical';
+  if(n <= 9)  return 'low';
+  return 'good';
+}
+
 function extractSizeFromVariant(v){
   const opts = [v.option1, v.option2, v.title].map(o => String(o||'').trim());
   for(const o of opts){ const m = o.match(/^(\d{2}(?:\.\d)?)$/); if(m) return m[1]; }
-  return opts[0]; // fallback
+  return opts[0];
 }
-// Mantiene compatibilidad con llamadas que pasan string directamente
-function extractSize(s){ const m = String(s||'').trim().match(/^(\d{2}(?:\.\d)?)/); return m ? m[1] : String(s||'').trim(); }
 
-// ── TOGGLES ──────────────────────────────────────────────────────────────────
+function swatchFor(colorName){
+  const key = colorName.toLowerCase().trim();
+  const val = COLOR_MAP[key];
+  if(!val) return '';
+  return `<span class="color-swatch" style="background:${val}"></span>`;
+}
+
+// ── CONTROLS ─────────────────────────────────────────────────────────────────
+function switchTab(tab){
+  _tab = tab;
+  document.getElementById('tabMain').classList.toggle('active', tab === 'main');
+  document.getElementById('tabClogs').classList.toggle('active', tab === 'clogs');
+  render();
+}
 function toggleFilter(){
   _mode = _mode === 'positive' ? 'all' : 'positive';
   document.getElementById('filterBtn').classList.toggle('active', _mode === 'all');
@@ -245,18 +424,22 @@ function toggleCompletos(){
   document.getElementById('completosBtn').classList.toggle('active', _filterCompl);
   render();
 }
-function toggleClogs(){
-  _showClogs = !_showClogs;
-  document.getElementById('clogsBtn').classList.toggle('active', _showClogs);
-  render();
-}
 function toggleCore(title, e){
   e.stopPropagation();
   _core[title] = !_core[title];
   localStorage.setItem('bdg_core', JSON.stringify(_core));
   render();
 }
-
+function onSearch(){
+  const val = document.getElementById('searchInput').value;
+  document.getElementById('searchClear').classList.toggle('show', val.length > 0);
+  render();
+}
+function clearSearch(){
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClear').classList.remove('show');
+  render();
+}
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 async function init(){
@@ -277,84 +460,80 @@ async function init(){
 
     render();
   } catch(e){
-    document.getElementById('tableBody').innerHTML =
-      `<tr><td colspan="10"><div class="empty">
-        <div style="font-size:24px;margin-bottom:10px;">⚠️</div>
-        <div style="font-weight:700;">${e.message}</div>
-        <button onclick="init()" style="margin-top:14px;padding:8px 20px;background:var(--terra);color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:var(--fn);">Reintentar</button>
-      </div></td></tr>`;
+    document.getElementById('cardsList').innerHTML =
+      `<div class="prod-card">
+        <div class="empty-state">
+          <div style="font-size:32px;">⚠️</div>
+          <div style="font-weight:700;color:var(--text);">${e.message}</div>
+          <button onclick="init()" style="padding:9px 22px;background:var(--terra);color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:var(--fn);font-weight:700;font-size:12px;letter-spacing:.08em;">Reintentar</button>
+        </div>
+      </div>`;
   }
 }
 
-// ── RENDER ───────────────────────────────────────────────────────────────────
+// ── RENDER ────────────────────────────────────────────────────────────────────
 function render(){
-  const query = (document.getElementById('searchInput')?.value||'').toLowerCase();
+  const query = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  const base  = _tab === 'clogs' ? _clogsProducts : _products;
 
-  // Combine product lists
-  const base = _showClogs ? [..._products, ..._clogsProducts] : _products;
-
-  // Collect sizes
+  // Collect sizes across all products in tab
   const sizeSet = new Set();
   for(const p of base)
-    for(const v of (p.variants||[])){ const sz=extractSizeFromVariant(v); if(/^\d{2}$/.test(sz)) sizeSet.add(sz); }
-  const sizes = Array.from(sizeSet).sort((a,b)=>parseFloat(a)-parseFloat(b));
+    for(const v of (p.variants||[])){
+      const sz = extractSizeFromVariant(v);
+      if(/^\d{2}$/.test(sz)) sizeSet.add(sz);
+    }
+  const sizes = Array.from(sizeSet).sort((a,b) => parseFloat(a) - parseFloat(b));
 
   // Filter
   let filtered = base.filter(p => !query || p.title.toLowerCase().includes(query));
   if(_filterCompl){
     filtered = filtered.filter(p => {
       const sizeMap = {};
-      for(const v of (p.variants||[])){ const sz=extractSizeFromVariant(v); sizeMap[sz]=(sizeMap[sz]||0)+(v.inventory_quantity??0); }
+      for(const v of (p.variants||[])){
+        const sz = extractSizeFromVariant(v);
+        sizeMap[sz] = (sizeMap[sz]||0) + (v.inventory_quantity??0);
+      }
       return sizes.every(sz => (sizeMap[sz]??0) >= 1);
     });
   }
 
-  // Summary
-  let totalUnits=0, totalNeg=0;
+  // Summary stats
+  let totalUnits = 0, criticalModels = 0;
   for(const p of filtered){
+    let hasCritical = false;
     for(const v of (p.variants||[])){
       const q = v.inventory_quantity??0;
       totalUnits += effectiveQty(q);
-      if(q<0) totalNeg++;
+      if(q >= 0 && q <= 2) hasCritical = true;
     }
+    if(hasCritical) criticalModels++;
   }
 
   document.getElementById('summaryRow').innerHTML = `
-    <div class="sum-chip gold"><div class="sv">${totalUnits.toLocaleString('es-MX')}</div><div class="sl">Unidades en bodega</div></div>
+    <div class="sum-chip hi"><div class="sv">${totalUnits.toLocaleString('es-MX')}</div><div class="sl">Unidades</div></div>
     <div class="sum-chip"><div class="sv">${filtered.length}</div><div class="sl">Modelos</div></div>
-    ${_showClogs?`<div class="sum-chip"><div class="sv">${_clogsProducts.length}</div><div class="sl">Modelos Clogs</div></div>`:''}
-    ${totalNeg>0?`<div class="sum-chip neg"><div class="sv">${totalNeg}</div><div class="sl">SKUs negativos</div></div>`:''}
+    ${criticalModels > 0
+      ? `<div class="sum-chip alert"><div class="sv">${criticalModels}</div><div class="sl">Críticos</div></div>`
+      : ''}
   `;
 
-  // Header
-  document.getElementById('tableHead').innerHTML = `
-    <th class="col-model">MODELO</th>
-    ${sizes.map(sz=>`<th>${sz}</th>`).join('')}
-    <th>TOTAL</th><th class="col-core">CORE</th>`;
-
   if(!filtered.length){
-    document.getElementById('tableBody').innerHTML =
-      `<tr><td colspan="${sizes.length+3}"><div class="empty">Sin resultados</div></td></tr>`;
+    document.getElementById('cardsList').innerHTML =
+      `<div class="prod-card"><div class="empty-state">Sin resultados</div></div>`;
     return;
   }
 
-  document.getElementById('tableBody').innerHTML = filtered.flatMap(p => {
-    const img = p.images?.[0]?.src;
-    const thumb = img
-      ? `<img class="thumb" src="${img}" loading="lazy" alt="${p.title}" onerror="this.outerHTML='<div class=thumb-ph>👟</div>'"/>`
-      : `<div class="thumb-ph"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg></div>`;
-
-    // Detect if product has colors (option1 is non-numeric = color)
-    const hasColors = (p.variants||[]).some(v => v.option2 && /^\d{2}$/.test(String(v.option2||'').trim()));
+  document.getElementById('cardsList').innerHTML = filtered.flatMap((p, pi) => {
+    const hasColors = (p.variants||[]).some(v =>
+      v.option2 && /^\d{2}$/.test(String(v.option2||'').trim())
+    );
 
     if(hasColors){
-      // Build image map: image_id → src
       const imgById = {};
       for(const img of (p.images||[])) imgById[img.id] = img.src;
 
-      // Group variants by color (option1), track first variant's image_id per color
-      const colorMap  = {};
-      const colorImgs = {};
+      const colorMap = {}, colorImgs = {};
       for(const v of (p.variants||[])){
         const color = String(v.option1||'').trim();
         const sz    = extractSizeFromVariant(v);
@@ -362,63 +541,83 @@ function render(){
         colorMap[color][sz] = (colorMap[color][sz]||0) + (v.inventory_quantity??0);
       }
 
-      return Object.entries(colorMap).map(([color, sizeMap]) => {
-        const total   = sizes.reduce((s,sz)=>s+effectiveQty(sizeMap[sz]??0),0);
-        const totalCl = total>0?'pos':total<0?'neg':'zero';
-        const titleSafe = (p.title+' '+color).replace(/'/g,"\\'");
-        const isCore  = !!_core[titleSafe];
-        const coreHtml = isCore
-          ? `<span class="core-check" onclick="toggleCore('${titleSafe}',event)">✓</span>`
-          : `<span class="core-x"    onclick="toggleCore('${titleSafe}',event)">✕</span>`;
-
-        const sizeCells = sizes.map(sz => {
+      return Object.entries(colorMap).map(([color, sizeMap], ci) => {
+        const total      = sizes.reduce((s,sz) => s + effectiveQty(sizeMap[sz]??0), 0);
+        const titleSafe  = (p.title+' '+color).replace(/'/g,"\\'");
+        const isCore     = !!_core[titleSafe];
+        const imgSrc     = (colorImgs[color] && imgById[colorImgs[color]]) || p.images?.[0]?.src || null;
+        const thumb      = imgSrc
+          ? `<img class="prod-thumb" src="${imgSrc}" loading="lazy" alt="${p.title}" onerror="this.outerHTML='<div class=thumb-ph>👟</div>'"/>`
+          : `<div class="thumb-ph">👟</div>`;
+        const sizeCells  = sizes.map(sz => {
           const raw = sizeMap[sz];
           const eff = raw !== undefined ? effectiveQty(raw) : null;
-          const cls = eff === null ? 'zero' : eff>0?'pos':eff<0?'neg':'zero';
-          return `<td class="sz-cell"><span class="sz-badge ${cls}">${eff === null ? '—' : eff}</span></td>`;
+          const cls = eff === null ? 'empty' : stockClass(eff);
+          return `<div class="sz-item${KEY_SIZES.has(sz)?' key':''}">
+            <div class="sz-lbl">${sz}</div>
+            <div class="sz-val ${cls}">${eff === null ? '—' : eff}</div>
+          </div>`;
         }).join('');
 
-        // Imagen específica del color via image_id, fallback a primera imagen del producto
-        const colorImgSrc = (colorImgs[color] && imgById[colorImgs[color]]) || p.images?.[0]?.src || null;
-        const colorThumb  = colorImgSrc
-          ? `<img class="thumb" src="${colorImgSrc}" loading="lazy" alt="${color}" onerror="this.outerHTML='<div class=thumb-ph>👟</div>'"/>`
-          : `<div class="thumb-ph"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg></div>`;
-
-        const pill = `<div class="color-pill">${swatchFor(color)}${color}</div>`;
-        const nameCell = `${colorThumb}<div><div class="model-name">${p.title}</div>${pill}</div>`;
-
-        return `<tr>
-          <td><div class="col-model-cell">${nameCell}</div></td>
-          ${sizeCells}
-          <td class="sz-cell"><span class="sz-badge total ${totalCl}">${total}</span></td>
-          <td class="core-cell">${coreHtml}</td>
-        </tr>`;
+        return `<div class="prod-card" style="animation-delay:${(pi+ci)*0.025}s">
+          <div class="card-header">
+            ${thumb}
+            <div class="card-meta">
+              <div class="prod-name">${p.title}</div>
+              <div class="color-pill">${swatchFor(color)}${color}</div>
+            </div>
+            <div class="card-right">
+              <div class="card-total">
+                <div class="total-num ${totalClass(total)}">${total}</div>
+                <div class="total-lbl">total</div>
+              </div>
+              <button class="core-btn${isCore?' active':''}" onclick="toggleCore('${titleSafe}',event)">${isCore?'★':'☆'}</button>
+            </div>
+          </div>
+          <div class="sizes-row">${sizeCells}</div>
+        </div>`;
       });
     }
 
-    // Standard single-row product
+    // Single-color product
     const sizeMap = {};
-    for(const v of (p.variants||[])){ const sz=extractSizeFromVariant(v); sizeMap[sz]=(sizeMap[sz]||0)+(v.inventory_quantity??0); }
-    const total   = sizes.reduce((s,sz)=>s+effectiveQty(sizeMap[sz]??0),0);
-    const totalCl = total>0?'pos':total<0?'neg':'zero';
-    const isCore  = !!_core[p.title];
+    for(const v of (p.variants||[])){
+      const sz = extractSizeFromVariant(v);
+      sizeMap[sz] = (sizeMap[sz]||0) + (v.inventory_quantity??0);
+    }
+    const total     = sizes.reduce((s,sz) => s + effectiveQty(sizeMap[sz]??0), 0);
+    const isCore    = !!_core[p.title];
     const titleSafe = p.title.replace(/'/g,"\\'");
-    const coreHtml  = isCore
-      ? `<span class="core-check" onclick="toggleCore('${titleSafe}',event)">✓</span>`
-      : `<span class="core-x"    onclick="toggleCore('${titleSafe}',event)">✕</span>`;
+    const imgSrc    = p.images?.[0]?.src;
+    const thumb     = imgSrc
+      ? `<img class="prod-thumb" src="${imgSrc}" loading="lazy" alt="${p.title}" onerror="this.outerHTML='<div class=thumb-ph>👟</div>'"/>`
+      : `<div class="thumb-ph">👟</div>`;
     const sizeCells = sizes.map(sz => {
       const raw = sizeMap[sz];
       const eff = raw !== undefined ? effectiveQty(raw) : null;
-      const cls = eff === null ? 'zero' : eff>0?'pos':eff<0?'neg':'zero';
-      return `<td class="sz-cell"><span class="sz-badge ${cls}">${eff === null ? '—' : eff}</span></td>`;
+      const cls = eff === null ? 'empty' : stockClass(eff);
+      return `<div class="sz-item${KEY_SIZES.has(sz)?' key':''}">
+        <div class="sz-lbl">${sz}</div>
+        <div class="sz-val ${cls}">${eff === null ? '—' : eff}</div>
+      </div>`;
     }).join('');
 
-    return [`<tr>
-      <td><div class="col-model-cell">${thumb}<div class="model-name">${p.title}</div></div></td>
-      ${sizeCells}
-      <td class="sz-cell"><span class="sz-badge total ${totalCl}">${total}</span></td>
-      <td class="core-cell">${coreHtml}</td>
-    </tr>`];
+    return [`<div class="prod-card" style="animation-delay:${pi*0.025}s">
+      <div class="card-header">
+        ${thumb}
+        <div class="card-meta">
+          <div class="prod-name">${p.title}</div>
+        </div>
+        <div class="card-right">
+          <div class="card-total">
+            <div class="total-num ${totalClass(total)}">${total}</div>
+            <div class="total-lbl">total</div>
+          </div>
+          <button class="core-btn${isCore?' active':''}" onclick="toggleCore('${titleSafe}',event)">${isCore?'★':'☆'}</button>
+        </div>
+      </div>
+      <div class="sizes-row">${sizeCells}</div>
+    </div>`];
   }).join('');
 }
 
