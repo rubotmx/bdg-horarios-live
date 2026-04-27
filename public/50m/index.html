@@ -631,10 +631,11 @@ function renderModelMix(products, totalGMV) {
   const maxGMV     = sorted[0]?.[1].gmv || 1;
   const modelCount = sorted.length;
 
-  document.getElementById('mixPct').textContent = fmtMXN(keyGMV);
-  document.getElementById('mixPctLabel').textContent = 'GMV MODELOS CLAVE';
+  const keyPct = totalGMV > 0 ? (keyGMV / totalGMV * 100) : 0;
+  document.getElementById('mixPct').textContent = keyPct.toFixed(1) + '%';
+  document.getElementById('mixPctLabel').textContent = 'DEL TOTAL DE VENTAS';
   document.getElementById('mixSub').textContent =
-    `${modelCount} modelo${modelCount !== 1 ? 's' : ''} · mix relativo entre modelos`;
+    `${modelCount} modelos · ${fmtMXN(keyGMV)} GMV del período`;
 
   if (!sorted.length) {
     document.getElementById('mixList').innerHTML = `<div class="mix-no-data">Sin ventas en este período para los modelos seleccionados</div>`;
@@ -646,7 +647,7 @@ function renderModelMix(products, totalGMV) {
     const imgEl  = imgSrc
       ? `<img src="${imgSrc}" loading="lazy" alt="${MODEL_DISPLAY[key]}" onerror="this.parentElement.innerHTML='<div class=mix-img-ph>👟</div>'"/>`
       : `<div class="mix-img-ph">👟</div>`;
-    const sharePct = keyGMV > 0 ? (d.gmv / keyGMV * 100) : 0;
+    const sharePct = totalGMV > 0 ? (d.gmv / totalGMV * 100) : 0;
     const barW     = (d.gmv / maxGMV * 100).toFixed(1);
     return `<div class="mix-item">
       <div class="mix-rank">${i+1}</div>
