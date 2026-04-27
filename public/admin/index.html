@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BDG · Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;900&family=Jost:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#F4F2EF;--surface:#fff;--border:#E4E0DB;--border2:#EDEAE6;
+  --text:#0E0E0E;--muted:#8A857F;--muted2:#C2BCB6;
+  --terra:#c16452;--terra-light:#fdf0ed;--terra-dark:#9d4f3f;
+  --green-bg:#EBF5EE;--green-txt:#1B6E3E;
+  --red-bg:#FDECEA;--red-txt:#C62828;
+  --amber-bg:#FFF8E6;--amber-txt:#B75000;
+  --fn:'Archivo',sans-serif;--fl:'Jost',sans-serif;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--fn);overflow:hidden;}
+body{display:flex;flex-direction:column;}
+
+/* TOPBAR */
+.topbar{height:48px;background:#0E0E0E;display:flex;align-items:center;padding:0 24px;flex-shrink:0;gap:12px;border-bottom:1px solid rgba(255,255,255,.06);}
+.logo{font-family:var(--fl);font-size:14px;font-weight:700;color:#fff;letter-spacing:.18em;}
+.logo span{color:var(--terra);}
+.topbar-divider{width:1px;height:20px;background:rgba(255,255,255,.12);}
+.topbar-sub{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.32);}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:14px;}
+.back{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.28);text-decoration:none;transition:color .12s;}
+.back:hover{color:var(--terra);}
+.user-badge{font-size:11px;font-weight:600;color:rgba(255,255,255,.5);}
+
+/* TABS */
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
+.tab{
+  padding:12px 20px;font-size:11px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);cursor:pointer;
+  border-bottom:2px solid transparent;transition:all .14s;position:relative;
+}
+.tab.active{color:var(--terra);border-bottom-color:var(--terra);}
+.tab .badge-count{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;border-radius:50%;background:var(--terra);
+  color:#fff;font-size:9px;font-weight:900;margin-left:6px;
+  vertical-align:middle;
+}
+
+/* PAGE */
+.page{flex:1;overflow:auto;padding:24px;}
+.panel{display:none;}
+.panel.active{display:block;}
+
+/* SECTION LABEL */
+.sec-label{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+
+/* USER CARDS */
+.user-grid{display:flex;flex-direction:column;gap:8px;}
+.user-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:16px 20px;display:flex;align-items:center;gap:16px;
+}
+.user-avatar{
+  width:44px;height:44px;border-radius:50%;background:var(--bg);
+  object-fit:cover;flex-shrink:0;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  overflow:hidden;
+}
+.user-avatar img{width:100%;height:100%;object-fit:cover;}
+.user-info{flex:1;min-width:0;}
+.user-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.user-email{font-size:11px;color:var(--muted);}
+.user-meta{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap;}
+.chip{
+  font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 9px;border-radius:999px;
+}
+.chip-role{background:#EEF4FF;color:#2a5cbf;}
+.chip-pending{background:var(--amber-bg);color:var(--amber-txt);}
+.chip-approved{background:var(--green-bg);color:var(--green-txt);}
+.chip-rejected{background:var(--red-bg);color:var(--red-txt);}
+.chip-interno{background:var(--terra-light);color:var(--terra-dark);}
+.chip-externo{background:var(--bg);color:var(--muted);border:1px solid var(--border);}
+
+.user-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.btn-sm{
+  padding:7px 14px;border-radius:6px;font-family:var(--fn);font-size:11px;
+  font-weight:700;letter-spacing:.06em;cursor:pointer;border:none;transition:all .14s;
+}
+.btn-approve{background:var(--green-bg);color:var(--green-txt);}
+.btn-approve:hover{background:#d0edda;}
+.btn-reject{background:var(--red-bg);color:var(--red-txt);}
+.btn-reject:hover{background:#f9d5d3;}
+.btn-edit{background:var(--bg);color:var(--muted);border:1px solid var(--border);}
+.btn-edit:hover{border-color:var(--terra);color:var(--terra-dark);}
+.btn-terra{background:var(--terra);color:#fff;}
+.btn-terra:hover{background:var(--terra-dark);}
+
+.empty-state{text-align:center;padding:48px 24px;color:var(--muted);font-size:14px;}
+.empty-icon{font-size:36px;margin-bottom:12px;}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.overlay.show{display:flex;}
+.modal{background:#fff;border-radius:12px;padding:28px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
+.modal-title{font-size:16px;font-weight:900;margin-bottom:4px;}
+.modal-sub{font-size:12px;color:var(--muted);margin-bottom:22px;}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;}
+.modal-close{position:absolute;top:0;right:0;}
+
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.field label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text);}
+.field input,.field select{
+  padding:10px 12px;border:1.5px solid var(--border);border-radius:6px;
+  font-family:var(--fn);font-size:13px;color:var(--text);outline:none;
+  transition:border-color .14s;background:#fff;
+}
+.field input:focus,.field select:focus{border-color:var(--terra);}
+
+/* Modules checkboxes */
+.modules-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.mod-check{
+  display:flex;align-items:center;gap:8px;padding:10px 12px;
+  border:1.5px solid var(--border);border-radius:6px;cursor:pointer;
+  transition:all .14s;
+}
+.mod-check input{accent-color:var(--terra);width:14px;height:14px;flex-shrink:0;}
+.mod-check:has(input:checked){border-color:var(--terra);background:var(--terra-light);}
+.mod-check span{font-size:11px;font-weight:600;color:var(--text);}
+
+/* LOG TABLE */
+.log-table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.log-table thead th{
+  background:#0E0E0E;color:rgba(255,255,255,.6);font-size:8px;
+  font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  padding:10px 14px;text-align:left;
+}
+.log-table tbody tr{border-bottom:1px solid var(--border2);}
+.log-table tbody tr:last-child{border-bottom:none;}
+.log-table tbody tr:hover{background:#FAFAF9;}
+.log-table td{padding:10px 14px;font-size:12px;color:var(--text);}
+.log-table td.muted{color:var(--muted);font-size:11px;}
+
+.module-tag{
+  display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;
+  font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  background:var(--bg);color:var(--muted);
+}
+.module-tag.login{background:var(--green-bg);color:var(--green-txt);}
+.module-tag.inventario{background:#EEF4FF;color:#2a5cbf;}
+.module-tag.pdh{background:var(--terra-light);color:var(--terra-dark);}
+.module-tag.live{background:#F3EDFF;color:#6d28d9;}
+.module-tag.metas{background:var(--amber-bg);color:var(--amber-txt);}
+
+/* Skeleton */
+.sk{background:linear-gradient(90deg,#EDEBE8 25%,#E5E2DE 50%,#EDEBE8 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:6px;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* BLOQUEADO */
+.blocked{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--muted);}
+.blocked-icon{font-size:48px;}
+.blocked-title{font-size:16px;font-weight:700;color:var(--text);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">BDG<span>·</span>HQ</div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-sub">Admin</div>
+  <div class="topbar-right">
+    <span class="user-badge" id="adminName"></span>
+    <a class="back" href="/">← HQ</a>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('pendientes')" id="tab-pendientes">
+    Pendientes <span class="badge-count" id="pendCount" style="display:none">0</span>
+  </div>
+  <div class="tab" onclick="switchTab('equipo')" id="tab-equipo">Equipo</div>
+  <div class="tab" onclick="switchTab('log')" id="tab-log">Log de accesos</div>
+</div>
+
+<div class="page">
+
+  <!-- PENDIENTES -->
+  <div class="panel active" id="panel-pendientes">
+    <div class="sec-label">Solicitudes de acceso pendientes</div>
+    <div class="user-grid" id="pendientesList">
+      <div class="user-card"><div class="sk" style="height:44px;width:100%;"></div></div>
+    </div>
+  </div>
+
+  <!-- EQUIPO -->
+  <div class="panel" id="panel-equipo">
+    <div class="sec-label">Usuarios activos</div>
+    <div class="user-grid" id="equipoList">
+      <div class="user-card"><div class="sk" style="height:44px;width:100%;"></div></div>
+    </div>
+  </div>
+
+  <!-- LOG -->
+  <div class="panel" id="panel-log">
+    <div class="sec-label">Últimos 100 accesos</div>
+    <table class="log-table">
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Módulo</th>
+          <th>Fecha y hora</th>
+        </tr>
+      </thead>
+      <tbody id="logBody">
+        <tr><td colspan="3"><div class="sk" style="height:32px;margin:4px;"></div></td></tr>
+        <tr><td colspan="3"><div class="sk" style="height:32px;margin:4px;"></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- MODAL EDITAR USUARIO -->
+<div class="overlay" id="editOverlay">
+  <div class="modal">
+    <div class="modal-title">Editar usuario</div>
+    <div class="modal-sub" id="editUserEmail"></div>
+
+    <div class="field">
+      <label>Nombre</label>
+      <input type="text" id="editNombre"/>
+    </div>
+    <div class="field">
+      <label>Puesto</label>
+      <input type="text" id="editPuesto" placeholder="Ej. Coordinador Comercial"/>
+    </div>
+    <div class="field">
+      <label>Departamento</label>
+      <input type="text" id="editDepto" placeholder="Ej. Comercial"/>
+    </div>
+    <div class="field">
+      <label>Fecha de inicio</label>
+      <input type="date" id="editFechaInicio"/>
+    </div>
+    <div class="field">
+      <label>Rol</label>
+      <select id="editRole" onchange="onRoleChange()">
+        <option value="admin">Admin</option>
+        <option value="comercial">Comercial</option>
+        <option value="bodega">Bodega</option>
+        <option value="externo">Externo</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Módulos con acceso</label>
+      <div class="modules-grid">
+        <label class="mod-check"><input type="checkbox" value="inventario"/><span>Inventario</span></label>
+        <label class="mod-check"><input type="checkbox" value="pdh"/><span>Palacio de Hierro</span></label>
+        <label class="mod-check"><input type="checkbox" value="live"/><span>En Vivo</span></label>
+        <label class="mod-check"><input type="checkbox" value="metas"/><span>Metas Mayo</span></label>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-sm btn-edit" onclick="closeEdit()">Cancelar</button>
+      <button class="btn-sm btn-terra" onclick="saveEdit()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:            "AIzaSyD6ZcB618WZ_pSE3CPgOFdwl60_PafDTec",
+  authDomain:        "bdg-horarios.firebaseapp.com",
+  projectId:         "bdg-horarios",
+  storageBucket:     "bdg-horarios.firebasestorage.app",
+  messagingSenderId: "888593583878",
+  appId:             "1:888593583878:web:65b1955ae0613558d3d887"
+});
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
+const ROLE_MODULES = {
+  admin:     ['inventario','pdh','live','metas'],
+  comercial: ['inventario','metas','live'],
+  bodega:    ['inventario','pdh'],
+  externo:   [],
+};
+
+const ROLE_LABELS = {admin:'Admin',comercial:'Comercial',bodega:'Bodega',externo:'Externo'};
+
+let _currentUser = null;
+let _editUid     = null;
+
+// ── AUTH CHECK ────────────────────────────────────────────────────────────────
+auth.onAuthStateChanged(async user => {
+  if(!user){
+    window.location.href = '/login/?from=/admin/';
+    return;
+  }
+  const snap = await db.collection('users').doc(user.uid).get();
+  if(!snap.exists || snap.data().role !== 'admin'){
+    document.querySelector('.page').innerHTML =
+      `<div class="blocked">
+        <div class="blocked-icon">🔒</div>
+        <div class="blocked-title">Acceso restringido</div>
+        <div>Solo el administrador puede ver esta sección.</div>
+      </div>`;
+    return;
+  }
+  _currentUser = snap.data();
+  document.getElementById('adminName').textContent = _currentUser.nombre;
+  loadAll();
+});
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.getElementById('panel-'+tab).classList.add('active');
+}
+
+// ── LOAD ALL ──────────────────────────────────────────────────────────────────
+function loadAll(){
+  loadPendientes();
+  loadEquipo();
+  loadLog();
+}
+
+// ── PENDIENTES ────────────────────────────────────────────────────────────────
+function loadPendientes(){
+  db.collection('users').where('status','==','pending').orderBy('createdAt','desc')
+    .onSnapshot(snap => {
+      const list = document.getElementById('pendientesList');
+      const cnt  = document.getElementById('pendCount');
+      if(snap.empty){
+        list.innerHTML = `<div class="empty-state"><div class="empty-icon">✅</div>Sin solicitudes pendientes</div>`;
+        cnt.style.display = 'none';
+        return;
+      }
+      cnt.textContent  = snap.size;
+      cnt.style.display = '';
+      list.innerHTML   = snap.docs.map(d => userCardHtml(d.id, d.data(), 'pending')).join('');
+    });
+}
+
+// ── EQUIPO ────────────────────────────────────────────────────────────────────
+function loadEquipo(){
+  db.collection('users').where('status','==','approved').orderBy('nombre')
+    .onSnapshot(snap => {
+      const list = document.getElementById('equipoList');
+      if(snap.empty){
+        list.innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div>No hay usuarios aprobados aún</div>`;
+        return;
+      }
+      list.innerHTML = snap.docs.map(d => userCardHtml(d.id, d.data(), 'approved')).join('');
+    });
+}
+
+// ── LOG ───────────────────────────────────────────────────────────────────────
+function loadLog(){
+  db.collection('logs').orderBy('timestamp','desc').limit(100)
+    .onSnapshot(snap => {
+      const tbody = document.getElementById('logBody');
+      if(snap.empty){
+        tbody.innerHTML = `<tr><td colspan="3" class="muted" style="text-align:center;padding:24px;">Sin registros aún</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = snap.docs.map(d => {
+        const l   = d.data();
+        const ts  = l.timestamp?.toDate();
+        const fecha = ts ? ts.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+        const hora  = ts ? ts.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}) : '';
+        return `<tr>
+          <td><strong>${l.nombre||'—'}</strong><br><span style="font-size:10px;color:var(--muted)">${l.email||''}</span></td>
+          <td><span class="module-tag ${l.module||''}">${l.module||'—'}</span></td>
+          <td class="muted">${fecha} ${hora}</td>
+        </tr>`;
+      }).join('');
+    });
+}
+
+// ── USER CARD HTML ─────────────────────────────────────────────────────────────
+function userCardHtml(uid, d, mode){
+  const avatar = d.fotoURL
+    ? `<div class="user-avatar"><img src="${d.fotoURL}" loading="lazy"/></div>`
+    : `<div class="user-avatar">${(d.nombre||'?')[0].toUpperCase()}</div>`;
+
+  const chips = `
+    <span class="chip chip-${d.tipo||'interno'}">${d.tipo === 'externo' ? 'Externo' : 'Interno'}</span>
+    <span class="chip chip-role">${ROLE_LABELS[d.role]||d.role}</span>
+    <span class="chip chip-${d.status}">${{pending:'Pendiente',approved:'Activo',rejected:'Rechazado'}[d.status]||d.status}</span>
+  `;
+
+  const actions = mode === 'pending'
+    ? `<button class="btn-sm btn-approve" onclick="approve('${uid}')">✓ Aprobar</button>
+       <button class="btn-sm btn-reject"  onclick="reject('${uid}')">✕ Rechazar</button>`
+    : `<button class="btn-sm btn-edit" onclick="openEdit('${uid}')">Editar</button>`;
+
+  return `<div class="user-card">
+    ${avatar}
+    <div class="user-info">
+      <div class="user-name">${d.nombre||'Sin nombre'}</div>
+      <div class="user-email">${d.email}</div>
+      <div class="user-meta">${chips}</div>
+    </div>
+    <div class="user-actions">${actions}</div>
+  </div>`;
+}
+
+// ── APROBAR / RECHAZAR ────────────────────────────────────────────────────────
+async function approve(uid){
+  await db.collection('users').doc(uid).update({
+    status:     'approved',
+    approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    approvedBy: _currentUser.uid || auth.currentUser?.uid,
+  });
+}
+
+async function reject(uid){
+  if(!confirm('¿Rechazar esta solicitud?')) return;
+  await db.collection('users').doc(uid).update({ status: 'rejected' });
+}
+
+// ── EDITAR USUARIO ────────────────────────────────────────────────────────────
+async function openEdit(uid){
+  _editUid = uid;
+  const snap = await db.collection('users').doc(uid).get();
+  const d    = snap.data();
+
+  document.getElementById('editUserEmail').textContent = d.email;
+  document.getElementById('editNombre').value       = d.nombre || '';
+  document.getElementById('editPuesto').value       = d.puesto || '';
+  document.getElementById('editDepto').value        = d.departamento || '';
+  document.getElementById('editFechaInicio').value  = d.fechaInicio || '';
+  document.getElementById('editRole').value         = d.role || 'comercial';
+
+  const mods = d.modules || [];
+  document.querySelectorAll('.mod-check input').forEach(cb => {
+    cb.checked = mods.includes(cb.value);
+  });
+
+  document.getElementById('editOverlay').classList.add('show');
+}
+
+function onRoleChange(){
+  const role = document.getElementById('editRole').value;
+  const defaults = ROLE_MODULES[role] || [];
+  document.querySelectorAll('.mod-check input').forEach(cb => {
+    cb.checked = defaults.includes(cb.value);
+  });
+}
+
+function closeEdit(){
+  document.getElementById('editOverlay').classList.remove('show');
+  _editUid = null;
+}
+
+async function saveEdit(){
+  if(!_editUid) return;
+  const modules = Array.from(document.querySelectorAll('.mod-check input:checked')).map(cb => cb.value);
+  await db.collection('users').doc(_editUid).update({
+    nombre:       document.getElementById('editNombre').value.trim(),
+    puesto:       document.getElementById('editPuesto').value.trim(),
+    departamento: document.getElementById('editDepto').value.trim(),
+    fechaInicio:  document.getElementById('editFechaInicio').value,
+    role:         document.getElementById('editRole').value,
+    modules,
+  });
+  closeEdit();
+}
+
+document.getElementById('editOverlay').addEventListener('click', e => {
+  if(e.target === document.getElementById('editOverlay')) closeEdit();
+});
+</script>
+</body>
+</html>

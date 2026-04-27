@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BDG · Registro</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;900&family=Jost:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --terra:#c16452;--terra-dark:#9d4f3f;
+  --fn:'Archivo',sans-serif;--fl:'Jost',sans-serif;
+}
+html,body{min-height:100%;background:#0e0e0e;font-family:var(--fn);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+
+.logo{font-family:var(--fl);font-size:18px;font-weight:700;color:#fff;letter-spacing:.2em;margin-bottom:32px;text-align:center;}
+.logo span{color:var(--terra);}
+
+.card{background:#fff;border-radius:12px;padding:36px 32px;width:100%;max-width:420px;}
+.card-title{font-size:18px;font-weight:900;color:#0e0e0e;margin-bottom:4px;letter-spacing:-.02em;}
+.card-sub{font-size:12px;color:#8A857F;margin-bottom:28px;}
+
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+.field label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#0e0e0e;}
+.field input,.field select{
+  padding:12px 14px;border:1.5px solid #E4E0DB;border-radius:7px;
+  font-family:var(--fn);font-size:14px;color:#0e0e0e;outline:none;
+  transition:border-color .14s;background:#fff;appearance:none;
+}
+.field input:focus,.field select:focus{border-color:var(--terra);}
+.field input.err,.field select.err{border-color:#C62828;}
+.field-hint{font-size:10px;color:#A8A29C;margin-top:2px;}
+
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+.btn{
+  width:100%;padding:13px;background:var(--terra);color:#fff;border:none;
+  border-radius:7px;font-family:var(--fn);font-size:13px;font-weight:700;
+  letter-spacing:.06em;cursor:pointer;transition:background .14s;margin-top:8px;
+}
+.btn:hover{background:var(--terra-dark);}
+.btn:disabled{opacity:.5;cursor:default;}
+
+.error-box{
+  background:#FDECEA;border:1px solid #f5c6c1;border-radius:7px;
+  padding:10px 14px;font-size:12px;color:#C62828;font-weight:600;
+  margin-top:14px;display:none;
+}
+.error-box.show{display:block;}
+
+.success-screen{display:none;text-align:center;padding:8px 0;}
+.success-icon{font-size:48px;margin-bottom:16px;}
+.success-title{font-size:18px;font-weight:900;color:#0e0e0e;margin-bottom:8px;}
+.success-sub{font-size:13px;color:#8A857F;line-height:1.7;max-width:280px;margin:0 auto;}
+
+.footer-link{text-align:center;margin-top:20px;font-size:12px;color:#8A857F;}
+.footer-link a{color:var(--terra);text-decoration:none;font-weight:700;}
+
+.spinner{
+  width:18px;height:18px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;
+  display:inline-block;margin-right:8px;vertical-align:middle;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+select option{color:#0e0e0e;}
+</style>
+</head>
+<body>
+
+<div class="logo">BDG<span>·</span>HQ</div>
+
+<div class="card">
+  <div id="registerForm">
+    <div class="card-title">Crear cuenta</div>
+    <div class="card-sub">Completa tu información. El administrador aprobará tu acceso.</div>
+
+    <div class="field">
+      <label>Nombre completo</label>
+      <input type="text" id="nombre" placeholder="Tu nombre completo" autocomplete="name"/>
+    </div>
+
+    <div class="field">
+      <label>Correo electrónico</label>
+      <input type="email" id="email" placeholder="tu@correo.com" autocomplete="email"/>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password"/>
+      </div>
+      <div class="field">
+        <label>Confirmar</label>
+        <input type="password" id="confirm" placeholder="Repite tu contraseña" autocomplete="new-password"/>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Rol</label>
+        <select id="role">
+          <option value="">Selecciona…</option>
+          <option value="comercial">Comercial</option>
+          <option value="bodega">Bodega</option>
+          <option value="externo">Externo</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tipo</label>
+        <select id="tipo">
+          <option value="interno">Interno</option>
+          <option value="externo">Externo</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="error-box" id="errorBox"></div>
+
+    <button class="btn" id="regBtn" onclick="register()">Solicitar acceso</button>
+  </div>
+
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">✅</div>
+    <div class="success-title">Solicitud enviada</div>
+    <div class="success-sub">Tu solicitud fue recibida. El administrador revisará tu cuenta y te notificará cuando esté activa.</div>
+  </div>
+</div>
+
+<div class="footer-link">¿Ya tienes cuenta? <a href="/login/">Inicia sesión</a></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:            "AIzaSyD6ZcB618WZ_pSE3CPgOFdwl60_PafDTec",
+  authDomain:        "bdg-horarios.firebaseapp.com",
+  projectId:         "bdg-horarios",
+  storageBucket:     "bdg-horarios.firebasestorage.app",
+  messagingSenderId: "888593583878",
+  appId:             "1:888593583878:web:65b1955ae0613558d3d887"
+});
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
+const ROLE_MODULES = {
+  comercial: ['inventario','metas','live'],
+  bodega:    ['inventario','pdh'],
+  externo:   [],
+};
+
+async function register(){
+  const nombre  = document.getElementById('nombre').value.trim();
+  const email   = document.getElementById('email').value.trim();
+  const pass    = document.getElementById('password').value;
+  const confirm = document.getElementById('confirm').value;
+  const role    = document.getElementById('role').value;
+  const tipo    = document.getElementById('tipo').value;
+  const btn     = document.getElementById('regBtn');
+  const err     = document.getElementById('errorBox');
+
+  err.classList.remove('show');
+
+  if(!nombre || !email || !pass || !confirm || !role){
+    showError('Completa todos los campos.'); return;
+  }
+  if(pass.length < 8){
+    showError('La contraseña debe tener al menos 8 caracteres.'); return;
+  }
+  if(pass !== confirm){
+    showError('Las contraseñas no coinciden.'); return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Enviando solicitud…';
+
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+    const uid  = cred.user.uid;
+
+    await db.collection('users').doc(uid).set({
+      uid,
+      email,
+      nombre,
+      role,
+      tipo,
+      status:    'pending',
+      modules:   ROLE_MODULES[role] || [],
+      fotoURL:   '',
+      puesto:    '',
+      departamento: '',
+      fechaInicio:  '',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Sign out hasta que sea aprobado
+    await auth.signOut();
+
+    document.getElementById('registerForm').style.display = 'none';
+    document.getElementById('successScreen').style.display = 'block';
+
+  } catch(e){
+    const msgs = {
+      'auth/email-already-in-use': 'Este correo ya tiene una cuenta registrada.',
+      'auth/invalid-email':        'Correo electrónico inválido.',
+      'auth/weak-password':        'Contraseña muy débil. Usa al menos 8 caracteres.',
+    };
+    showError(msgs[e.code] || e.message);
+    btn.disabled = false;
+    btn.innerHTML = 'Solicitar acceso';
+  }
+}
+
+function showError(msg){
+  const el = document.getElementById('errorBox');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+</script>
+</body>
+</html>

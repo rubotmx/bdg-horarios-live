@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BDG · Mi Perfil</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;900&family=Jost:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#F4F2EF;--surface:#fff;--border:#E4E0DB;--border2:#EDEAE6;
+  --text:#0E0E0E;--muted:#8A857F;--muted2:#C2BCB6;
+  --terra:#c16452;--terra-light:#fdf0ed;--terra-dark:#9d4f3f;
+  --green-bg:#EBF5EE;--green-txt:#1B6E3E;
+  --red-bg:#FDECEA;--red-txt:#C62828;
+  --fn:'Archivo',sans-serif;--fl:'Jost',sans-serif;
+}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--fn);}
+
+/* TOPBAR */
+.topbar{height:48px;background:#0E0E0E;display:flex;align-items:center;padding:0 20px;position:sticky;top:0;z-index:100;gap:12px;border-bottom:1px solid rgba(255,255,255,.06);}
+.logo{font-family:var(--fl);font-size:14px;font-weight:700;color:#fff;letter-spacing:.18em;}
+.logo span{color:var(--terra);}
+.topbar-divider{width:1px;height:20px;background:rgba(255,255,255,.12);}
+.topbar-sub{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.32);}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:14px;}
+.back{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.28);text-decoration:none;transition:color .12s;}
+.back:hover{color:var(--terra);}
+.logout-btn{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.22);cursor:pointer;transition:color .12s;background:none;border:none;font-family:var(--fn);}
+.logout-btn:hover{color:var(--terra);}
+
+/* NOTIFICATION BANNER */
+.notif-banner{
+  background:var(--terra);color:#fff;padding:10px 20px;
+  font-size:12px;font-weight:600;display:none;align-items:center;
+  justify-content:space-between;gap:12px;
+}
+.notif-banner.show{display:flex;}
+.notif-close{cursor:pointer;font-size:18px;line-height:1;opacity:.7;}
+.notif-close:hover{opacity:1;}
+
+/* PAGE */
+.page{max-width:680px;margin:0 auto;padding:28px 20px 80px;}
+
+/* PROFILE HEADER */
+.profile-header{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:24px;display:flex;align-items:center;gap:20px;margin-bottom:20px;
+}
+.avatar-wrap{position:relative;flex-shrink:0;}
+.avatar{
+  width:80px;height:80px;border-radius:50%;object-fit:cover;
+  background:var(--bg);border:3px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:32px;font-weight:900;color:var(--muted2);overflow:hidden;
+}
+.avatar img{width:100%;height:100%;object-fit:cover;}
+.avatar-edit{
+  position:absolute;bottom:0;right:0;width:26px;height:26px;
+  background:var(--terra);border-radius:50%;border:2px solid #fff;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  font-size:12px;transition:background .12s;
+}
+.avatar-edit:hover{background:var(--terra-dark);}
+#photoInput{display:none;}
+
+.profile-info{flex:1;min-width:0;}
+.profile-name{font-size:20px;font-weight:900;letter-spacing:-.02em;margin-bottom:4px;}
+.profile-role{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--terra);margin-bottom:8px;}
+.profile-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.chip{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:999px;background:var(--bg);color:var(--muted);border:1px solid var(--border);}
+.chip.green{background:var(--green-bg);color:var(--green-txt);}
+
+/* SECTIONS */
+.sec-label{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px;}
+.card-title{font-size:13px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
+
+/* FORM */
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.field input{
+  padding:9px 12px;border:1.5px solid var(--border);border-radius:6px;
+  font-family:var(--fn);font-size:13px;color:var(--text);outline:none;
+  transition:border-color .14s;background:#fff;
+}
+.field input:focus{border-color:var(--terra);}
+.field input:disabled{background:var(--bg);color:var(--muted);}
+
+.btn-save{
+  padding:9px 20px;background:var(--terra);color:#fff;border:none;
+  border-radius:6px;font-family:var(--fn);font-size:11px;font-weight:700;
+  letter-spacing:.06em;cursor:pointer;transition:background .14s;
+}
+.btn-save:hover{background:var(--terra-dark);}
+.btn-save:disabled{opacity:.5;cursor:default;}
+.save-ok{font-size:11px;color:var(--green-txt);font-weight:600;display:none;margin-left:10px;}
+.save-ok.show{display:inline;}
+
+/* DOCUMENTS */
+.docs-list{display:flex;flex-direction:column;gap:8px;}
+.doc-item{
+  display:flex;align-items:center;gap:12px;padding:12px 14px;
+  background:var(--bg);border-radius:8px;border:1px solid var(--border2);
+}
+.doc-icon{font-size:20px;flex-shrink:0;}
+.doc-info{flex:1;min-width:0;}
+.doc-name{font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.doc-meta{font-size:10px;color:var(--muted);margin-top:2px;}
+.doc-badge{font-size:8px;font-weight:700;padding:2px 7px;border-radius:999px;letter-spacing:.08em;text-transform:uppercase;}
+.doc-badge.empresa{background:var(--terra-light);color:var(--terra-dark);}
+.doc-badge.personal{background:#EEF4FF;color:#2a5cbf;}
+.doc-badge.nuevo{background:var(--terra);color:#fff;}
+.doc-download{
+  padding:6px 12px;border:1px solid var(--border);border-radius:6px;
+  font-family:var(--fn);font-size:10px;font-weight:600;color:var(--muted);
+  text-decoration:none;cursor:pointer;transition:all .14s;white-space:nowrap;
+  background:#fff;
+}
+.doc-download:hover{border-color:var(--terra);color:var(--terra);}
+
+.upload-area{
+  border:2px dashed var(--border);border-radius:8px;padding:24px;
+  text-align:center;cursor:pointer;transition:all .14s;margin-top:12px;
+}
+.upload-area:hover{border-color:var(--terra);background:var(--terra-light);}
+.upload-area input{display:none;}
+.upload-icon{font-size:24px;margin-bottom:6px;}
+.upload-text{font-size:12px;color:var(--muted);}
+.upload-text strong{color:var(--terra);}
+
+.empty-docs{text-align:center;padding:24px;color:var(--muted);font-size:12px;}
+
+/* Spinner */
+.spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:520px){
+  .field-row{grid-template-columns:1fr;}
+  .profile-header{flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">BDG<span>·</span>HQ</div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-sub">Mi Perfil</div>
+  <div class="topbar-right">
+    <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+    <a class="back" href="/">← HQ</a>
+  </div>
+</div>
+
+<!-- Notificación nuevos documentos -->
+<div class="notif-banner" id="notifBanner">
+  <span id="notifText">📄 El administrador subió nuevos documentos a tu expediente.</span>
+  <span class="notif-close" onclick="dismissNotif()">×</span>
+</div>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="profile-header">
+    <div class="avatar-wrap">
+      <div class="avatar" id="avatarEl">?</div>
+      <div class="avatar-edit" onclick="document.getElementById('photoInput').click()">✏️</div>
+      <input type="file" id="photoInput" accept="image/*" onchange="uploadPhoto(this)"/>
+    </div>
+    <div class="profile-info">
+      <div class="profile-name" id="profileName">Cargando…</div>
+      <div class="profile-role" id="profileRole"></div>
+      <div class="profile-chips" id="profileChips"></div>
+    </div>
+  </div>
+
+  <!-- INFORMACIÓN -->
+  <div class="sec-label">Información personal</div>
+  <div class="card">
+    <div class="field-row">
+      <div class="field">
+        <label>Nombre completo</label>
+        <input type="text" id="infNombre"/>
+      </div>
+      <div class="field">
+        <label>Correo electrónico</label>
+        <input type="email" id="infEmail" disabled/>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Puesto</label>
+        <input type="text" id="infPuesto" placeholder="Tu puesto"/>
+      </div>
+      <div class="field">
+        <label>Departamento</label>
+        <input type="text" id="infDepto" placeholder="Tu área"/>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Fecha de inicio</label>
+        <input type="date" id="infFecha" disabled/>
+      </div>
+      <div class="field">
+        <label>Contraseña nueva</label>
+        <input type="password" id="infPass" placeholder="Dejar vacío para no cambiar"/>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;margin-top:4px;">
+      <button class="btn-save" id="saveBtn" onclick="saveInfo()">Guardar cambios</button>
+      <span class="save-ok" id="saveOk">✓ Guardado</span>
+    </div>
+  </div>
+
+  <!-- DOCUMENTOS -->
+  <div class="sec-label">Documentos</div>
+  <div class="card">
+    <div class="card-title">
+      <span>Mi expediente</span>
+    </div>
+    <div class="docs-list" id="docsList">
+      <div class="empty-docs">Cargando documentos…</div>
+    </div>
+
+    <!-- Subir doc personal -->
+    <div class="upload-area" onclick="document.getElementById('docInput').click()">
+      <input type="file" id="docInput" accept=".pdf,.jpg,.jpeg,.png,.docx" onchange="uploadDoc(this)"/>
+      <div class="upload-icon">📎</div>
+      <div class="upload-text"><strong>Haz clic para subir</strong> un documento personal<br><span style="font-size:10px;">PDF, JPG, PNG, DOCX — máx. 10 MB</span></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:            "AIzaSyD6ZcB618WZ_pSE3CPgOFdwl60_PafDTec",
+  authDomain:        "bdg-horarios.firebaseapp.com",
+  projectId:         "bdg-horarios",
+  storageBucket:     "bdg-horarios.firebasestorage.app",
+  messagingSenderId: "888593583878",
+  appId:             "1:888593583878:web:65b1955ae0613558d3d887"
+});
+const auth    = firebase.auth();
+const db      = firebase.firestore();
+const storage = firebase.storage();
+
+const ROLE_LABELS = {admin:'Admin',comercial:'Comercial',bodega:'Bodega',externo:'Externo'};
+const MODULE_LABELS = {inventario:'Inventario',pdh:'Palacio de Hierro',live:'En Vivo',metas:'Metas Mayo'};
+
+let _uid  = null;
+let _user = null;
+
+auth.onAuthStateChanged(async user => {
+  if(!user){
+    window.location.href = '/login/?from=/perfil/';
+    return;
+  }
+  _uid = user.uid;
+  const snap = await db.collection('users').doc(_uid).get();
+  if(!snap.exists || snap.data().status !== 'approved'){
+    window.location.href = '/login/';
+    return;
+  }
+  _user = snap.data();
+  renderProfile();
+  loadDocs();
+  checkNotifications();
+});
+
+function renderProfile(){
+  const d = _user;
+  // Avatar
+  const av = document.getElementById('avatarEl');
+  if(d.fotoURL){ av.innerHTML = `<img src="${d.fotoURL}"/>`; }
+  else { av.textContent = (d.nombre||'?')[0].toUpperCase(); }
+
+  document.getElementById('profileName').textContent = d.nombre || 'Sin nombre';
+  document.getElementById('profileRole').textContent  = ROLE_LABELS[d.role] || d.role;
+
+  const mods  = (d.modules||[]).map(m => `<span class="chip">${MODULE_LABELS[m]||m}</span>`).join('');
+  const tipo  = `<span class="chip ${d.tipo==='interno'?'green':''}">${d.tipo==='interno'?'Equipo interno':'Externo'}</span>`;
+  document.getElementById('profileChips').innerHTML = tipo + mods;
+
+  document.getElementById('infNombre').value = d.nombre || '';
+  document.getElementById('infEmail').value  = d.email  || '';
+  document.getElementById('infPuesto').value = d.puesto || '';
+  document.getElementById('infDepto').value  = d.departamento || '';
+  document.getElementById('infFecha').value  = d.fechaInicio || '';
+}
+
+async function saveInfo(){
+  const btn  = document.getElementById('saveBtn');
+  const ok   = document.getElementById('saveOk');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Guardando…';
+  ok.classList.remove('show');
+
+  const pass = document.getElementById('infPass').value;
+  try {
+    await db.collection('users').doc(_uid).update({
+      nombre:       document.getElementById('infNombre').value.trim(),
+      puesto:       document.getElementById('infPuesto').value.trim(),
+      departamento: document.getElementById('infDepto').value.trim(),
+    });
+    if(pass && pass.length >= 8){
+      await auth.currentUser.updatePassword(pass);
+      document.getElementById('infPass').value = '';
+    }
+    ok.classList.add('show');
+    setTimeout(() => ok.classList.remove('show'), 3000);
+  } catch(e){ alert(e.message); }
+  finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Guardar cambios';
+  }
+}
+
+// ── FOTO ──────────────────────────────────────────────────────────────────────
+async function uploadPhoto(input){
+  const file = input.files[0];
+  if(!file) return;
+  if(file.size > 5*1024*1024){ alert('La foto no puede pesar más de 5 MB.'); return; }
+
+  const ref  = storage.ref(`fotos/${_uid}/avatar`);
+  const task = ref.put(file);
+
+  task.on('state_changed', null, e => alert(e.message), async () => {
+    const url = await ref.getDownloadURL();
+    await db.collection('users').doc(_uid).update({ fotoURL: url });
+    const av = document.getElementById('avatarEl');
+    av.innerHTML = `<img src="${url}"/>`;
+  });
+}
+
+// ── DOCUMENTOS ────────────────────────────────────────────────────────────────
+function loadDocs(){
+  db.collection('documents').where('ownerUid','==',_uid).orderBy('createdAt','desc')
+    .onSnapshot(snap => {
+      const list = document.getElementById('docsList');
+      if(snap.empty){
+        list.innerHTML = `<div class="empty-docs">No tienes documentos aún. Puedes subir tu INE, CURP u otros documentos personales.</div>`;
+        return;
+      }
+      list.innerHTML = snap.docs.map(d => docItemHtml(d.id, d.data())).join('');
+    });
+}
+
+function docItemHtml(id, d){
+  const icons = {pdf:'📄',jpg:'🖼️',jpeg:'🖼️',png:'🖼️',docx:'📝'};
+  const ext   = (d.nombre||'').split('.').pop().toLowerCase();
+  const icon  = icons[ext] || '📎';
+  const ts    = d.createdAt?.toDate();
+  const fecha = ts ? ts.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}) : '';
+  const quien = d.uploadedByRole === 'admin' ? 'Subido por admin' : 'Subido por ti';
+  const badge = d.tipo === 'empresa'
+    ? `<span class="doc-badge empresa">De la empresa</span>`
+    : `<span class="doc-badge personal">Personal</span>`;
+  const nuevo = d.nuevo ? `<span class="doc-badge nuevo">Nuevo</span>` : '';
+
+  return `<div class="doc-item">
+    <div class="doc-icon">${icon}</div>
+    <div class="doc-info">
+      <div class="doc-name">${d.nombre}</div>
+      <div class="doc-meta">${quien} · ${fecha}</div>
+      <div style="display:flex;gap:4px;margin-top:4px;">${badge}${nuevo}</div>
+    </div>
+    <a class="doc-download" href="${d.url}" target="_blank" rel="noopener" onclick="markRead('${id}')">⬇ Ver</a>
+  </div>`;
+}
+
+async function markRead(docId){
+  await db.collection('documents').doc(docId).update({ nuevo: false });
+}
+
+async function uploadDoc(input){
+  const file = input.files[0];
+  if(!file) return;
+  if(file.size > 10*1024*1024){ alert('El archivo no puede pesar más de 10 MB.'); return; }
+
+  const fileName = `${Date.now()}_${file.name}`;
+  const ref      = storage.ref(`docs/${_uid}/${fileName}`);
+  const task     = ref.put(file);
+
+  const area = document.querySelector('.upload-area');
+  area.innerHTML = `<div class="upload-icon"><span class="spinner" style="border-top-color:var(--terra);border-color:rgba(193,100,82,.2);"></span></div><div class="upload-text">Subiendo…</div>`;
+
+  task.on('state_changed', null, e => {
+    alert(e.message);
+    resetUploadArea();
+  }, async () => {
+    const url = await ref.getDownloadURL();
+    await db.collection('documents').add({
+      ownerUid:       _uid,
+      nombre:         file.name,
+      tipo:           'personal',
+      uploadedBy:     _uid,
+      uploadedByRole: 'user',
+      url,
+      storagePath:    `docs/${_uid}/${fileName}`,
+      nuevo:          false,
+      createdAt:      firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    resetUploadArea();
+  });
+}
+
+function resetUploadArea(){
+  const area = document.querySelector('.upload-area');
+  area.innerHTML = `
+    <input type="file" id="docInput" accept=".pdf,.jpg,.jpeg,.png,.docx" onchange="uploadDoc(this)"/>
+    <div class="upload-icon">📎</div>
+    <div class="upload-text"><strong>Haz clic para subir</strong> un documento personal<br><span style="font-size:10px;">PDF, JPG, PNG, DOCX — máx. 10 MB</span></div>`;
+}
+
+// ── NOTIFICACIONES ────────────────────────────────────────────────────────────
+async function checkNotifications(){
+  const snap = await db.collection('documents')
+    .where('ownerUid','==',_uid)
+    .where('nuevo','==',true)
+    .where('uploadedByRole','==','admin')
+    .get();
+  if(!snap.empty){
+    const n = snap.size;
+    document.getElementById('notifText').textContent =
+      `📄 El administrador subió ${n === 1 ? 'un documento nuevo' : `${n} documentos nuevos`} a tu expediente.`;
+    document.getElementById('notifBanner').classList.add('show');
+  }
+}
+
+function dismissNotif(){
+  document.getElementById('notifBanner').classList.remove('show');
+}
+
+// ── LOGOUT ────────────────────────────────────────────────────────────────────
+async function logout(){
+  localStorage.removeItem('bdg_user');
+  await auth.signOut();
+  window.location.href = '/login/';
+}
+</script>
+</body>
+</html>
