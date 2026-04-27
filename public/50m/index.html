@@ -24,7 +24,6 @@ body{font-family:var(--fn);background:var(--dark);color:#e8e4de;min-height:100vh
 .logo{font-family:var(--fl);font-size:20px;font-weight:700;color:#fff;letter-spacing:.06em;}
 .logo span{color:var(--terra);}
 .topbar-right{display:flex;align-items:center;gap:20px;}
-.owner-name{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted2);font-family:var(--fh);}
 .live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:blink 2s infinite;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
 .back{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-family:var(--fh);text-decoration:none;transition:color .12s;}
@@ -67,46 +66,32 @@ body{font-family:var(--fn);background:var(--dark);color:#e8e4de;min-height:100vh
 .kpi-val.green{color:var(--green);}
 .kpi-sub{font-size:10px;color:var(--muted);margin-top:4px;}
 
-/* 80/20 PARETO SECTION */
-.pareto-section{background:var(--dark2);border:1px solid var(--line2);border-radius:var(--r2);margin-bottom:12px;overflow:hidden;}
-.pareto-header{padding:20px 24px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
-.pareto-headline{font-family:var(--fh);font-size:22px;font-weight:900;color:#fff;letter-spacing:-.02em;line-height:1.1;margin-bottom:4px;}
-.pareto-headline em{color:var(--terra);font-style:normal;}
-.pareto-sub{font-size:11px;color:var(--muted2);}
-.pareto-stat{text-align:right;flex-shrink:0;}
-.pareto-stat-num{font-family:var(--fh);font-size:32px;font-weight:900;color:var(--terra);letter-spacing:-.03em;line-height:1;}
-.pareto-stat-lbl{font-size:9px;color:var(--muted2);letter-spacing:.1em;text-transform:uppercase;margin-top:2px;}
+/* ── MODEL MIX SECTION ── */
+.mix-section{background:var(--dark2);border:1px solid var(--line2);border-radius:var(--r2);margin-bottom:12px;overflow:hidden;}
+.mix-header{padding:20px 24px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);}
+.mix-headline{font-family:var(--fh);font-size:22px;font-weight:900;color:#fff;letter-spacing:-.02em;line-height:1.1;margin-bottom:4px;}
+.mix-headline em{color:var(--terra);font-style:normal;}
+.mix-sub{font-size:11px;color:var(--muted2);}
+.mix-stat{text-align:right;flex-shrink:0;}
+.mix-stat-num{font-family:var(--fh);font-size:32px;font-weight:900;color:var(--terra);letter-spacing:-.03em;line-height:1;}
+.mix-stat-lbl{font-size:9px;color:var(--muted2);letter-spacing:.1em;text-transform:uppercase;margin-top:2px;}
+.mix-list{padding:8px 16px 16px;}
+.mix-item{display:flex;align-items:center;gap:12px;padding:9px 8px;border-radius:6px;transition:background .1s;}
+.mix-item:hover{background:var(--dark3);}
+.mix-rank{font-size:11px;color:var(--muted);width:16px;text-align:center;flex-shrink:0;font-family:var(--fh);}
+.mix-img-wrap{width:46px;height:46px;border-radius:6px;overflow:hidden;flex-shrink:0;background:var(--dark3);border:1px solid var(--line2);}
+.mix-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+.mix-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.mix-info{flex:1;min-width:0;}
+.mix-name{font-size:12px;font-weight:700;font-family:var(--fh);color:#e8e4de;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mix-bar-wrap{height:3px;background:var(--dark4);border-radius:2px;overflow:hidden;max-width:320px;}
+.mix-bar{height:100%;background:var(--terra);border-radius:2px;transition:width .9s ease;}
+.mix-units{font-size:9px;color:var(--muted);margin-top:5px;}
+.mix-gmv{font-family:var(--fh);font-size:13px;font-weight:800;color:#fff;white-space:nowrap;text-align:right;min-width:72px;flex-shrink:0;}
+.mix-pct{font-family:var(--fh);font-size:12px;font-weight:800;color:var(--terra);white-space:nowrap;text-align:right;width:46px;flex-shrink:0;}
+.mix-no-data{padding:32px;text-align:center;color:var(--muted);font-size:12px;}
 
-/* Pareto list */
-.pareto-list{padding:16px 24px 22px;}
-.pareto-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);position:relative;}
-.pareto-item:last-child{border-bottom:none;}
-.pareto-item.tail .p-img-wrap{opacity:.4;}
-.pareto-item.tail .p-name{color:var(--muted2);}
-.pareto-item.tail .p-gmv{color:var(--muted);}
-
-/* 80% divider */
-.pareto-divider{display:flex;align-items:center;gap:10px;padding:12px 0 4px;}
-.pd-line{flex:1;height:1px;background:linear-gradient(90deg,rgba(193,100,82,.5),transparent);}
-.pd-line.rev{background:linear-gradient(90deg,transparent,rgba(80,80,80,.3));}
-.pd-label{font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--terra);font-family:var(--fh);font-weight:700;white-space:nowrap;opacity:.8;}
-
-/* Product image */
-.p-img-wrap{width:52px;height:52px;border-radius:6px;overflow:hidden;flex-shrink:0;background:var(--dark3);border:1px solid var(--line2);}
-.p-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
-.p-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:22px;}
-
-.p-rank{font-size:11px;color:var(--muted);width:18px;text-align:center;flex-shrink:0;font-family:var(--fh);}
-.p-info{flex:1;min-width:0;}
-.p-name{font-size:12px;font-weight:700;font-family:var(--fh);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#e8e4de;margin-bottom:5px;}
-.p-bar-wrap{height:3px;background:var(--dark4);border-radius:2px;overflow:hidden;max-width:300px;}
-.p-bar{height:100%;border-radius:2px;transition:width .9s ease;}
-.p-cumul{font-size:9px;color:var(--muted);margin-top:5px;}
-.p-gmv{font-family:var(--fh);font-size:13px;font-weight:800;color:#fff;white-space:nowrap;text-align:right;min-width:72px;flex-shrink:0;}
-.p-units{font-size:10px;color:var(--muted2);white-space:nowrap;text-align:right;width:52px;flex-shrink:0;}
-.vital-badge{font-size:7px;font-weight:800;letter-spacing:.1em;padding:2px 7px;border-radius:2px;background:var(--terra-l);color:var(--terra);text-transform:uppercase;font-family:var(--fh);flex-shrink:0;}
-
-/* GRID 2 */
+/* ── GRID 2 ── */
 .grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:12px;margin-bottom:12px;}
 @media(max-width:760px){.grid2{grid-template-columns:1fr;}}
 
@@ -129,6 +114,51 @@ svg.chart{width:100%;height:100%;}
 .ch-gmv{font-size:11px;font-family:var(--fh);font-weight:700;color:#fff;width:80px;text-align:right;flex-shrink:0;}
 .ch-pct{font-size:10px;color:var(--muted2);width:38px;text-align:right;flex-shrink:0;}
 
+/* ── MARGIN SECTION ── */
+.mc-section{background:var(--dark2);border:1px solid var(--line2);border-radius:var(--r2);margin-bottom:12px;overflow:hidden;}
+.mc-header{padding:20px 24px 16px;border-bottom:1px solid var(--line);display:flex;align-items:flex-end;justify-content:space-between;gap:16px;}
+.mc-headline{font-family:var(--fh);font-size:18px;font-weight:900;color:#fff;letter-spacing:-.02em;margin-bottom:4px;}
+.mc-sub{font-size:11px;color:var(--muted2);}
+.mc-note{font-size:9px;color:var(--muted);letter-spacing:.06em;text-align:right;}
+.mc-scroll{overflow-x:auto;scrollbar-width:thin;scrollbar-color:var(--dark4) transparent;}
+.mc-scroll::-webkit-scrollbar{height:3px;}
+.mc-scroll::-webkit-scrollbar-thumb{background:var(--dark4);border-radius:2px;}
+.mc-table{width:100%;border-collapse:collapse;min-width:720px;}
+.mc-table thead th{
+  padding:9px 14px;background:var(--dark);
+  font-family:var(--fh);font-size:8px;font-weight:700;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--muted2);
+  text-align:center;border-bottom:1px solid var(--line2);white-space:nowrap;
+}
+.mc-table thead th:first-child{text-align:left;padding-left:20px;}
+.mc-table thead th.th-tiktok{color:var(--terra);border-top:2px solid var(--terra);}
+.mc-table thead th.th-web{color:#3a72b8;border-top:2px solid #3a72b8;}
+.mc-table thead th.th-draft{color:var(--gold);border-top:2px solid var(--gold);}
+.mc-table thead th.th-pdh{color:var(--green);border-top:2px solid var(--green);}
+.mc-table tbody tr{border-bottom:1px solid var(--line);transition:background .1s;}
+.mc-table tbody tr:last-child{border-bottom:none;}
+.mc-table tbody tr:hover{background:var(--dark3);}
+.mc-table td{padding:10px 14px;vertical-align:middle;}
+.mc-table td:first-child{padding-left:20px;}
+
+/* Model cell */
+.mc-model{display:flex;align-items:center;gap:10px;}
+.mc-model-img{width:38px;height:38px;border-radius:5px;overflow:hidden;flex-shrink:0;background:var(--dark3);border:1px solid var(--line2);}
+.mc-model-img img{width:100%;height:100%;object-fit:cover;display:block;}
+.mc-model-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.mc-model-name{font-size:11px;font-weight:700;font-family:var(--fh);color:#e8e4de;white-space:nowrap;}
+.mc-model-cost{font-size:9px;color:var(--muted2);margin-top:2px;}
+
+/* Channel cell */
+.mc-chan{text-align:center;}
+.mc-chan-price{font-size:11px;font-weight:700;font-family:var(--fh);color:rgba(255,255,255,.5);margin-bottom:3px;}
+.mc-chan-mc{font-size:13px;font-weight:800;font-family:var(--fh);color:#fff;letter-spacing:-.02em;}
+.mc-chan-pct{font-size:10px;font-weight:700;margin-top:2px;}
+.mc-chan-pct.high{color:var(--green);}
+.mc-chan-pct.mid{color:var(--gold);}
+.mc-chan-pct.low{color:var(--red);}
+.mc-chan-empty{color:var(--muted);font-size:11px;}
+
 /* SKELETON */
 .sk{background:linear-gradient(90deg,var(--dark3) 25%,var(--dark4) 50%,var(--dark3) 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:4px;}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
@@ -140,9 +170,9 @@ svg.chart{width:100%;height:100%;}
   .topbar{padding:0 16px;}.page{padding:20px 14px 48px;}
   .goal-hero{padding:22px 20px;}.goal-amount{font-size:36px;}
   .kpi-val{font-size:20px;}
-  .pareto-headline{font-size:18px;}
-  .pareto-stat-num{font-size:24px;}
-  .p-img-wrap{width:42px;height:42px;}
+  .mix-headline{font-size:18px;}
+  .mix-stat-num{font-size:24px;}
+  .mix-img-wrap{width:38px;height:38px;}
 }
 </style>
 </head>
@@ -152,7 +182,6 @@ svg.chart{width:100%;height:100%;}
   <div class="logo">50<span>M</span></div>
   <div class="topbar-right">
     <div class="live-dot"></div>
-    <div class="owner-name">Jorge Plascencia</div>
     <a class="back" href="/">← HQ</a>
   </div>
 </div>
@@ -192,20 +221,20 @@ svg.chart{width:100%;height:100%;}
     <div class="kpi"><div class="sk sk-big" style="margin-bottom:6px;"></div><div class="sk sk-line" style="width:60%;"></div></div>
   </div>
 
-  <!-- 80/20 Pareto -->
-  <div class="pareto-section" id="paretoSection" style="display:none;">
-    <div class="pareto-header">
+  <!-- Modelos clave -->
+  <div class="mix-section" id="mixSection" style="display:none;">
+    <div class="mix-header">
       <div>
-        <div class="pareto-headline">Tu <em>80/20</em></div>
-        <div class="pareto-sub" id="paretoSub">Calculando análisis Pareto...</div>
+        <div class="mix-headline">Modelos <em>clave</em></div>
+        <div class="mix-sub" id="mixSub">Cargando...</div>
       </div>
-      <div class="pareto-stat">
-        <div class="pareto-stat-num" id="paretoCount">—</div>
-        <div class="pareto-stat-lbl">modelos vitales</div>
+      <div class="mix-stat">
+        <div class="mix-stat-num" id="mixPct">—</div>
+        <div class="mix-stat-lbl">del GMV del período</div>
       </div>
     </div>
-    <div class="pareto-list" id="paretoList">
-      <div class="sk sk-line" style="margin-top:16px;"></div>
+    <div class="mix-list" id="mixList">
+      <div class="sk sk-line" style="margin-top:12px;"></div>
       <div class="sk sk-line"></div>
       <div class="sk sk-line"></div>
     </div>
@@ -228,23 +257,99 @@ svg.chart{width:100%;height:100%;}
     </div>
   </div>
 
+  <!-- Margen de contribución -->
+  <div class="mc-section">
+    <div class="mc-header">
+      <div>
+        <div class="mc-headline">Margen de contribución</div>
+        <div class="mc-sub">Precio real pagado por canal · últimos 90 días</div>
+      </div>
+      <div class="mc-note">Precio · Margen $ · Margen %</div>
+    </div>
+    <div class="mc-scroll">
+      <table class="mc-table" id="mcTable">
+        <thead>
+          <tr>
+            <th>Modelo</th>
+            <th class="th-tiktok">TikTok LIVE</th>
+            <th class="th-web">Web</th>
+            <th class="th-draft">Draft Orders</th>
+            <th class="th-pdh">PDH</th>
+          </tr>
+        </thead>
+        <tbody id="mcBody"></tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
 
 <script>
 const GOAL           = 50_000_000;
-const PARETO_TARGET  = 0.80;
 const CHANNEL_COLORS = { web:'#3a72b8', tiktok:'#c16452', instagram:'#9b59b6', pos:'#3a9e6f', shopify_draft_order:'#c18a32' };
 const CHANNEL_LABELS = { web:'Tienda online', tiktok:'TikTok LIVE', instagram:'Instagram', pos:'Punto de venta', shopify_draft_order:'Draft Order' };
 
+// ── Modelos clave ─────────────────────────────────────────────────────────────
+const KEY_MODELS = ['penny','frankie','parker','flux','becca','dallas camel','dallas black','fenix chocolate'];
+
+const MODEL_DISPLAY = {
+  'penny':           'Penny Clogs',
+  'frankie':         'Frankie',
+  'parker':          'Parker',
+  'flux':            'Flux Sneakers',
+  'becca':           'Becca Vintage',
+  'dallas camel':    'Dallas Camel',
+  'dallas black':    'Dallas Black',
+  'fenix chocolate': 'Fenix Chocolate',
+};
+
+// Costo total por par (fábrica + variables)
+const COSTOS = {
+  'penny':           320.84,
+  'frankie':         295.00,
+  'parker':          269.50,
+  'flux':            541.00,
+  'becca':           910.00,
+  'dallas camel':    1128.00,
+  'dallas black':    1253.00,
+  'fenix chocolate': 1096.00,
+};
+
+// Precio promedio real pagado por canal (últimos 90 días, neto de descuentos)
+const PRECIOS = {
+  'penny':           { tiktok: 1100, web: 1142, draft: 1052, pdh: 1169 },
+  'frankie':         { tiktok: 1041, web: 1375, draft: 698,  pdh: 1258 },
+  'parker':          { tiktok: 964,  web: 1242, draft: 1166, pdh: 1042 },
+  'flux':            { tiktok: 1113, web: 1511, draft: null, pdh: 1351 },
+  'becca':           { tiktok: 1931, web: 2673, draft: 1999, pdh: null  },
+  'dallas camel':    { tiktok: 2734, web: 3829, draft: null, pdh: null  },
+  'dallas black':    { tiktok: 3706, web: 3984, draft: 2989, pdh: null  },
+  'fenix chocolate': { tiktok: null, web: 4092, draft: 3735, pdh: 2808  },
+};
+
 let _period = 'month';
-let _imgMap  = {};   // normalized-title → image_src
+let _imgMap  = {};
 
 document.getElementById('currentYear').textContent = new Date().getFullYear();
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-const fmtMXN = n => n >= 1_000_000 ? '$'+(n/1e6).toFixed(2)+'M' : n >= 1_000 ? '$'+(n/1e3).toFixed(1)+'k' : '$'+Math.round(n).toLocaleString('es-MX');
+const fmtMXN  = n => n >= 1_000_000 ? '$'+(n/1e6).toFixed(2)+'M' : n >= 1_000 ? '$'+(n/1e3).toFixed(1)+'k' : '$'+Math.round(n).toLocaleString('es-MX');
 const fmtFull = n => n.toLocaleString('es-MX',{style:'currency',currency:'MXN',minimumFractionDigits:0,maximumFractionDigits:0});
 const normKey = t => (t||'').toLowerCase().trim().replace(/\s+/g,'').replace(/[^a-z0-9]/g,'');
+
+function matchKeyModel(title) {
+  const t = title.toLowerCase();
+  for (const m of KEY_MODELS) {
+    if (t.includes(m)) return m;
+  }
+  return null;
+}
+
+function pctClass(p) {
+  if (p >= 70) return 'high';
+  if (p >= 50) return 'mid';
+  return 'low';
+}
 
 // ── Image catalog ─────────────────────────────────────────────────────────────
 async function loadImageCatalog() {
@@ -254,15 +359,33 @@ async function loadImageCatalog() {
     for (const p of (d.products || [])) {
       const img = p.images?.[0]?.src;
       if (!img) continue;
-      _imgMap[String(p.id)]      = img;
-      _imgMap[normKey(p.title)]  = img;
+      _imgMap[String(p.id)]     = img;
+      _imgMap[normKey(p.title)] = img;
     }
+    // Render margin table images now that catalog is loaded
+    renderMargenes();
   } catch(e) { console.warn('[50M] catalog:', e.message); }
 }
 
-function getImage(p) {
-  if (p.product_id && _imgMap[String(p.product_id)]) return _imgMap[String(p.product_id)];
-  return _imgMap[normKey(p.title)] || null;
+function getImage(obj) {
+  if (obj.product_id && _imgMap[String(obj.product_id)]) return _imgMap[String(obj.product_id)];
+  return _imgMap[normKey(obj.title || obj.name || '')] || null;
+}
+
+function getModelImage(key) {
+  const display = MODEL_DISPLAY[key] || key;
+  // Try exact display name
+  let url = _imgMap[normKey(display)];
+  if (url) return url;
+  // Try key
+  url = _imgMap[normKey(key)];
+  if (url) return url;
+  // Try partial match on first word
+  const first = normKey(key.split(' ')[0]);
+  for (const [k, v] of Object.entries(_imgMap)) {
+    if (typeof k === 'string' && k.startsWith(first) && !/^\d+$/.test(k)) return v;
+  }
+  return null;
 }
 
 // ── Period helpers ────────────────────────────────────────────────────────────
@@ -296,7 +419,7 @@ function dateRange(period) {
   return { min, max };
 }
 
-// ── Annual GMV (goal bar) ─────────────────────────────────────────────────────
+// ── Annual GMV ────────────────────────────────────────────────────────────────
 async function loadYear() {
   const y = new Date().getFullYear();
   try {
@@ -322,7 +445,7 @@ async function loadPeriod() {
     const d = await r.json();
     if (d.error) throw new Error(d.error);
     renderKPIs(d.summary || {}, d.by_source || {});
-    renderPareto(d.top_products || [], d.summary?.total_gmv || 0);
+    renderModelMix(d.top_products || [], d.summary?.total_gmv || 0);
     renderChart(d.by_day || {});
     renderChannels(d.by_source || {}, d.summary?.total_gmv || 0);
     document.getElementById('lastUpd').textContent =
@@ -358,73 +481,103 @@ function renderKPIs(s, bySource) {
     </div>`;
 }
 
-// ── Pareto 80/20 ──────────────────────────────────────────────────────────────
-function renderPareto(products, totalGMV) {
-  const section = document.getElementById('paretoSection');
+// ── Modelos clave ─────────────────────────────────────────────────────────────
+function renderModelMix(products, totalGMV) {
+  const section = document.getElementById('mixSection');
   if (!products.length || !totalGMV) { section.style.display = 'none'; return; }
   section.style.display = '';
 
-  // Sort descending by GMV, add cumulative %
-  const sorted = [...products].sort((a, b) => b.gmv - a.gmv);
-  let cumul = 0;
-  let vitalCount = 0;
+  // Aggregate by key model
+  const modelData = {};
+  for (const p of products) {
+    const key = matchKeyModel(p.title);
+    if (!key) continue;
+    if (!modelData[key]) modelData[key] = { gmv: 0, units: 0, product_id: p.product_id, title: p.title };
+    modelData[key].gmv   += p.gmv;
+    modelData[key].units += p.units || 0;
+    if (!modelData[key].product_id && p.product_id) modelData[key].product_id = p.product_id;
+  }
 
-  const enriched = sorted.map((p, i) => {
-    cumul += p.gmv;
-    const cumulPct = cumul / totalGMV;
-    // A product is "vital" if adding it doesn't yet exceed the 80% threshold —
-    // i.e., every product up to and including the one that first crosses 80%
-    const wasBelow = (cumul - p.gmv) / totalGMV < PARETO_TARGET;
-    const isVital  = wasBelow;
-    if (isVital) vitalCount = i + 1;
-    return { ...p, cumulPct, sharePct: p.gmv / totalGMV, isVital };
-  });
+  const sorted     = Object.entries(modelData).sort((a, b) => b[1].gmv - a[1].gmv);
+  const keyGMV     = sorted.reduce((s, [, d]) => s + d.gmv, 0);
+  const keyPct     = totalGMV > 0 ? (keyGMV / totalGMV * 100) : 0;
+  const maxGMV     = sorted[0]?.[1].gmv || 1;
+  const modelCount = sorted.length;
 
-  if (vitalCount === 0) vitalCount = 1;
+  document.getElementById('mixPct').textContent = keyPct.toFixed(1) + '%';
+  document.getElementById('mixSub').textContent =
+    `${modelCount} modelo${modelCount !== 1 ? 's' : ''} · ${fmtFull(keyGMV)} del GMV del período`;
 
-  document.getElementById('paretoCount').textContent = vitalCount;
-  const finalCumul = Math.round(enriched[vitalCount - 1].cumulPct * 100);
-  document.getElementById('paretoSub').textContent =
-    `${vitalCount} ${vitalCount === 1 ? 'modelo genera' : 'modelos generan'} el ${finalCumul}% del GMV · el resto aporta el ${100 - finalCumul}%`;
+  if (!sorted.length) {
+    document.getElementById('mixList').innerHTML = `<div class="mix-no-data">Sin ventas en este período para los modelos seleccionados</div>`;
+    return;
+  }
 
-  const maxGMV = enriched[0]?.gmv || 1;
-  let dividerDone = false;
-
-  const html = enriched.map((p, i) => {
-    const isVital = i < vitalCount;
-    const imgSrc  = getImage(p);
-    const imgEl   = imgSrc
-      ? `<img src="${imgSrc}" loading="lazy" alt="${p.title}" onerror="this.parentElement.innerHTML='<div class=p-img-ph>👟</div>'"/>`
-      : `<div class="p-img-ph">👟</div>`;
-    const barW    = ((p.gmv / maxGMV) * 100).toFixed(1);
-    const barColor= isVital ? 'var(--terra)' : '#333';
-
-    let divider = '';
-    if (!isVital && !dividerDone) {
-      dividerDone = true;
-      divider = `<div class="pareto-divider">
-        <div class="pd-line"></div>
-        <div class="pd-label">— 80% acumulado · larga cola —</div>
-        <div class="pd-line rev"></div>
-      </div>`;
-    }
-
-    return `${divider}
-    <div class="pareto-item ${isVital ? 'vital' : 'tail'}">
-      <div class="p-rank">${i+1}</div>
-      <div class="p-img-wrap">${imgEl}</div>
-      <div class="p-info">
-        <div class="p-name">${p.title}</div>
-        <div class="p-bar-wrap"><div class="p-bar" style="width:${barW}%;background:${barColor};"></div></div>
-        <div class="p-cumul">${(p.sharePct*100).toFixed(1)}% del GMV · acumulado ${(p.cumulPct*100).toFixed(0)}%</div>
+  document.getElementById('mixList').innerHTML = sorted.map(([key, d], i) => {
+    const imgSrc = getImage({ product_id: d.product_id, title: d.title }) || getModelImage(key);
+    const imgEl  = imgSrc
+      ? `<img src="${imgSrc}" loading="lazy" alt="${MODEL_DISPLAY[key]}" onerror="this.parentElement.innerHTML='<div class=mix-img-ph>👟</div>'"/>`
+      : `<div class="mix-img-ph">👟</div>`;
+    const sharePct = (d.gmv / totalGMV * 100);
+    const barW     = (d.gmv / maxGMV * 100).toFixed(1);
+    return `<div class="mix-item">
+      <div class="mix-rank">${i+1}</div>
+      <div class="mix-img-wrap">${imgEl}</div>
+      <div class="mix-info">
+        <div class="mix-name">${MODEL_DISPLAY[key] || key}</div>
+        <div class="mix-bar-wrap"><div class="mix-bar" style="width:${barW}%"></div></div>
+        <div class="mix-units">${(d.units||0).toLocaleString('es-MX')} uds.</div>
       </div>
-      <div class="p-units">${(p.units||0).toLocaleString()} uds.</div>
-      <div class="p-gmv">${fmtMXN(p.gmv)}</div>
-      ${isVital ? '<div class="vital-badge">vital</div>' : ''}
+      <div class="mix-gmv">${fmtMXN(d.gmv)}</div>
+      <div class="mix-pct">${sharePct.toFixed(1)}%</div>
     </div>`;
   }).join('');
+}
 
-  document.getElementById('paretoList').innerHTML = html;
+// ── Margen de contribución ────────────────────────────────────────────────────
+function renderMargenes() {
+  const CHANS = [
+    { key: 'tiktok', field: 'tiktok' },
+    { key: 'web',    field: 'web'    },
+    { key: 'draft',  field: 'draft'  },
+    { key: 'pdh',    field: 'pdh'    },
+  ];
+
+  const rows = KEY_MODELS.map(key => {
+    const costo   = COSTOS[key] || 0;
+    const precios = PRECIOS[key] || {};
+    const imgSrc  = getModelImage(key);
+    const imgEl   = imgSrc
+      ? `<img src="${imgSrc}" loading="lazy" alt="${MODEL_DISPLAY[key]}" onerror="this.parentElement.innerHTML='<div class=mc-model-img-ph>👟</div>'"/>`
+      : `<div class="mc-model-img-ph">👟</div>`;
+
+    const chanCells = CHANS.map(c => {
+      const precio = precios[c.field];
+      if (!precio) return `<td class="mc-chan"><span class="mc-chan-empty">—</span></td>`;
+      const mc  = precio - costo;
+      const pct = (mc / precio * 100);
+      return `<td class="mc-chan">
+        <div class="mc-chan-price">${fmtFull(precio)}</div>
+        <div class="mc-chan-mc">${fmtFull(mc)}</div>
+        <div class="mc-chan-pct ${pctClass(pct)}">${pct.toFixed(1)}%</div>
+      </td>`;
+    }).join('');
+
+    return `<tr>
+      <td>
+        <div class="mc-model">
+          <div class="mc-model-img">${imgEl}</div>
+          <div>
+            <div class="mc-model-name">${MODEL_DISPLAY[key]}</div>
+            <div class="mc-model-cost">Costo ${fmtFull(costo)}</div>
+          </div>
+        </div>
+      </td>
+      ${chanCells}
+    </tr>`;
+  }).join('');
+
+  document.getElementById('mcBody').innerHTML = rows;
 }
 
 // ── Chart ─────────────────────────────────────────────────────────────────────
@@ -482,8 +635,9 @@ function renderChannels(bySource, totalGMV) {
 }
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
+renderMargenes(); // render with placeholders (no images yet)
 setInterval(loadAll, 5*60*1000);
-loadImageCatalog();  // non-blocking
+loadImageCatalog(); // fetches images then re-renders margins with photos
 loadAll();
 </script>
 </body>
