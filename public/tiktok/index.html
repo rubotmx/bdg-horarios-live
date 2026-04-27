@@ -567,6 +567,25 @@ td{padding:10px 14px;vertical-align:middle;}
       </div>
       <div id="pubRankPodium"></div>
       <div id="pubRankList" style="margin-top:8px;"></div>
+
+      <!-- Análisis histórico: mejores días y horas -->
+      <div style="margin-top:40px;">
+        <div style="text-align:center;margin-bottom:14px;">
+          <div style="font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">Histórico · referencia para calendarizar</div>
+          <div style="font-family:var(--fh);font-size:20px;font-weight:600;letter-spacing:-.01em;">Mejores días</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">GMV/hora promedio por día de la semana</div>
+        </div>
+        <div id="pubBestDays"></div>
+      </div>
+
+      <div style="margin-top:32px;">
+        <div style="text-align:center;margin-bottom:14px;">
+          <div style="font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;">Histórico · referencia para calendarizar</div>
+          <div style="font-family:var(--fh);font-size:20px;font-weight:600;letter-spacing:-.01em;">Mejores horas</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">GMV/hora promedio por franja de inicio</div>
+        </div>
+        <div id="pubBestHours"></div>
+      </div>
     </div>
   </div>
 
@@ -2241,6 +2260,103 @@ function renderPublicRanking(){
           <div class="rank-list-sub">/hr · ${a.sessions} ses.</div>
         </div>
       </div>`).join("")}`;
+
+  // Análisis histórico para calendarizar
+  renderBestDaysAndHours();
+}
+
+// ── ANÁLISIS HISTÓRICO: mejores días y mejores horas ──────────────────────────
+function buildBestDaysAndHours(){
+  const SESSION_H = SESSION_MINS / 60;
+  const today = new Date().toISOString().slice(0,10);
+  const hhmm  = new Date().toTimeString().slice(0,5);
+
+  // Tomar TODAS las sesiones pasadas con GMV registrado (más datos = mejor señal)
+  const past = STATE.slots.filter(s =>
+    s.gmv > 0 &&
+    (s.date < today || (s.date === today && s.timeEnd <= hhmm))
+  );
+
+  const dayMap  = {};   // 0=Dom..6=Sáb → { gmvTotal, sessions }
+  const hourMap = {};   // "HH:MM" → { gmvTotal, sessions }
+
+  past.forEach(s => {
+    // Día de la semana — parseo local sin timezone para ser exacto
+    const [y, m, d] = s.date.split("-").map(Number);
+    const dow = new Date(y, m - 1, d).getDay();
+    if(!dayMap[dow]) dayMap[dow] = { gmvTotal:0, sessions:0 };
+    dayMap[dow].gmvTotal += s.gmv;
+    dayMap[dow].sessions += 1;
+
+    // Hora de inicio
+    const hr = s.timeStart;
+    if(!hourMap[hr]) hourMap[hr] = { gmvTotal:0, sessions:0 };
+    hourMap[hr].gmvTotal += s.gmv;
+    hourMap[hr].sessions += 1;
+  });
+
+  const dayNames = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+
+  const days = Object.entries(dayMap).map(([dow, x]) => ({
+    label:    dayNames[dow],
+    sessions: x.sessions,
+    gmvHr:    x.gmvTotal / (x.sessions * SESSION_H),
+    gmvTotal: x.gmvTotal,
+  })).sort((a,b) => b.gmvHr - a.gmvHr);
+
+  const hours = Object.entries(hourMap).map(([hr, x]) => ({
+    label:    hr,
+    sessions: x.sessions,
+    gmvHr:    x.gmvTotal / (x.sessions * SESSION_H),
+    gmvTotal: x.gmvTotal,
+  })).sort((a,b) => b.gmvHr - a.gmvHr);
+
+  return { days, hours, totalSessions: past.length };
+}
+
+function renderBestDaysAndHours(){
+  const daysEl  = document.getElementById("pubBestDays");
+  const hoursEl = document.getElementById("pubBestHours");
+  if(!daysEl || !hoursEl) return;
+
+  const { days, hours, totalSessions } = buildBestDaysAndHours();
+
+  if(totalSessions === 0){
+    daysEl.innerHTML  = `<div class="rank-empty">Sin datos históricos aún.</div>`;
+    hoursEl.innerHTML = "";
+    return;
+  }
+
+  function rowHtml(item, idx, maxGmv, suffix){
+    const pct   = (item.gmvHr / maxGmv) * 100;
+    const isTop = idx === 0;
+    const color = isTop ? "var(--oxide)" : "var(--muted)";
+    const nameStyle = isTop ? "color:var(--oxide);font-weight:700;" : "font-weight:600;";
+    return `<div style="background:var(--surface);border:1px solid var(--line);padding:12px 14px;margin-bottom:6px;border-radius:4px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:7px;">
+        <div style="font-size:9px;color:var(--muted);width:22px;font-weight:700;letter-spacing:.06em;">#${idx+1}</div>
+        <div style="flex:1;font-size:13px;${nameStyle}">${item.label}${suffix||""}</div>
+        <div style="text-align:right;">
+          <div style="font-size:14px;font-weight:700;${isTop?'color:var(--oxide);':''}">${fmtGMV(item.gmvHr)}/hr</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:1px;">${item.sessions} ses${item.sessions!==1?'iones':'ión'}</div>
+        </div>
+      </div>
+      <div style="background:var(--line2);height:3px;border-radius:2px;overflow:hidden;">
+        <div style="background:${color};height:3px;border-radius:2px;width:${pct.toFixed(0)}%;transition:width .4s;"></div>
+      </div>
+    </div>`;
+  }
+
+  // Días
+  const maxDay  = days[0].gmvHr;
+  daysEl.innerHTML = days.map((d,i) => rowHtml(d, i, maxDay, "")).join("") +
+    `<div style="text-align:center;font-size:9px;color:var(--muted);margin-top:8px;letter-spacing:.06em;">Basado en ${totalSessions} sesión${totalSessions!==1?'es':''} histórica${totalSessions!==1?'s':''} con GMV registrado</div>`;
+
+  // Horas (top 8 para no saturar)
+  const maxHr   = hours[0].gmvHr;
+  const topHrs  = hours.slice(0, 8);
+  hoursEl.innerHTML = topHrs.map((h,i) => rowHtml(h, i, maxHr, " hrs")).join("") +
+    (hours.length > 8 ? `<div style="text-align:center;font-size:9px;color:var(--muted);margin-top:8px;letter-spacing:.06em;">Mostrando top 8 de ${hours.length} franjas</div>` : "");
 }
 
 function pubChangeWeek(d){
