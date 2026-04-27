@@ -209,6 +209,11 @@ html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var
 @keyframes pulse-red{0%,100%{opacity:1}50%{opacity:.55}}
 .sz-val.critical{animation:pulse-red 1.8s ease-in-out infinite;}
 
+/* ── MISC VARIANTS ── */
+.misc-variants{display:flex;flex-direction:column;gap:4px;}
+.misc-variant{display:flex;align-items:center;justify-content:space-between;padding:2px 0;}
+.misc-vname{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.02em;}
+
 /* ── EMPTY / ERROR ── */
 .empty-state{
   text-align:center;padding:64px 24px;
@@ -258,6 +263,7 @@ html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var
     <button class="tab"        id="tabMain"   onclick="switchTab('main')">Principal</button>
     <button class="tab"        id="tabClogs"  onclick="switchTab('clogs')">Clogs</button>
     <button class="tab"        id="tabOthers" onclick="switchTab('others')">Otros</button>
+    <button class="tab"        id="tabMisc"   onclick="switchTab('misc')">Sin talla</button>
   </div>
   <div class="filters-row">
     <button class="filter-pill" id="completosBtn" onclick="toggleCompletos()">
@@ -344,8 +350,9 @@ let _clogsProducts = [];
 let _othersProducts = [];
 let _mode          = 'positive';   // 'positive' | 'all'
 let _filterCompl   = false;
-let _tab           = 'all';        // 'all' | 'main' | 'clogs' | 'others'
+let _tab           = 'all';        // 'all' | 'main' | 'clogs' | 'others' | 'misc'
 let _allProducts   = [];
+let _miscProducts  = [];
 let _core          = JSON.parse(localStorage.getItem('bdg_core') || '{}');
 
 const KEY_SIZES      = new Set(['24','25']);
@@ -379,6 +386,10 @@ const ALLOWED_MODELS = [
   'TYRO BLACK','HUDSON CHOCOLATE CC X BDG','TAURI BLACK',
 ];
 const ALLOWED_SET = new Set(ALLOWED_MODELS.map(s => s.toLowerCase()));
+
+function hasSizes(p){
+  return (p.variants||[]).some(v => /^\d{2}$/.test(extractSizeFromVariant(v)));
+}
 
 function effectiveQty(qty){ return _mode === 'positive' ? Math.max(0, qty) : qty; }
 
@@ -418,6 +429,7 @@ function switchTab(tab){
   document.getElementById('tabMain').classList.toggle('active',   tab === 'main');
   document.getElementById('tabClogs').classList.toggle('active',  tab === 'clogs');
   document.getElementById('tabOthers').classList.toggle('active', tab === 'others');
+  document.getElementById('tabMisc').classList.toggle('active',   tab === 'misc');
   render();
 }
 function toggleFilter(){
@@ -455,21 +467,25 @@ async function init(){
     const data = await res.json();
     const all  = (data.products || []).filter(p => p.status === 'active');
 
-    _products = all.filter(p => ALLOWED_SET.has(p.title.toLowerCase()));
+    // Separate sized vs non-sized products upfront
+    const sized = all.filter(hasSizes);
+    _miscProducts = all.filter(p => !hasSizes(p)).sort((a,b) => a.title.localeCompare(b.title));
+
+    _products = sized.filter(p => ALLOWED_SET.has(p.title.toLowerCase()));
     _products.sort((a,b) => a.title.localeCompare(b.title));
 
-    _clogsProducts = all.filter(p => {
+    _clogsProducts = sized.filter(p => {
       const tl = p.title.toLowerCase();
       return CLOGS_KEYWORDS.some(k => tl.includes(k)) && !ALLOWED_SET.has(tl);
     });
     _clogsProducts.sort((a,b) => a.title.localeCompare(b.title));
 
-    // Otros: everything active that is NOT in core (includes clogs + anything else)
-    _othersProducts = all.filter(p => !ALLOWED_SET.has(p.title.toLowerCase()));
+    // Otros: sized products NOT in core
+    _othersProducts = sized.filter(p => !ALLOWED_SET.has(p.title.toLowerCase()));
     _othersProducts.sort((a,b) => a.title.localeCompare(b.title));
 
-    // Todos: every active product, alphabetical
-    _allProducts = [...all].sort((a,b) => a.title.localeCompare(b.title));
+    // Todos: all sized products
+    _allProducts = [...sized].sort((a,b) => a.title.localeCompare(b.title));
 
     render();
   } catch(e){
@@ -490,6 +506,7 @@ function render(){
   const base  = _tab === 'all'    ? _allProducts
               : _tab === 'clogs'  ? _clogsProducts
               : _tab === 'others' ? _othersProducts
+              : _tab === 'misc'   ? _miscProducts
               : _products;
 
   // Collect sizes across all products in tab
@@ -537,6 +554,45 @@ function render(){
   if(!filtered.length){
     document.getElementById('cardsList').innerHTML =
       `<div class="prod-card"><div class="empty-state">Sin resultados</div></div>`;
+    return;
+  }
+
+  // ── MISC tab: products without size variants ──────────────────────────────
+  if(_tab === 'misc'){
+    document.getElementById('cardsList').innerHTML = filtered.map((p, pi) => {
+      const imgSrc = p.images?.[0]?.src;
+      const thumb  = imgSrc
+        ? `<img class="prod-thumb" src="${imgSrc}" loading="lazy" alt="${p.title}" onerror="this.outerHTML='<div class=thumb-ph>📦</div>'"/>`
+        : `<div class="thumb-ph">📦</div>`;
+      const total = (p.variants||[]).reduce((s,v) => s + effectiveQty(v.inventory_quantity??0), 0);
+      const variants = (p.variants||[]).filter(v => v.title !== 'Default Title');
+      const variantRows = variants.length
+        ? variants.map(v => {
+            const q = effectiveQty(v.inventory_quantity??0);
+            const cls = stockClass(v.inventory_quantity??0);
+            return `<div class="misc-variant">
+              <span class="misc-vname">${v.title}</span>
+              <span class="sz-val ${cls}" style="min-width:44px;padding:0 10px;height:30px;font-size:12px;border-radius:4px;">${q}</span>
+            </div>`;
+          }).join('')
+        : `<div class="misc-variant"><span class="misc-vname" style="color:var(--muted2);">Sin variantes</span></div>`;
+
+      return `<div class="prod-card" style="animation-delay:${pi*0.025}s">
+        <div class="card-header">
+          ${thumb}
+          <div class="card-meta">
+            <div class="prod-name">${p.title}</div>
+          </div>
+          <div class="card-right">
+            <div class="card-total">
+              <div class="total-num ${totalClass(total)}">${total}</div>
+              <div class="total-lbl">total</div>
+            </div>
+          </div>
+        </div>
+        <div class="misc-variants">${variantRows}</div>
+      </div>`;
+    }).join('');
     return;
   }
 
