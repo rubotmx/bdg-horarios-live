@@ -204,11 +204,9 @@ svg.chart{width:100%;height:100%;}
 
   <!-- Period selector -->
   <div class="period-bar">
-    <button class="period-btn" onclick="setPeriod('today',this)">Hoy</button>
-    <button class="period-btn" onclick="setPeriod('week',this)">Semana</button>
-    <button class="period-btn active" onclick="setPeriod('month',this)">Este mes</button>
-    <button class="period-btn" onclick="setPeriod('30d',this)">30 días</button>
-    <button class="period-btn" onclick="setPeriod('year',this)">Año</button>
+    <button class="period-btn active" onclick="setPeriod('30d',this)">30 días</button>
+    <button class="period-btn" onclick="setPeriod('90d',this)">90 días</button>
+    <button class="period-btn" onclick="setPeriod('180d',this)">180 días</button>
     <button class="refresh-btn" onclick="loadAll()"><span class="spin-icon" id="spinIcon">↻</span> Actualizar</button>
     <span class="last-upd" id="lastUpd"></span>
   </div>
@@ -327,7 +325,7 @@ const PRECIOS = {
   'fenix chocolate': { tiktok: null, web: 4092, draft: 3735, pdh: 2808  },
 };
 
-let _period = 'month';
+let _period = '30d';
 let _imgMap  = {};
 
 document.getElementById('currentYear').textContent = new Date().getFullYear();
@@ -401,19 +399,14 @@ function dateRange(period) {
   const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
   const now  = new Date(new Date().toLocaleString('en-US',{timeZone:'America/Mexico_City'}));
   let min, max;
-  if (period === 'today') {
-    const t = fmt(now); min = `${t}T00:00:00-06:00`; max = `${t}T23:59:59-06:00`;
-  } else if (period === 'week') {
-    const d = new Date(now); d.setDate(d.getDate()-d.getDay());
-    min = `${fmt(d)}T00:00:00-06:00`; max = `${fmt(now)}T23:59:59-06:00`;
-  } else if (period === 'month') {
-    const d = new Date(now.getFullYear(), now.getMonth(), 1);
-    min = `${fmt(d)}T00:00:00-06:00`; max = `${fmt(now)}T23:59:59-06:00`;
-  } else if (period === '30d') {
+  if (period === '30d') {
     const d = new Date(now); d.setDate(d.getDate()-29);
     min = `${fmt(d)}T00:00:00-06:00`; max = `${fmt(now)}T23:59:59-06:00`;
+  } else if (period === '90d') {
+    const d = new Date(now); d.setDate(d.getDate()-89);
+    min = `${fmt(d)}T00:00:00-06:00`; max = `${fmt(now)}T23:59:59-06:00`;
   } else {
-    const d = new Date(now.getFullYear(), 0, 1);
+    const d = new Date(now); d.setDate(d.getDate()-179);
     min = `${fmt(d)}T00:00:00-06:00`; max = `${fmt(now)}T23:59:59-06:00`;
   }
   return { min, max };
