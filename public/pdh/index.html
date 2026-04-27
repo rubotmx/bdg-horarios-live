@@ -411,11 +411,9 @@ let _xlsxFile = null;
 
 // ── Auth check ────────────────────────────────────────────────────────────────
 const _user = JSON.parse(localStorage.getItem('bdg_user') || 'null');
-const _isAdmin = _user && _user.role === 'admin';
-if (_isAdmin) {
-  document.getElementById('btnUpload').classList.remove('hidden');
-  document.getElementById('emptyUploadBtn').classList.remove('hidden');
-}
+const _isAdmin = !_user || _user.role === 'admin'; // visible para todos mientras el login no está activo
+document.getElementById('btnUpload').classList.remove('hidden');
+document.getElementById('emptyUploadBtn').classList.remove('hidden');
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function storeLabel(name) {
