@@ -361,9 +361,11 @@ const PRECIOS = {
   'fenix chocolate': { tiktok: null, web: 4092, draft: 3735, pdh: 2808  },
 };
 
-let _period   = '30d';
-let _imgMap   = {};
-let _bySource = {};
+let _period      = '30d';
+let _imgMap      = {};
+let _bySource    = {};
+let _lastProducts = [];
+let _lastTotalGMV = 0;
 
 document.getElementById('currentYear').textContent = new Date().getFullYear();
 
@@ -404,7 +406,8 @@ async function loadImageCatalog() {
       _imgMap[String(p.id)]     = img;
       _imgMap[normKey(p.title)] = img;
     }
-    // Render margin table images now that catalog is loaded
+    // Re-render both sections now that images are available
+    renderModelMix(_lastProducts, _lastTotalGMV);
     renderMargenes(_bySource);
   } catch(e) { console.warn('[50M] catalog:', e.message); }
 }
@@ -481,9 +484,11 @@ async function loadPeriod() {
     const r = await fetch(`/api/shopify?date_min=${encodeURIComponent(min)}&date_max=${encodeURIComponent(max)}`);
     const d = await r.json();
     if (d.error) throw new Error(d.error);
-    _bySource = d.by_source || {};
+    _bySource     = d.by_source || {};
+    _lastProducts = d.top_products || [];
+    _lastTotalGMV = d.summary?.total_gmv || 0;
     renderKPIs(d.summary || {}, _bySource);
-    renderModelMix(d.top_products || [], d.summary?.total_gmv || 0);
+    renderModelMix(_lastProducts, _lastTotalGMV);
     renderChart(d.by_day || {});
     renderChannels(_bySource, d.summary?.total_gmv || 0);
     renderMargenes(_bySource);
