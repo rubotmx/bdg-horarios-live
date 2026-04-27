@@ -191,6 +191,12 @@ svg.chart{width:100%;height:100%;}
 .ads-cos-val.ok{color:var(--green);}
 .ads-cos-val.warn{color:var(--gold);}
 .ads-cos-val.bad{color:var(--red);}
+.ads-cos-big{text-align:right;}
+.ads-cos-big-val{font-family:var(--fh);font-size:32px;font-weight:900;letter-spacing:-.03em;line-height:1;}
+.ads-cos-big-val.ok{color:var(--green);}
+.ads-cos-big-val.warn{color:var(--gold);}
+.ads-cos-big-val.bad{color:var(--red);}
+.ads-cos-big-lbl{font-size:9px;color:var(--muted2);letter-spacing:.1em;text-transform:uppercase;margin-top:2px;}
 @media(max-width:600px){.ads-grid{grid-template-columns:1fr;}}
 
 @media(max-width:600px){
@@ -249,8 +255,11 @@ svg.chart{width:100%;height:100%;}
   <!-- Inversión en Ads -->
   <div class="ads-section">
     <div class="ads-header">
-      <div class="ads-headline">Inversión en Ads · % sobre ventas</div>
-      <div class="ads-note">COS por canal</div>
+      <div>
+        <div class="ads-headline">Inversión en Ads · COS ponderado</div>
+        <div class="ads-note" style="margin-top:3px;">META · TikTok · Meli</div>
+      </div>
+      <div id="adsCosDisplay"></div>
     </div>
     <div class="ads-grid" id="adsGrid"></div>
   </div>
@@ -394,11 +403,13 @@ const PRECIOS = {
 };
 
 // ── Inversión en Ads ──────────────────────────────────────────────────────────
+// Promedio ponderado: (899,636+450,376+122,026) / (2,913,597+3,038,740+470,530)
 const ADS_DATA = [
   { chan: 'META',   cls: 'meta',   spend: 899636,  sales: 2913597 },
   { chan: 'TIKTOK', cls: 'tiktok', spend: 450376,  sales: 3038740 },
   { chan: 'MELI',   cls: 'meli',   spend: 122026,  sales: 470530  },
 ];
+const ADS_COS = ADS_DATA.reduce((s,a)=>s+a.spend,0) / ADS_DATA.reduce((s,a)=>s+a.sales,0); // ~22.9%
 
 let _period      = '30d';
 let _imgMap      = {};
@@ -423,9 +434,19 @@ function matchKeyModel(title) {
 
 // ── Ads COS ───────────────────────────────────────────────────────────────────
 function renderAds() {
+  // Big weighted COS
+  const pct = ADS_COS * 100;
+  const cls = pct < 20 ? 'ok' : pct < 30 ? 'warn' : 'bad';
+  document.getElementById('adsCosDisplay').innerHTML =
+    `<div class="ads-cos-big">
+      <div class="ads-cos-big-val ${cls}">${pct.toFixed(1)}%</div>
+      <div class="ads-cos-big-lbl">COS ponderado</div>
+    </div>`;
+
+  // Per-channel breakdown
   document.getElementById('adsGrid').innerHTML = ADS_DATA.map(a => {
     const cos  = a.spend / a.sales * 100;
-    const cls  = cos < 20 ? 'ok' : cos < 30 ? 'warn' : 'bad';
+    const ccls = cos < 20 ? 'ok' : cos < 30 ? 'warn' : 'bad';
     return `<div class="ads-card">
       <div class="ads-chan ${a.cls}">${a.chan}</div>
       <div class="ads-row">
@@ -439,7 +460,7 @@ function renderAds() {
       <hr class="ads-divider"/>
       <div class="ads-cos-row">
         <span class="ads-cos-label">COS</span>
-        <span class="ads-cos-val ${cls}">${cos.toFixed(1)}%</span>
+        <span class="ads-cos-val ${ccls}">${cos.toFixed(1)}%</span>
       </div>
     </div>`;
   }).join('');
@@ -683,14 +704,17 @@ function renderMargenes(bySource) {
       ? `<img src="${imgSrc}" loading="lazy" alt="${MODEL_DISPLAY[key]}" onerror="this.parentElement.innerHTML='<div class=mc-model-img-ph>👟</div>'"/>`
       : `<div class="mc-model-img-ph">👟</div>`;
 
-    const precio = Math.round(weightedAvgPrice(precios));
-    const mc     = precio - costo;
+    const precio   = Math.round(weightedAvgPrice(precios));
+    const costoAds = precio > 0 ? Math.round(precio * ADS_COS) : 0;
+    const costoTotal = costo + costoAds;
+    const mc     = precio - costoTotal;
     const pct    = precio > 0 ? (mc / precio * 100) : 0;
 
     const detail = COSTOS_DETAIL[key] || [];
-    const detailItems = detail.map(d =>
-      `<div class="mc-detail-item">${d.label}<span>${fmtFull(d.val)}</span></div>`
-    ).join('');
+    const detailItems = [
+      ...detail.map(d => `<div class="mc-detail-item">${d.label}<span>${fmtFull(d.val)}</span></div>`),
+      precio > 0 ? `<div class="mc-detail-item" style="border-color:var(--terra)33;">Ads (${(ADS_COS*100).toFixed(1)}%)<span style="color:var(--terra);">${fmtFull(costoAds)}</span></div>` : '',
+    ].join('');
 
     return `<tr>
       <td>
@@ -699,14 +723,14 @@ function renderMargenes(bySource) {
           <div>
             <div class="mc-model-name">${MODEL_DISPLAY[key]}</div>
             <div class="mc-model-cost-wrap">
-              <span class="mc-model-cost">Costo ${fmtFull(costo)}</span>
+              <span class="mc-model-cost">Costo total ${fmtFull(costoTotal)}</span>
               ${detail.length ? `<button class="mc-cost-btn" onclick="toggleCostDetail('${key}',this)">▼ desglose</button>` : ''}
             </div>
           </div>
         </div>
       </td>
       <td><div class="mc-val-muted">${precio > 0 ? fmtFull(precio) : '—'}</div></td>
-      <td><div class="mc-val-muted">${fmtFull(costo)}</div></td>
+      <td><div class="mc-val-muted">${fmtFull(costoTotal)}</div></td>
       <td><div class="mc-val">${precio > 0 ? fmtFull(mc) : '—'}</div></td>
       <td><div class="mc-pct ${precio > 0 ? pctClass(pct) : ''}">${precio > 0 ? pct.toFixed(1)+'%' : '—'}</div></td>
     </tr>
