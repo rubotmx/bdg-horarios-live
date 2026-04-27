@@ -56,9 +56,11 @@ export default async function handler(req, res) {
 
       for (const item of (o.line_items || [])) {
         const title = item.title;
-        if (!byProduct[title]) byProduct[title] = { units: 0, gmv: 0 };
+        const pid   = String(item.product_id || '');
+        if (!byProduct[title]) byProduct[title] = { units: 0, gmv: 0, product_id: pid };
         byProduct[title].units += item.quantity;
         byProduct[title].gmv  += parseFloat(item.price) * item.quantity;
+        if (!byProduct[title].product_id && pid) byProduct[title].product_id = pid;
       }
     }
 
@@ -74,9 +76,9 @@ export default async function handler(req, res) {
       by_source:    bySource,
       by_day:       byDay,
       top_products: Object.entries(byProduct)
-        .map(([title, v]) => ({ title, ...v }))
+        .map(([title, v]) => ({ title, ...v, gmv: Math.round(v.gmv * 100) / 100 }))
         .sort((a, b) => b.gmv - a.gmv)
-        .slice(0, 10),
+        .slice(0, 30),
     };
     setCache(cacheKey, result);
     res.setHeader("X-Cache", "MISS");
