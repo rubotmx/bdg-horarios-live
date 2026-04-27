@@ -254,7 +254,8 @@ html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var
     <span class="search-clear" id="searchClear" onclick="clearSearch()">×</span>
   </div>
   <div class="tabs-row">
-    <button class="tab active" id="tabMain"   onclick="switchTab('main')">Principal</button>
+    <button class="tab active" id="tabAll"    onclick="switchTab('all')">Todos</button>
+    <button class="tab"        id="tabMain"   onclick="switchTab('main')">Principal</button>
     <button class="tab"        id="tabClogs"  onclick="switchTab('clogs')">Clogs</button>
     <button class="tab"        id="tabOthers" onclick="switchTab('others')">Otros</button>
   </div>
@@ -343,7 +344,8 @@ let _clogsProducts = [];
 let _othersProducts = [];
 let _mode          = 'positive';   // 'positive' | 'all'
 let _filterCompl   = false;
-let _tab           = 'main';       // 'main' | 'clogs' | 'others'
+let _tab           = 'all';        // 'all' | 'main' | 'clogs' | 'others'
+let _allProducts   = [];
 let _core          = JSON.parse(localStorage.getItem('bdg_core') || '{}');
 
 const KEY_SIZES      = new Set(['24','25']);
@@ -412,8 +414,9 @@ function swatchFor(colorName){
 // ── CONTROLS ─────────────────────────────────────────────────────────────────
 function switchTab(tab){
   _tab = tab;
-  document.getElementById('tabMain').classList.toggle('active', tab === 'main');
-  document.getElementById('tabClogs').classList.toggle('active', tab === 'clogs');
+  document.getElementById('tabAll').classList.toggle('active',    tab === 'all');
+  document.getElementById('tabMain').classList.toggle('active',   tab === 'main');
+  document.getElementById('tabClogs').classList.toggle('active',  tab === 'clogs');
   document.getElementById('tabOthers').classList.toggle('active', tab === 'others');
   render();
 }
@@ -465,6 +468,9 @@ async function init(){
     _othersProducts = all.filter(p => !ALLOWED_SET.has(p.title.toLowerCase()));
     _othersProducts.sort((a,b) => a.title.localeCompare(b.title));
 
+    // Todos: every active product, alphabetical
+    _allProducts = [...all].sort((a,b) => a.title.localeCompare(b.title));
+
     render();
   } catch(e){
     document.getElementById('cardsList').innerHTML =
@@ -481,7 +487,10 @@ async function init(){
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function render(){
   const query = (document.getElementById('searchInput')?.value || '').toLowerCase();
-  const base  = _tab === 'clogs' ? _clogsProducts : _tab === 'others' ? _othersProducts : _products;
+  const base  = _tab === 'all'    ? _allProducts
+              : _tab === 'clogs'  ? _clogsProducts
+              : _tab === 'others' ? _othersProducts
+              : _products;
 
   // Collect sizes across all products in tab
   const sizeSet = new Set();
