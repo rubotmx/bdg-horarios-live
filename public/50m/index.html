@@ -123,7 +123,7 @@ svg.chart{width:100%;height:100%;}
 .mc-scroll{overflow-x:auto;scrollbar-width:thin;scrollbar-color:var(--dark4) transparent;}
 .mc-scroll::-webkit-scrollbar{height:3px;}
 .mc-scroll::-webkit-scrollbar-thumb{background:var(--dark4);border-radius:2px;}
-.mc-table{width:100%;border-collapse:collapse;min-width:720px;}
+.mc-table{width:100%;border-collapse:collapse;min-width:480px;}
 .mc-table thead th{
   padding:9px 14px;background:var(--dark);
   font-family:var(--fh);font-size:8px;font-weight:700;
@@ -131,15 +131,11 @@ svg.chart{width:100%;height:100%;}
   text-align:center;border-bottom:1px solid var(--line2);white-space:nowrap;
 }
 .mc-table thead th:first-child{text-align:left;padding-left:20px;}
-.mc-table thead th.th-tiktok{color:var(--terra);border-top:2px solid var(--terra);}
-.mc-table thead th.th-web{color:#3a72b8;border-top:2px solid #3a72b8;}
-.mc-table thead th.th-draft{color:var(--gold);border-top:2px solid var(--gold);}
-.mc-table thead th.th-pdh{color:var(--green);border-top:2px solid var(--green);}
 .mc-table tbody tr{border-bottom:1px solid var(--line);transition:background .1s;}
 .mc-table tbody tr:last-child{border-bottom:none;}
 .mc-table tbody tr:hover{background:var(--dark3);}
-.mc-table td{padding:10px 14px;vertical-align:middle;}
-.mc-table td:first-child{padding-left:20px;}
+.mc-table td{padding:10px 14px;vertical-align:middle;text-align:center;}
+.mc-table td:first-child{padding-left:20px;text-align:left;}
 
 /* Model cell */
 .mc-model{display:flex;align-items:center;gap:10px;}
@@ -149,15 +145,23 @@ svg.chart{width:100%;height:100%;}
 .mc-model-name{font-size:11px;font-weight:700;font-family:var(--fh);color:#e8e4de;white-space:nowrap;}
 .mc-model-cost{font-size:9px;color:var(--muted2);margin-top:2px;}
 
-/* Channel cell */
-.mc-chan{text-align:center;}
-.mc-chan-price{font-size:11px;font-weight:700;font-family:var(--fh);color:rgba(255,255,255,.5);margin-bottom:3px;}
-.mc-chan-mc{font-size:13px;font-weight:800;font-family:var(--fh);color:#fff;letter-spacing:-.02em;}
-.mc-chan-pct{font-size:10px;font-weight:700;margin-top:2px;}
-.mc-chan-pct.high{color:var(--green);}
-.mc-chan-pct.mid{color:var(--gold);}
-.mc-chan-pct.low{color:var(--red);}
+/* Data cells */
+.mc-val{font-size:13px;font-weight:800;font-family:var(--fh);color:#fff;letter-spacing:-.02em;}
+.mc-val-muted{font-size:12px;font-weight:700;font-family:var(--fh);color:rgba(255,255,255,.45);}
+.mc-pct{font-size:11px;font-weight:800;font-family:var(--fh);}
+.mc-pct.high{color:var(--green);}
+.mc-pct.mid{color:var(--gold);}
+.mc-pct.low{color:var(--red);}
 .mc-chan-empty{color:var(--muted);font-size:11px;}
+.mc-model-cost-wrap{display:flex;align-items:center;gap:5px;}
+.mc-cost-btn{background:none;border:1px solid var(--line2);border-radius:3px;color:var(--muted2);font-size:8px;padding:1px 4px;cursor:pointer;line-height:1.4;transition:all .12s;flex-shrink:0;}
+.mc-cost-btn:hover{border-color:var(--terra);color:var(--terra);}
+.mc-detail-row{display:none;}
+.mc-detail-row.open{display:table-row;}
+.mc-detail-cell{padding:0 20px 10px !important;background:var(--dark3);}
+.mc-detail-inner{display:flex;gap:6px;flex-wrap:wrap;padding-top:6px;}
+.mc-detail-item{background:var(--dark4);border:1px solid var(--line2);border-radius:5px;padding:4px 8px;font-size:9px;color:var(--muted2);}
+.mc-detail-item span{display:block;font-size:10px;font-weight:700;color:#e8e4de;margin-top:1px;font-family:var(--fh);}
 
 /* SKELETON */
 .sk{background:linear-gradient(90deg,var(--dark3) 25%,var(--dark4) 50%,var(--dark3) 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:4px;}
@@ -228,7 +232,7 @@ svg.chart{width:100%;height:100%;}
       </div>
       <div class="mix-stat">
         <div class="mix-stat-num" id="mixPct">—</div>
-        <div class="mix-stat-lbl">del GMV del período</div>
+        <div class="mix-stat-lbl" id="mixPctLabel">GMV MODELOS CLAVE</div>
       </div>
     </div>
     <div class="mix-list" id="mixList">
@@ -260,19 +264,19 @@ svg.chart{width:100%;height:100%;}
     <div class="mc-header">
       <div>
         <div class="mc-headline">Margen de contribución</div>
-        <div class="mc-sub">Precio real pagado por canal · últimos 90 días</div>
+        <div class="mc-sub">Precio promedio ponderado · últimos 90 días</div>
       </div>
-      <div class="mc-note">Precio · Margen $ · Margen %</div>
+      <div class="mc-note">Precio prom · Margen $ · Margen %</div>
     </div>
     <div class="mc-scroll">
       <table class="mc-table" id="mcTable">
         <thead>
           <tr>
             <th>Modelo</th>
-            <th class="th-tiktok">TikTok LIVE</th>
-            <th class="th-web">Web</th>
-            <th class="th-draft">Draft Orders</th>
-            <th class="th-pdh">PDH</th>
+            <th>Precio prom</th>
+            <th>Costo</th>
+            <th>Margen $</th>
+            <th>Margen %</th>
           </tr>
         </thead>
         <tbody id="mcBody"></tbody>
@@ -313,6 +317,35 @@ const COSTOS = {
   'fenix chocolate': 1096.00,
 };
 
+// Desglose de costos por modelo
+const COSTOS_DETAIL = {
+  'penny': [
+    { label: 'Fábrica',       val: 242.50 },
+    { label: 'Caja',          val:  20.00 },
+    { label: 'Cubrepolvo',    val:  20.00 },
+    { label: 'Polipapel',     val:   3.00 },
+    { label: 'Studs',         val:  29.45 },
+    { label: 'Rep. studs',    val:   5.89 },
+  ],
+  'frankie': [
+    { label: 'Fábrica',       val: 252.00 },
+    { label: 'Caja',          val:  20.00 },
+    { label: 'Cubrepolvo',    val:  20.00 },
+    { label: 'Polipapel',     val:   3.00 },
+  ],
+  'parker': [
+    { label: 'Fábrica',       val: 226.50 },
+    { label: 'Caja',          val:  20.00 },
+    { label: 'Cubrepolvo',    val:  20.00 },
+    { label: 'Polipapel',     val:   3.00 },
+  ],
+  'flux':            [{ label: 'Total c/ variables', val: 541.00  }],
+  'becca':           [{ label: 'Total c/ variables', val: 910.00  }],
+  'dallas camel':    [{ label: 'Total c/ variables', val: 1128.00 }],
+  'dallas black':    [{ label: 'Total c/ variables', val: 1253.00 }],
+  'fenix chocolate': [{ label: 'Total c/ variables', val: 1096.00 }],
+};
+
 // Precio promedio real pagado por canal (últimos 90 días, neto de descuentos)
 const PRECIOS = {
   'penny':           { tiktok: 1100, web: 1142, draft: 1052, pdh: 1169 },
@@ -325,8 +358,9 @@ const PRECIOS = {
   'fenix chocolate': { tiktok: null, web: 4092, draft: 3735, pdh: 2808  },
 };
 
-let _period = '30d';
-let _imgMap  = {};
+let _period   = '30d';
+let _imgMap   = {};
+let _bySource = {};
 
 document.getElementById('currentYear').textContent = new Date().getFullYear();
 
@@ -341,6 +375,13 @@ function matchKeyModel(title) {
     if (t.includes(m)) return m;
   }
   return null;
+}
+
+function toggleCostDetail(key, btn) {
+  const row = document.getElementById('detail-' + key.replace(/\s/g,'-'));
+  if (!row) return;
+  const open = row.classList.toggle('open');
+  btn.textContent = open ? '▲ desglose' : '▼ desglose';
 }
 
 function pctClass(p) {
@@ -361,7 +402,7 @@ async function loadImageCatalog() {
       _imgMap[normKey(p.title)] = img;
     }
     // Render margin table images now that catalog is loaded
-    renderMargenes();
+    renderMargenes(_bySource);
   } catch(e) { console.warn('[50M] catalog:', e.message); }
 }
 
@@ -437,10 +478,12 @@ async function loadPeriod() {
     const r = await fetch(`/api/shopify?date_min=${encodeURIComponent(min)}&date_max=${encodeURIComponent(max)}`);
     const d = await r.json();
     if (d.error) throw new Error(d.error);
-    renderKPIs(d.summary || {}, d.by_source || {});
+    _bySource = d.by_source || {};
+    renderKPIs(d.summary || {}, _bySource);
     renderModelMix(d.top_products || [], d.summary?.total_gmv || 0);
     renderChart(d.by_day || {});
-    renderChannels(d.by_source || {}, d.summary?.total_gmv || 0);
+    renderChannels(_bySource, d.summary?.total_gmv || 0);
+    renderMargenes(_bySource);
     document.getElementById('lastUpd').textContent =
       'Act. ' + new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
   } catch(e) {
@@ -493,13 +536,13 @@ function renderModelMix(products, totalGMV) {
 
   const sorted     = Object.entries(modelData).sort((a, b) => b[1].gmv - a[1].gmv);
   const keyGMV     = sorted.reduce((s, [, d]) => s + d.gmv, 0);
-  const keyPct     = totalGMV > 0 ? (keyGMV / totalGMV * 100) : 0;
   const maxGMV     = sorted[0]?.[1].gmv || 1;
   const modelCount = sorted.length;
 
-  document.getElementById('mixPct').textContent = keyPct.toFixed(1) + '%';
+  document.getElementById('mixPct').textContent = fmtMXN(keyGMV);
+  document.getElementById('mixPctLabel').textContent = 'GMV MODELOS CLAVE';
   document.getElementById('mixSub').textContent =
-    `${modelCount} modelo${modelCount !== 1 ? 's' : ''} · ${fmtFull(keyGMV)} del GMV del período`;
+    `${modelCount} modelo${modelCount !== 1 ? 's' : ''} · mix relativo entre modelos`;
 
   if (!sorted.length) {
     document.getElementById('mixList').innerHTML = `<div class="mix-no-data">Sin ventas en este período para los modelos seleccionados</div>`;
@@ -511,7 +554,7 @@ function renderModelMix(products, totalGMV) {
     const imgEl  = imgSrc
       ? `<img src="${imgSrc}" loading="lazy" alt="${MODEL_DISPLAY[key]}" onerror="this.parentElement.innerHTML='<div class=mix-img-ph>👟</div>'"/>`
       : `<div class="mix-img-ph">👟</div>`;
-    const sharePct = (d.gmv / totalGMV * 100);
+    const sharePct = keyGMV > 0 ? (d.gmv / keyGMV * 100) : 0;
     const barW     = (d.gmv / maxGMV * 100).toFixed(1);
     return `<div class="mix-item">
       <div class="mix-rank">${i+1}</div>
@@ -528,13 +571,38 @@ function renderModelMix(products, totalGMV) {
 }
 
 // ── Margen de contribución ────────────────────────────────────────────────────
-function renderMargenes() {
-  const CHANS = [
-    { key: 'tiktok', field: 'tiktok' },
-    { key: 'web',    field: 'web'    },
-    { key: 'draft',  field: 'draft'  },
-    { key: 'pdh',    field: 'pdh'    },
-  ];
+// bySource: { tiktok:{orders,gmv}, web:{orders,gmv}, shopify_draft_order:{orders,gmv}, ... }
+function renderMargenes(bySource) {
+  // Weighted average price per model using channel order counts as weights
+  // Channel key → PRECIOS field mapping
+  const CHAN_MAP = {
+    'tiktok':               'tiktok',
+    'web':                  'web',
+    'shopify_draft_order':  'draft',
+    '1615469':              'pdh',
+    '2490393':              'pdh',
+  };
+
+  // Build channel weights (orders count per PRECIOS field)
+  const weights = { tiktok: 0, web: 0, draft: 0, pdh: 0 };
+  for (const [src, v] of Object.entries(bySource || {})) {
+    const field = CHAN_MAP[src];
+    if (field) weights[field] += (v.orders || 0);
+  }
+
+  function weightedAvgPrice(precios) {
+    let wSum = 0, wTotal = 0;
+    for (const [field, w] of Object.entries(weights)) {
+      const p = precios[field];
+      if (p && w > 0) { wSum += p * w; wTotal += w; }
+    }
+    // Fallback: if no weights available, simple average of available prices
+    if (wTotal === 0) {
+      const vals = Object.values(precios).filter(Boolean);
+      return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0;
+    }
+    return wSum / wTotal;
+  }
 
   const rows = KEY_MODELS.map(key => {
     const costo   = COSTOS[key] || 0;
@@ -544,17 +612,14 @@ function renderMargenes() {
       ? `<img src="${imgSrc}" loading="lazy" alt="${MODEL_DISPLAY[key]}" onerror="this.parentElement.innerHTML='<div class=mc-model-img-ph>👟</div>'"/>`
       : `<div class="mc-model-img-ph">👟</div>`;
 
-    const chanCells = CHANS.map(c => {
-      const precio = precios[c.field];
-      if (!precio) return `<td class="mc-chan"><span class="mc-chan-empty">—</span></td>`;
-      const mc  = precio - costo;
-      const pct = (mc / precio * 100);
-      return `<td class="mc-chan">
-        <div class="mc-chan-price">${fmtFull(precio)}</div>
-        <div class="mc-chan-mc">${fmtFull(mc)}</div>
-        <div class="mc-chan-pct ${pctClass(pct)}">${pct.toFixed(1)}%</div>
-      </td>`;
-    }).join('');
+    const precio = Math.round(weightedAvgPrice(precios));
+    const mc     = precio - costo;
+    const pct    = precio > 0 ? (mc / precio * 100) : 0;
+
+    const detail = COSTOS_DETAIL[key] || [];
+    const detailItems = detail.map(d =>
+      `<div class="mc-detail-item">${d.label}<span>${fmtFull(d.val)}</span></div>`
+    ).join('');
 
     return `<tr>
       <td>
@@ -562,11 +627,22 @@ function renderMargenes() {
           <div class="mc-model-img">${imgEl}</div>
           <div>
             <div class="mc-model-name">${MODEL_DISPLAY[key]}</div>
-            <div class="mc-model-cost">Costo ${fmtFull(costo)}</div>
+            <div class="mc-model-cost-wrap">
+              <span class="mc-model-cost">Costo ${fmtFull(costo)}</span>
+              ${detail.length ? `<button class="mc-cost-btn" onclick="toggleCostDetail('${key}',this)">▼ desglose</button>` : ''}
+            </div>
           </div>
         </div>
       </td>
-      ${chanCells}
+      <td><div class="mc-val-muted">${precio > 0 ? fmtFull(precio) : '—'}</div></td>
+      <td><div class="mc-val-muted">${fmtFull(costo)}</div></td>
+      <td><div class="mc-val">${precio > 0 ? fmtFull(mc) : '—'}</div></td>
+      <td><div class="mc-pct ${precio > 0 ? pctClass(pct) : ''}">${precio > 0 ? pct.toFixed(1)+'%' : '—'}</div></td>
+    </tr>
+    <tr class="mc-detail-row" id="detail-${key.replace(/\s/g,'-')}">
+      <td class="mc-detail-cell" colspan="5">
+        <div class="mc-detail-inner">${detailItems}</div>
+      </td>
     </tr>`;
   }).join('');
 
@@ -628,7 +704,7 @@ function renderChannels(bySource, totalGMV) {
 }
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
-renderMargenes(); // render with placeholders (no images yet)
+renderMargenes(_bySource); // render with placeholders (no images yet)
 setInterval(loadAll, 5*60*1000);
 loadImageCatalog(); // fetches images then re-renders margins with photos
 loadAll();
