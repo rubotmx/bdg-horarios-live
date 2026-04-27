@@ -305,45 +305,48 @@ const MODEL_DISPLAY = {
   'fenix chocolate': 'Fenix Chocolate',
 };
 
-// Costo total por par (fábrica + variables)
+// Costo total por par (fábrica + variables + fiscal)
 const COSTOS = {
-  'penny':           320.84,
-  'frankie':         295.00,
-  'parker':          269.50,
-  'flux':            541.00,
-  'becca':           910.00,
-  'dallas camel':    1128.00,
-  'dallas black':    1253.00,
-  'fenix chocolate': 1096.00,
+  'penny':           346.51,  // 320.84 × 1.08
+  'frankie':         318.60,  // 295.00 × 1.08
+  'parker':          291.06,  // 269.50 × 1.08
+  'flux':            627.56,  // 541.00 × 1.16
+  'becca':          1055.60,  // 910.00 × 1.16
+  'dallas camel':   1308.48,  // 1128.00 × 1.16
+  'dallas black':   1453.48,  // 1253.00 × 1.16
+  'fenix chocolate':1271.36,  // 1096.00 × 1.16
 };
 
 // Desglose de costos por modelo
 const COSTOS_DETAIL = {
   'penny': [
-    { label: 'Fábrica',       val: 242.50 },
-    { label: 'Caja',          val:  20.00 },
-    { label: 'Cubrepolvo',    val:  20.00 },
-    { label: 'Polipapel',     val:   3.00 },
-    { label: 'Studs',         val:  29.45 },
-    { label: 'Rep. studs',    val:   5.89 },
+    { label: 'Fábrica',              val: 242.50 },
+    { label: 'Caja',                 val:  20.00 },
+    { label: 'Cubrepolvo',           val:  20.00 },
+    { label: 'Polipapel',            val:   3.00 },
+    { label: 'Studs',                val:  29.45 },
+    { label: 'Rep. studs',           val:   5.89 },
+    { label: 'Estrategia fiscal 8%', val:  25.67 },
   ],
   'frankie': [
-    { label: 'Fábrica',       val: 252.00 },
-    { label: 'Caja',          val:  20.00 },
-    { label: 'Cubrepolvo',    val:  20.00 },
-    { label: 'Polipapel',     val:   3.00 },
+    { label: 'Fábrica',              val: 252.00 },
+    { label: 'Caja',                 val:  20.00 },
+    { label: 'Cubrepolvo',           val:  20.00 },
+    { label: 'Polipapel',            val:   3.00 },
+    { label: 'Estrategia fiscal 8%', val:  23.60 },
   ],
   'parker': [
-    { label: 'Fábrica',       val: 226.50 },
-    { label: 'Caja',          val:  20.00 },
-    { label: 'Cubrepolvo',    val:  20.00 },
-    { label: 'Polipapel',     val:   3.00 },
+    { label: 'Fábrica',              val: 226.50 },
+    { label: 'Caja',                 val:  20.00 },
+    { label: 'Cubrepolvo',           val:  20.00 },
+    { label: 'Polipapel',            val:   3.00 },
+    { label: 'Estrategia fiscal 8%', val:  21.56 },
   ],
-  'flux':            [{ label: 'Total c/ variables', val: 541.00  }],
-  'becca':           [{ label: 'Total c/ variables', val: 910.00  }],
-  'dallas camel':    [{ label: 'Total c/ variables', val: 1128.00 }],
-  'dallas black':    [{ label: 'Total c/ variables', val: 1253.00 }],
-  'fenix chocolate': [{ label: 'Total c/ variables', val: 1096.00 }],
+  'flux':            [{ label: 'Base c/ variables', val: 541.00 }, { label: 'IVA 16%', val:  86.56 }],
+  'becca':           [{ label: 'Base c/ variables', val: 910.00 }, { label: 'IVA 16%', val: 145.60 }],
+  'dallas camel':    [{ label: 'Base c/ variables', val: 1128.00 }, { label: 'IVA 16%', val: 180.48 }],
+  'dallas black':    [{ label: 'Base c/ variables', val: 1253.00 }, { label: 'IVA 16%', val: 200.48 }],
+  'fenix chocolate': [{ label: 'Base c/ variables', val: 1096.00 }, { label: 'IVA 16%', val: 175.36 }],
 };
 
 // Precio promedio real pagado por canal (últimos 90 días, neto de descuentos)
