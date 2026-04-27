@@ -541,13 +541,50 @@ function render(){
     });
   }
 
-  // Sort by total stock descending
-  function productTotal(p){
-    return (p.variants||[]).reduce((s,v) => s + effectiveQty(v.inventory_quantity??0), 0);
+  // ── Expand all products into flat items (one per color or one per product) ──
+  const imgByIdGlobal = {};
+  for(const p of filtered) for(const img of (p.images||[])) imgByIdGlobal[img.id] = img.src;
+
+  let items = []; // { p, color, sizeMap, imgSrc, total, isMisc }
+
+  if(_tab === 'misc'){
+    for(const p of filtered){
+      const total = (p.variants||[]).reduce((s,v) => s + effectiveQty(v.inventory_quantity??0), 0);
+      items.push({ p, total, isMisc: true });
+    }
+  } else {
+    for(const p of filtered){
+      const hasColors = (p.variants||[]).some(v =>
+        v.option2 && /^\d{2}$/.test(String(v.option2||'').trim())
+      );
+      if(hasColors){
+        const colorMap = {}, colorImgs = {};
+        for(const v of (p.variants||[])){
+          const color = String(v.option1||'').trim();
+          const sz    = extractSizeFromVariant(v);
+          if(!colorMap[color]){ colorMap[color] = {}; colorImgs[color] = v.image_id || null; }
+          colorMap[color][sz] = (colorMap[color][sz]||0) + (v.inventory_quantity??0);
+        }
+        for(const [color, sizeMap] of Object.entries(colorMap)){
+          const total  = sizes.reduce((s,sz) => s + effectiveQty(sizeMap[sz]??0), 0);
+          const imgSrc = (colorImgs[color] && imgByIdGlobal[colorImgs[color]]) || p.images?.[0]?.src || null;
+          items.push({ p, color, sizeMap, imgSrc, total, isMisc: false });
+        }
+      } else {
+        const sizeMap = {};
+        for(const v of (p.variants||[])){
+          const sz = extractSizeFromVariant(v);
+          sizeMap[sz] = (sizeMap[sz]||0) + (v.inventory_quantity??0);
+        }
+        const total  = sizes.reduce((s,sz) => s + effectiveQty(sizeMap[sz]??0), 0);
+        const imgSrc = p.images?.[0]?.src || null;
+        items.push({ p, color: null, sizeMap, imgSrc, total, isMisc: false });
+      }
+    }
   }
-  if(_sortByStock){
-    filtered = [...filtered].sort((a,b) => productTotal(b) - productTotal(a));
-  }
+
+  // Sort each individual card by its own stock total
+  if(_sortByStock) items.sort((a,b) => b.total - a.total);
 
   // Summary stats
   let totalUnits = 0, criticalModels = 0;
@@ -563,30 +600,29 @@ function render(){
 
   document.getElementById('summaryRow').innerHTML = `
     <div class="sum-chip hi"><div class="sv">${totalUnits.toLocaleString('es-MX')}</div><div class="sl">Unidades</div></div>
-    <div class="sum-chip"><div class="sv">${filtered.length}</div><div class="sl">Modelos</div></div>
+    <div class="sum-chip"><div class="sv">${items.length}</div><div class="sl">Modelos</div></div>
     ${criticalModels > 0
       ? `<div class="sum-chip alert"><div class="sv">${criticalModels}</div><div class="sl">Críticos</div></div>`
       : ''}
   `;
 
-  if(!filtered.length){
+  if(!items.length){
     document.getElementById('cardsList').innerHTML =
       `<div class="prod-card"><div class="empty-state">Sin resultados</div></div>`;
     return;
   }
 
-  // ── MISC tab: products without size variants ──────────────────────────────
+  // ── MISC tab render ───────────────────────────────────────────────────────
   if(_tab === 'misc'){
-    document.getElementById('cardsList').innerHTML = filtered.map((p, pi) => {
+    document.getElementById('cardsList').innerHTML = items.map(({ p, total }, idx) => {
       const imgSrc = p.images?.[0]?.src;
       const thumb  = imgSrc
         ? `<img class="prod-thumb" src="${imgSrc}" loading="lazy" alt="${p.title}" onerror="this.outerHTML='<div class=thumb-ph>📦</div>'"/>`
         : `<div class="thumb-ph">📦</div>`;
-      const total = (p.variants||[]).reduce((s,v) => s + effectiveQty(v.inventory_quantity??0), 0);
       const variants = (p.variants||[]).filter(v => v.title !== 'Default Title');
       const variantRows = variants.length
         ? variants.map(v => {
-            const q = effectiveQty(v.inventory_quantity??0);
+            const q   = effectiveQty(v.inventory_quantity??0);
             const cls = stockClass(v.inventory_quantity??0);
             return `<div class="misc-variant">
               <span class="misc-vname">${v.title}</span>
@@ -594,13 +630,10 @@ function render(){
             </div>`;
           }).join('')
         : `<div class="misc-variant"><span class="misc-vname" style="color:var(--muted2);">Sin variantes</span></div>`;
-
-      return `<div class="prod-card" style="animation-delay:${pi*0.025}s">
+      return `<div class="prod-card" style="animation-delay:${idx*0.025}s">
         <div class="card-header">
           ${thumb}
-          <div class="card-meta">
-            <div class="prod-name">${p.title}</div>
-          </div>
+          <div class="card-meta"><div class="prod-name">${p.title}</div></div>
           <div class="card-right">
             <div class="card-total">
               <div class="total-num ${totalClass(total)}">${total}</div>
@@ -614,71 +647,11 @@ function render(){
     return;
   }
 
-  document.getElementById('cardsList').innerHTML = filtered.flatMap((p, pi) => {
-    const hasColors = (p.variants||[]).some(v =>
-      v.option2 && /^\d{2}$/.test(String(v.option2||'').trim())
-    );
-
-    if(hasColors){
-      const imgById = {};
-      for(const img of (p.images||[])) imgById[img.id] = img.src;
-
-      const colorMap = {}, colorImgs = {};
-      for(const v of (p.variants||[])){
-        const color = String(v.option1||'').trim();
-        const sz    = extractSizeFromVariant(v);
-        if(!colorMap[color]){ colorMap[color] = {}; colorImgs[color] = v.image_id || null; }
-        colorMap[color][sz] = (colorMap[color][sz]||0) + (v.inventory_quantity??0);
-      }
-
-      return Object.entries(colorMap).map(([color, sizeMap], ci) => {
-        const total      = sizes.reduce((s,sz) => s + effectiveQty(sizeMap[sz]??0), 0);
-        const titleSafe  = (p.title+' '+color).replace(/'/g,"\\'");
-        const isCore     = !!_core[titleSafe];
-        const imgSrc     = (colorImgs[color] && imgById[colorImgs[color]]) || p.images?.[0]?.src || null;
-        const thumb      = imgSrc
-          ? `<img class="prod-thumb" src="${imgSrc}" loading="lazy" alt="${p.title}" onerror="this.outerHTML='<div class=thumb-ph>👟</div>'"/>`
-          : `<div class="thumb-ph">👟</div>`;
-        const sizeCells  = sizes.map(sz => {
-          const raw = sizeMap[sz];
-          const eff = raw !== undefined ? effectiveQty(raw) : null;
-          const cls = eff === null ? 'empty' : stockClass(eff);
-          return `<div class="sz-item${KEY_SIZES.has(sz)?' key':''}">
-            <div class="sz-lbl">${sz}</div>
-            <div class="sz-val ${cls}">${eff === null ? '—' : eff}</div>
-          </div>`;
-        }).join('');
-
-        return `<div class="prod-card" style="animation-delay:${(pi+ci)*0.025}s">
-          <div class="card-header">
-            ${thumb}
-            <div class="card-meta">
-              <div class="prod-name">${p.title}</div>
-              <div class="color-pill">${swatchFor(color)}${color}</div>
-            </div>
-            <div class="card-right">
-              <div class="card-total">
-                <div class="total-num ${totalClass(total)}">${total}</div>
-                <div class="total-lbl">total</div>
-              </div>
-              <button class="core-btn${isCore?' active':''}" onclick="toggleCore('${titleSafe}',event)">${isCore?'★':'☆'}</button>
-            </div>
-          </div>
-          <div class="sizes-row">${sizeCells}</div>
-        </div>`;
-      });
-    }
-
-    // Single-color product
-    const sizeMap = {};
-    for(const v of (p.variants||[])){
-      const sz = extractSizeFromVariant(v);
-      sizeMap[sz] = (sizeMap[sz]||0) + (v.inventory_quantity??0);
-    }
-    const total     = sizes.reduce((s,sz) => s + effectiveQty(sizeMap[sz]??0), 0);
-    const isCore    = !!_core[p.title];
-    const titleSafe = p.title.replace(/'/g,"\\'");
-    const imgSrc    = p.images?.[0]?.src;
+  // ── Regular tabs render ───────────────────────────────────────────────────
+  document.getElementById('cardsList').innerHTML = items.map(({ p, color, sizeMap, imgSrc, total }, idx) => {
+    const hasColor  = color !== null;
+    const titleSafe = hasColor ? (p.title+' '+color).replace(/'/g,"\\'") : p.title.replace(/'/g,"\\'");
+    const isCore    = !!_core[titleSafe];
     const thumb     = imgSrc
       ? `<img class="prod-thumb" src="${imgSrc}" loading="lazy" alt="${p.title}" onerror="this.outerHTML='<div class=thumb-ph>👟</div>'"/>`
       : `<div class="thumb-ph">👟</div>`;
@@ -692,11 +665,12 @@ function render(){
       </div>`;
     }).join('');
 
-    return [`<div class="prod-card" style="animation-delay:${pi*0.025}s">
+    return `<div class="prod-card" style="animation-delay:${idx*0.025}s">
       <div class="card-header">
         ${thumb}
         <div class="card-meta">
           <div class="prod-name">${p.title}</div>
+          ${hasColor ? `<div class="color-pill">${swatchFor(color)}${color}</div>` : ''}
         </div>
         <div class="card-right">
           <div class="card-total">
@@ -707,7 +681,7 @@ function render(){
         </div>
       </div>
       <div class="sizes-row">${sizeCells}</div>
-    </div>`];
+    </div>`;
   }).join('');
 }
 
