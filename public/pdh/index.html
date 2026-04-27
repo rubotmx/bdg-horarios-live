@@ -22,6 +22,7 @@
   --amber-bg:#FFF8E6;--amber-txt:#B75000;
   --red-bg:#FDECEA;--red-txt:#C62828;
   --zero-bg:#EBEBEB;--zero-txt:#9A9590;
+  --blue:#3a7bd5;
   --fn:'Archivo',sans-serif;
   --fl:'Jost',sans-serif;
 }
@@ -40,18 +41,10 @@ body{display:flex;flex-direction:column;}
 .logo span{color:var(--terra);}
 .topbar-divider{width:1px;height:20px;background:rgba(255,255,255,.12);flex-shrink:0;}
 .topbar-sub{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.32);}
-.tp-date{font-size:9px;color:rgba(255,255,255,.2);letter-spacing:.06em;}
-.topbar-right{margin-left:auto;display:flex;align-items:center;gap:14px;}
+.tp-date{font-size:9px;color:rgba(255,255,255,.2);letter-spacing:.06em;margin-left:4px;}
+.topbar-right{margin-left:auto;}
 .btn-back{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.28);text-decoration:none;transition:color .12s;}
 .btn-back:hover{color:var(--terra);}
-.btn-upload{
-  font-size:9px;letter-spacing:.14em;text-transform:uppercase;
-  color:rgba(255,255,255,.5);background:rgba(255,255,255,.07);
-  border:1px solid rgba(255,255,255,.1);border-radius:4px;
-  padding:4px 10px;cursor:pointer;font-family:var(--fn);
-  transition:all .14s;
-}
-.btn-upload:hover{background:rgba(193,100,82,.2);border-color:rgba(193,100,82,.4);color:var(--terra);}
 
 /* ── CONTROLS ── */
 .controls{
@@ -74,14 +67,6 @@ body{display:flex;flex-direction:column;}
 }
 .seg-btn:hover{border-color:var(--terra);color:var(--terra-dark);}
 .seg-btn.active{background:var(--terra);color:#fff;border-color:var(--terra);}
-.ctrl-search{
-  padding:5px 12px;border:1px solid var(--border);border-radius:999px;
-  font-family:var(--fn);font-size:10px;color:var(--text);
-  background:var(--surface);outline:none;width:160px;
-  transition:border-color .14s;
-}
-.ctrl-search:focus{border-color:var(--terra);}
-.ctrl-search::placeholder{color:var(--muted2);}
 
 /* ── KPI STRIP ── */
 .kpi-strip{
@@ -94,30 +79,16 @@ body{display:flex;flex-direction:column;}
 .kpi-val.hi{color:var(--terra);}
 .kpi-val.good{color:var(--green-txt);}
 .kpi-val.warn{color:var(--amber-txt);}
+.kpi-val.alert{color:var(--red-txt);}
 .kpi-sub{font-size:8px;color:var(--muted2);margin-top:3px;}
-
-/* ── EMPTY / LOADING ── */
-.state-panel{
-  flex:1;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:12px;padding:40px 20px;
-}
-.state-icon{font-size:44px;opacity:.7;}
-.state-title{font-size:16px;font-weight:700;color:var(--text);}
-.state-sub{font-size:12px;color:var(--muted);text-align:center;max-width:320px;line-height:1.7;}
-.state-cta{
-  margin-top:8px;padding:9px 20px;background:var(--terra);color:#fff;
-  border:none;border-radius:6px;font-family:var(--fn);font-size:12px;
-  font-weight:700;cursor:pointer;transition:background .14s;
-}
-.state-cta:hover{background:var(--terra-dark);}
 
 /* ── TABLE WRAP ── */
 .table-wrap{flex:1;overflow:auto;position:relative;}
-table{width:100%;border-collapse:collapse;min-width:760px;}
+table{width:100%;border-collapse:collapse;min-width:860px;}
 thead th{
   position:sticky;top:0;z-index:10;
   background:#0E0E0E;
-  font-family:var(--fn);font-size:8px;font-weight:700;letter-spacing:.14em;
+  font-family:var(--fn);font-size:8px;font-weight:700;letter-spacing:.16em;
   text-transform:uppercase;color:rgba(255,255,255,.5);
   padding:10px 10px;border-bottom:none;white-space:nowrap;text-align:center;
 }
@@ -146,6 +117,11 @@ tr.size-row td:first-child{position:sticky;left:0;background:#F4F2EF;z-index:5;p
 .model-name{font-size:11px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;}
 .chevron{font-size:8px;color:var(--muted2);transition:transform .15s;flex-shrink:0;}
 .chevron.open{transform:rotate(90deg);}
+.cat-badge{font-size:7px;font-weight:800;padding:2px 6px;border-radius:3px;letter-spacing:.08em;flex-shrink:0;}
+.cat-A{background:var(--terra-light);color:var(--terra-dark);}
+.cat-B{background:#EEF4FF;color:#2a5cbf;}
+.cat-C{background:var(--zero-bg);color:var(--muted);}
+
 .sz-lbl{font-size:9px;font-weight:700;color:var(--muted);padding-left:28px;}
 
 /* Inventory cells */
@@ -159,11 +135,27 @@ tr.size-row td:first-child{position:sticky;left:0;background:#F4F2EF;z-index:5;p
 .c3{color:#2a7a4a;}
 .c4{color:var(--green-txt);}
 
+/* Restock tiers */
+.r0{color:var(--muted2);}
+.r1{color:#5b8de8;}
+.r2{color:var(--blue);}
+.r3{color:#2a5cbf;font-weight:900;}
+
 /* Total col */
 td.td-total{text-align:center;background:#F8F7F5;}
 td.td-bodega{text-align:center;background:var(--terra-light);}
 .bodega-val{font-size:12px;font-weight:800;color:var(--terra-dark);}
 .bodega-val.zero{color:var(--muted2);}
+.faltante-lbl{font-size:7px;color:var(--red-txt);font-weight:700;}
+.sobrante-lbl{font-size:7px;color:var(--green-txt);font-weight:700;}
+
+/* Store header accent colors */
+.th-ec {border-top:2px solid #5b9cf6;}
+.th-len{border-top:2px solid #3ecf8e;}
+.th-coy{border-top:2px solid #c8943a;}
+.th-pol{border-top:2px solid var(--terra);}
+.th-sat{border-top:2px solid #8b5cf6;}
+.th-gdl{border-top:2px solid #e05252;}
 
 /* Scrollbar */
 ::-webkit-scrollbar{width:4px;height:4px;}
@@ -197,125 +189,30 @@ td.td-bodega{text-align:center;background:var(--terra-light);}
 .apr-sz.c4{background:var(--green-bg);color:var(--green-txt);}
 .apr-no-stock{font-size:8px;color:var(--muted2);padding:10px;text-align:center;}
 
-/* ── UPLOAD MODAL ── */
-.overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,.75);
-  z-index:1000;display:none;align-items:center;justify-content:center;
-  backdrop-filter:blur(8px);
-}
-.overlay.show{display:flex;}
-.upload-box{
-  background:var(--surface);border-radius:12px;
-  border:1px solid var(--border);width:520px;max-width:95vw;
-  box-shadow:0 24px 64px rgba(0,0,0,.18);
-}
-.upload-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:20px 24px 16px;border-bottom:1px solid var(--border);
-}
-.upload-title{font-size:14px;font-weight:900;color:var(--text);letter-spacing:-.02em;}
-.upload-close{font-size:22px;color:var(--muted2);cursor:pointer;line-height:1;transition:color .12s;}
-.upload-close:hover{color:var(--terra);}
-.upload-body{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:20px 24px;}
-.file-zone{
-  border:1.5px dashed var(--border);border-radius:8px;
-  padding:16px 14px;text-align:center;transition:border-color .14s;
-  cursor:pointer;position:relative;
-}
-.file-zone:hover,.file-zone.has-file{border-color:var(--terra);border-style:solid;}
-.file-zone input[type=file]{
-  position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;
-}
-.fz-icon{font-size:24px;margin-bottom:8px;}
-.fz-label{font-size:11px;font-weight:700;color:var(--text);margin-bottom:4px;}
-.fz-desc{font-size:9px;color:var(--muted);line-height:1.5;}
-.fz-status{
-  margin-top:10px;font-size:10px;font-weight:700;
-  color:var(--muted2);min-height:14px;
-}
-.fz-status.ok{color:var(--green-txt);}
-.fz-status.err{color:var(--red-txt);}
-.upload-footer{padding:0 24px 20px;display:flex;flex-direction:column;gap:10px;}
-.upload-error{
-  font-size:11px;color:var(--red-txt);font-weight:600;
-  display:none;background:var(--red-bg);border-radius:6px;
-  padding:8px 12px;border:1px solid #f5c6c1;
-}
-.upload-error.show{display:block;}
-.upload-progress{
-  font-size:10px;color:var(--muted);text-align:center;
-  display:none;
-}
-.upload-progress.show{display:block;}
-.upload-btn{
-  width:100%;padding:12px;background:var(--terra);color:#fff;
-  border:none;border-radius:7px;font-family:var(--fn);font-size:12px;
-  font-weight:700;letter-spacing:.06em;cursor:pointer;
-  transition:background .14s;
-}
-.upload-btn:hover:not(:disabled){background:var(--terra-dark);}
-.upload-btn:disabled{opacity:.4;cursor:default;}
-.upload-note{font-size:9px;color:var(--muted2);text-align:center;line-height:1.6;}
+/* Aparador store accent */
+.apr-card[data-store="CE"]  .apr-header{border-top:3px solid #5b9cf6;}
+.apr-card[data-store="LEN"] .apr-header{border-top:3px solid #3ecf8e;}
+.apr-card[data-store="COY"] .apr-header{border-top:3px solid #c8943a;}
+.apr-card[data-store="POL"] .apr-header{border-top:3px solid var(--terra);}
+.apr-card[data-store="SAT"] .apr-header{border-top:3px solid #8b5cf6;}
+.apr-card[data-store="GDL"] .apr-header{border-top:3px solid #e05252;}
 
-/* Spinner */
-.spinner{
-  width:14px;height:14px;border:2px solid rgba(255,255,255,.3);
-  border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;
-  display:inline-block;margin-right:6px;vertical-align:middle;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* Hidden util */
+/* hidden */
 .hidden{display:none!important;}
 </style>
 </head>
 <body>
 
-<!-- Upload Modal -->
-<div class="overlay" id="uploadOverlay">
-  <div class="upload-box">
-    <div class="upload-header">
-      <div class="upload-title">Actualizar datos PDH</div>
-      <span class="upload-close" onclick="closeUpload()">×</span>
-    </div>
-    <div class="upload-body">
-      <div class="file-zone" id="zoneCSV">
-        <div class="fz-icon">📄</div>
-        <div class="fz-label">Inventario (CSV)</div>
-        <div class="fz-desc">Inventario Editable_data.csv</div>
-        <input type="file" id="fileCSV" accept=".csv,.txt,.tsv" onchange="handleFile('csv',this)"/>
-        <div class="fz-status" id="csvStatus">Sin archivo</div>
-      </div>
-      <div class="file-zone" id="zoneXLSX">
-        <div class="fz-icon">📊</div>
-        <div class="fz-label">Ventas (XLSX)</div>
-        <div class="fz-desc">Ventas Reporte.xlsx</div>
-        <input type="file" id="fileXLSX" accept=".xlsx,.xls" onchange="handleFile('xlsx',this)"/>
-        <div class="fz-status" id="xlsxStatus">Sin archivo</div>
-      </div>
-    </div>
-    <div class="upload-footer">
-      <div class="upload-error" id="uploadError"></div>
-      <div class="upload-progress" id="uploadProgress"></div>
-      <button class="upload-btn" id="uploadBtn" onclick="processAndSave()" disabled>Procesar y guardar</button>
-      <div class="upload-note">Los datos quedan guardados en la nube y son visibles para todo el equipo de inmediato.</div>
-    </div>
-  </div>
-</div>
-
-<!-- Topbar -->
 <div class="topbar">
   <div class="logo">BDG<span>·</span>HQ</div>
   <div class="topbar-divider"></div>
   <div class="topbar-sub">Palacio de Hierro</div>
-  <span class="tp-date" id="topDate"></span>
+  <div class="tp-date">· Al 14 de abril 2026</div>
   <div class="topbar-right">
-    <button class="btn-upload hidden" id="btnUpload" onclick="openUpload()">↑ Actualizar datos</button>
     <a class="btn-back" href="/">← HQ</a>
   </div>
 </div>
 
-<!-- Controls -->
 <div class="controls">
   <span class="ctrl-label">Vista</span>
   <div class="seg" id="modeSeg">
@@ -324,195 +221,138 @@ td.td-bodega{text-align:center;background:var(--terra-light);}
     <button class="seg-btn" data-mode="apr" onclick="setMode('apr')">Aparadores</button>
   </div>
   <div class="ctrl-sep"></div>
-  <span class="ctrl-label">Buscar</span>
-  <input class="ctrl-search" id="searchInput" type="text" placeholder="Modelo..." oninput="render()"/>
+  <span class="ctrl-label">Categoría</span>
+  <div class="seg" id="catSeg">
+    <button class="seg-btn active" data-cat="ALL" onclick="setCat('ALL')">Todos</button>
+    <button class="seg-btn" data-cat="A" onclick="setCat('A')">A</button>
+    <button class="seg-btn" data-cat="B" onclick="setCat('B')">B</button>
+    <button class="seg-btn" data-cat="C" onclick="setCat('C')">C</button>
+  </div>
 </div>
 
-<!-- KPI Strip -->
-<div class="kpi-strip" id="kpiStrip" style="display:none;"></div>
+<div class="kpi-strip" id="kpiStrip"></div>
 
-<!-- Loading state -->
-<div class="state-panel" id="loadingState">
-  <div class="state-icon">⏳</div>
-  <div class="state-title">Cargando datos...</div>
-</div>
-
-<!-- Empty state -->
-<div class="state-panel hidden" id="emptyState">
-  <div class="state-icon">📂</div>
-  <div class="state-title">Sin datos cargados</div>
-  <div class="state-sub">El administrador debe subir los archivos de inventario y ventas para que el módulo muestre información.</div>
-  <button class="state-cta hidden" id="emptyUploadBtn" onclick="openUpload()">Subir archivos ahora</button>
-</div>
-
-<!-- Aparadores view -->
 <div class="apr-wrap" id="aprWrap"></div>
 
-<!-- Table view -->
-<div class="table-wrap hidden" id="tableWrap">
-  <table id="mainTable">
-    <thead id="tableHead"></thead>
-    <tbody id="tbody"></tbody>
-  </table>
+<div class="table-wrap" id="tableWrap" style="display:flex;flex-direction:column;">
+<table id="mainTable">
+<thead>
+  <tr>
+    <th style="text-align:left;min-width:200px;">Modelo</th>
+    <th class="th-ec">EC</th>
+    <th class="th-len">León</th>
+    <th class="th-coy">Coyoacán</th>
+    <th class="th-pol">Polanco</th>
+    <th class="th-sat">Satélite</th>
+    <th class="th-gdl">Guadalajara</th>
+    <th class="th-total">Total PDH</th>
+    <th class="th-bodega">Bodega</th>
+  </tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
 </div>
 
-<!-- SheetJS -->
-<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script>
-// ── Firebase RTDB helpers ─────────────────────────────────────────────────────
-const RTDB_URL = 'https://bdg-horarios-default-rtdb.firebaseio.com/pdh_data/current';
+// ── DATA ──────────────────────────────────────────────────────────────────────
+// s array indices: [CE_inv, CE_rst, LEN_inv, LEN_rst, MTY_inv, MTY_rst,
+//                   COY_inv, COY_rst, POL_inv, POL_rst, SAT_inv, SAT_rst, GDL_inv, GDL_rst]
+const DATA = {"Bala Black":{"sku":"BDGBABLA","cat":"B","tallas":{"23":{"tv":11,"ti":5,"tr":4,"bo":4,"fa":0,"s":[1,1,1,1,0,0,1,0,1,1,1,1,0,0]},"24":{"tv":23,"ti":3,"tr":7,"bo":1,"fa":-6,"s":[0,3,1,1,0,0,1,0,0,2,1,1,0,0]},"25":{"tv":26,"ti":4,"tr":7,"bo":0,"fa":-7,"s":[2,2,1,1,0,0,0,0,1,2,0,2,0,0]},"26":{"tv":19,"ti":6,"tr":4,"bo":0,"fa":-4,"s":[0,2,2,0,0,0,1,0,1,1,1,1,1,0]},"27":{"tv":13,"ti":5,"tr":5,"bo":0,"fa":-5,"s":[1,1,1,1,0,0,2,0,1,1,0,2,0,0]}}},"Calf Pony":{"sku":"BDGCALF","cat":"B","tallas":{"23":{"tv":9,"ti":4,"tr":0,"bo":0,"fa":0,"s":[2,0,0,0,0,0,0,0,1,0,1,0,0,0]},"24":{"tv":15,"ti":4,"tr":0,"bo":4,"fa":4,"s":[0,0,1,0,0,0,1,0,1,0,1,0,0,0]},"25":{"tv":27,"ti":3,"tr":0,"bo":8,"fa":8,"s":[0,0,0,0,0,0,0,0,2,0,1,0,0,0]},"26":{"tv":6,"ti":10,"tr":0,"bo":5,"fa":5,"s":[0,0,0,0,0,0,3,0,5,0,2,0,0,0]},"27":{"tv":3,"ti":10,"tr":0,"bo":2,"fa":2,"s":[2,0,1,0,0,0,2,0,2,0,3,0,0,0]}}},"Dallas Black":{"sku":"BDGDALLBL","cat":"A","tallas":{"23":{"tv":20,"ti":12,"tr":3,"bo":4,"fa":1,"s":[4,0,2,0,0,0,0,2,1,1,2,0,3,0]},"24":{"tv":39,"ti":2,"tr":12,"bo":23,"fa":11,"s":[1,3,1,1,0,0,0,2,0,2,0,2,0,2]},"25":{"tv":43,"ti":3,"tr":13,"bo":1,"fa":-12,"s":[0,4,1,1,0,0,1,1,0,4,0,2,1,1]},"26":{"tv":40,"ti":5,"tr":11,"bo":11,"fa":0,"s":[0,4,1,1,0,0,0,2,1,2,0,2,3,0]},"27":{"tv":13,"ti":13,"tr":2,"bo":1,"fa":-1,"s":[1,1,2,0,0,0,2,0,2,1,2,0,4,0]}}},"Dallas Camel":{"sku":"BDGDALLCA","cat":"A","tallas":{"23":{"tv":12,"ti":9,"tr":0,"bo":0,"fa":0,"s":[3,0,2,0,0,0,1,0,2,0,1,0,0,0]},"24":{"tv":27,"ti":4,"tr":4,"bo":6,"fa":2,"s":[1,3,1,0,0,0,0,0,1,1,1,0,0,0]},"25":{"tv":21,"ti":9,"tr":4,"bo":3,"fa":-1,"s":[1,3,3,0,0,0,3,0,1,1,1,0,0,0]},"26":{"tv":20,"ti":6,"tr":3,"bo":4,"fa":1,"s":[2,1,3,0,0,0,0,0,0,2,0,0,1,0]},"27":{"tv":3,"ti":11,"tr":1,"bo":0,"fa":-1,"s":[1,1,2,0,0,0,2,0,4,0,1,0,1,0]}}},"Monarch Red":{"sku":"BDGMONRED","cat":"A","tallas":{"23":{"tv":22,"ti":6,"tr":10,"bo":0,"fa":-10,"s":[1,1,4,0,0,0,0,2,0,4,0,2,1,1]},"24":{"tv":30,"ti":3,"tr":10,"bo":0,"fa":-10,"s":[0,3,1,1,0,0,0,2,0,2,1,1,1,1]},"25":{"tv":45,"ti":3,"tr":12,"bo":7,"fa":-5,"s":[0,3,0,2,0,0,1,1,1,3,0,2,1,1]},"26":{"tv":31,"ti":6,"tr":9,"bo":1,"fa":-8,"s":[0,4,1,1,0,0,1,1,2,1,1,1,1,1]},"27":{"tv":12,"ti":13,"tr":1,"bo":2,"fa":1,"s":[3,0,2,0,0,0,3,0,2,0,1,1,2,0]}}},"Tyro Black":{"sku":"BDGTYR","cat":"A","tallas":{"23":{"tv":24,"ti":13,"tr":3,"bo":4,"fa":1,"s":[2,0,1,1,0,0,0,2,4,0,2,0,4,0]},"24":{"tv":38,"ti":10,"tr":3,"bo":1,"fa":-2,"s":[2,1,2,0,0,0,2,0,1,1,2,0,1,1]},"25":{"tv":40,"ti":8,"tr":6,"bo":5,"fa":-1,"s":[1,2,1,1,0,0,2,0,0,3,2,0,2,0]},"26":{"tv":32,"ti":14,"tr":2,"bo":2,"fa":0,"s":[2,1,3,0,0,0,3,0,3,0,1,1,2,0]},"27":{"tv":10,"ti":15,"tr":0,"bo":6,"fa":6,"s":[3,0,2,0,0,0,2,0,3,0,2,0,3,0]}}},"Hudson Black":{"sku":"BDGHUDBLA","cat":"A","tallas":{"23":{"tv":25,"ti":9,"tr":5,"bo":8,"fa":3,"s":[1,1,1,1,0,0,2,0,0,3,3,0,2,0]},"24":{"tv":39,"ti":9,"tr":6,"bo":3,"fa":-3,"s":[2,2,2,0,0,0,0,2,1,2,2,0,2,0]},"25":{"tv":42,"ti":12,"tr":4,"bo":18,"fa":14,"s":[3,1,2,0,0,0,1,1,2,2,2,0,2,0]},"26":{"tv":31,"ti":9,"tr":6,"bo":0,"fa":-6,"s":[1,3,2,0,0,0,1,1,0,2,3,0,2,0]},"27":{"tv":13,"ti":13,"tr":2,"bo":1,"fa":-1,"s":[1,1,2,0,0,0,1,1,4,0,2,0,3,0]}}},"Legacy Taupe":{"sku":"BDGLEGTAU","cat":"B","tallas":{"23":{"tv":14,"ti":9,"tr":3,"bo":3,"fa":0,"s":[2,0,1,1,0,0,2,0,1,1,2,0,1,1]},"24":{"tv":26,"ti":1,"tr":11,"bo":3,"fa":-8,"s":[0,2,0,2,0,0,1,1,0,2,0,2,0,2]},"25":{"tv":27,"ti":7,"tr":6,"bo":7,"fa":1,"s":[2,1,2,0,0,0,2,0,0,2,1,1,0,2]},"26":{"tv":14,"ti":13,"tr":2,"bo":5,"fa":3,"s":[0,2,4,0,0,0,2,0,3,0,2,0,2,0]},"27":{"tv":5,"ti":9,"tr":3,"bo":2,"fa":-1,"s":[1,1,2,0,0,0,2,0,1,1,2,0,1,1]}}},"Legacy Studs":{"sku":"BDGLEGST","cat":"B","tallas":{"23":{"tv":27,"ti":5,"tr":8,"bo":4,"fa":-4,"s":[0,3,1,1,0,0,0,2,1,1,1,1,2,0]},"24":{"tv":31,"ti":4,"tr":9,"bo":11,"fa":2,"s":[0,3,1,1,0,0,0,2,0,2,1,1,2,0]},"25":{"tv":36,"ti":4,"tr":11,"bo":14,"fa":3,"s":[0,4,1,1,0,0,0,2,1,2,0,2,2,0]},"26":{"tv":21,"ti":5,"tr":7,"bo":6,"fa":-1,"s":[0,2,2,0,0,0,1,1,0,2,1,1,1,1]},"27":{"tv":16,"ti":9,"tr":4,"bo":3,"fa":-1,"s":[1,2,1,1,0,0,2,0,2,0,1,1,2,0]}}},"Fenix Chocolate":{"sku":"BDGFENCH","cat":"A","tallas":{"23":{"tv":19,"ti":4,"tr":9,"bo":1,"fa":-8,"s":[0,3,0,2,0,0,1,1,1,1,1,1,1,1]},"24":{"tv":38,"ti":0,"tr":15,"bo":1,"fa":-14,"s":[0,4,0,2,0,0,0,2,0,3,0,2,0,2]},"25":{"tv":45,"ti":1,"tr":15,"bo":1,"fa":-14,"s":[0,4,0,2,0,0,0,2,0,4,0,2,1,1]},"26":{"tv":38,"ti":3,"tr":12,"bo":0,"fa":-12,"s":[0,4,1,1,0,0,0,2,0,3,1,1,1,1]},"27":{"tv":15,"ti":7,"tr":5,"bo":0,"fa":-5,"s":[0,2,2,0,0,0,2,0,2,0,1,1,0,2]}}},"Lyra Silver":{"sku":"BDGLSI","cat":"B","tallas":{"23":{"tv":1,"ti":2,"tr":10,"bo":3,"fa":-7,"s":[0,2,0,2,0,0,0,2,1,1,0,2,1,1]},"24":{"tv":9,"ti":2,"tr":10,"bo":3,"fa":-7,"s":[0,2,0,2,0,0,0,2,0,2,1,1,1,1]},"25":{"tv":6,"ti":3,"tr":10,"bo":3,"fa":-7,"s":[0,2,0,2,1,0,1,1,0,2,0,2,1,1]},"26":{"tv":10,"ti":3,"tr":9,"bo":3,"fa":-6,"s":[0,2,0,2,0,0,1,1,0,2,1,1,1,1]},"27":{"tv":6,"ti":0,"tr":12,"bo":3,"fa":-9,"s":[0,2,0,2,0,0,0,2,0,2,0,2,0,2]}}},"Flux Baby Blue":{"sku":"BDGFLUBBLU","cat":"C","tallas":{"23":{"tv":0,"ti":1,"tr":0,"bo":0,"fa":0,"s":[0,0,0,0,0,0,0,0,0,0,0,0,1,0]},"24":{"tv":0,"ti":2,"tr":0,"bo":0,"fa":0,"s":[0,0,0,0,0,0,0,0,0,0,0,0,2,0]},"25":{"tv":0,"ti":2,"tr":0,"bo":0,"fa":0,"s":[0,0,0,0,0,0,0,0,0,0,0,0,2,0]},"26":{"tv":0,"ti":2,"tr":0,"bo":0,"fa":0,"s":[0,0,0,0,0,0,0,0,0,0,0,0,2,0]},"27":{"tv":0,"ti":1,"tr":0,"bo":0,"fa":0,"s":[0,0,0,0,0,0,0,0,0,0,0,0,1,0]}}},"Hudson Chocolate":{"sku":"BDGHUDSCC","cat":"C","tallas":{"23":{"tv":0,"ti":2,"tr":0,"bo":0,"fa":0,"s":[0,0,0,0,0,0,0,0,0,0,0,0,2,0]},"24":{"tv":1,"ti":1,"tr":1,"bo":0,"fa":0,"s":[0,0,0,0,0,0,0,0,0,0,0,0,1,1]},"25":{"tv":1,"ti":1,"tr":1,"bo":0,"fa":0,"s":[0,0,0,0,0,0,0,0,0,0,0,0,1,1]},"26":{"tv":0,"ti":2,"tr":0,"bo":0,"fa":0,"s":[0,0,0,0,0,0,0,0,0,0,0,0,2,0]},"27":{"tv":1,"ti":1,"tr":1,"bo":0,"fa":0,"s":[0,0,0,0,0,0,0,0,0,0,0,0,1,1]}}},"Penny Black Honey":{"sku":"BDGPENCLI","cat":"C","tallas":{"23":{"tv":1,"ti":15,"tr":3,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,3,0,3,0,3,0]},"24":{"tv":2,"ti":13,"tr":5,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,1,2,3,0,3,0]},"25":{"tv":4,"ti":12,"tr":6,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,3,0,0,3,3,0]},"26":{"tv":2,"ti":13,"tr":5,"bo":0,"fa":0,"s":[3,0,0,3,0,0,2,1,2,1,3,0,3,0]},"27":{"tv":3,"ti":12,"tr":6,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,2,1,2,1,2,1]}}},"Penny Black Suede":{"sku":"BDGPENBLA","cat":"C","tallas":{"23":{"tv":1,"ti":14,"tr":4,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,3,0,2,1,3,0]},"24":{"tv":5,"ti":10,"tr":8,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,1,2,0,3,3,0]},"25":{"tv":4,"ti":12,"tr":6,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,1,2,2,1,3,0]},"26":{"tv":0,"ti":15,"tr":3,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,3,0,3,0,3,0]},"27":{"tv":1,"ti":14,"tr":4,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,3,0,3,0,2,1]}}},"Penny Brown":{"sku":"BDGPENBR23MX","cat":"C","tallas":{"23":{"tv":1,"ti":14,"tr":4,"bo":0,"fa":0,"s":[2,1,0,3,0,0,3,0,3,0,3,0,3,0]},"24":{"tv":5,"ti":10,"tr":8,"bo":0,"fa":0,"s":[3,0,0,3,0,0,2,1,0,3,2,1,3,0]},"25":{"tv":5,"ti":9,"tr":9,"bo":0,"fa":0,"s":[0,3,0,3,0,0,2,1,2,1,2,1,3,0]},"26":{"tv":5,"ti":10,"tr":8,"bo":0,"fa":0,"s":[2,1,0,3,0,0,2,1,1,2,3,0,2,1]},"27":{"tv":4,"ti":12,"tr":6,"bo":0,"fa":0,"s":[2,1,0,3,0,0,3,0,1,2,3,0,3,0]}}},"Penny Taupe":{"sku":"BDGPENTAU23MX","cat":"C","tallas":{"23":{"tv":2,"ti":13,"tr":5,"bo":0,"fa":0,"s":[2,1,0,3,0,0,3,0,3,0,2,1,3,0]},"24":{"tv":5,"ti":12,"tr":6,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,1,2,2,1,3,0]},"25":{"tv":4,"ti":10,"tr":8,"bo":0,"fa":0,"s":[2,1,0,3,0,0,1,2,3,0,2,1,2,1]},"26":{"tv":2,"ti":12,"tr":6,"bo":0,"fa":0,"s":[2,1,0,3,0,0,2,1,2,1,3,0,3,0]},"27":{"tv":2,"ti":13,"tr":5,"bo":0,"fa":0,"s":[3,0,0,3,0,0,3,0,2,1,3,0,2,1]}}}};
 
-// ── Constants ─────────────────────────────────────────────────────────────────
-const BODEGA_RE   = /cedis|ecommerce|e-commerce/i;
-const SKIP_STORES = /internet|tel[eé]fono|tel./i;  // not physical stores
-
-const STORE_COLORS = [
-  '#5b9cf6','#3ecf8e','#c8943a','#c16452',
-  '#8b5cf6','#e05252','#2563eb','#059669',
-  '#d97706','#7c3aed','#dc2626','#0891b2'
+// s indices: CE[0,1] LEN[2,3] MTY[4,5] COY[6,7] POL[8,9] SAT[10,11] GDL[12,13]
+const STORES = [
+  {key:'CE',  label:'EC',         inv:0, rst:1, vtaKey:'cedis_ecommerce'},
+  {key:'LEN', label:'León',       inv:2, rst:3},
+  {key:'COY', label:'Coyoacán',   inv:6, rst:7},
+  {key:'POL', label:'Polanco',    inv:8, rst:9},
+  {key:'SAT', label:'Satélite',   inv:10,rst:11},
+  {key:'GDL', label:'Guadalajara',inv:12,rst:13},
 ];
+const SIZES = [23,24,25,26,27];
 
-// Existing product images (matched case-insensitively)
+let _mode = 'inv'; // inv | rst | vta
+let _cat  = 'ALL';
+let _open = new Set();
+
+// Imágenes hardcodeadas desde Shopify CDN
 const IMAGES = {
-  'BALA BLACK':        'https://cdn.shopify.com/s/files/1/2514/6232/files/balablack1.jpg?v=1723743956',
-  'CALF PONY':         'https://cdn.shopify.com/s/files/1/2514/6232/files/CALF-PONY-1.jpg?v=1723744365',
-  'DALLAS BLACK':      'https://cdn.shopify.com/s/files/1/2514/6232/files/99d052657b00b74adf8322ab87c1be29_900x_b77d143d-71b8-465c-a470-dcfbb3b3cef2.webp?v=1723744408',
-  'DALLAS CAMEL':      'https://cdn.shopify.com/s/files/1/2514/6232/files/DALLAS-CAMEL-1_df96deb4-678b-47ca-8c91-cfabb19a0bb9.jpg?v=1723744475',
-  'MONARCH RED':       'https://cdn.shopify.com/s/files/1/2514/6232/files/monarchred1.jpg?v=1737756069',
-  'TYRO BLACK':        'https://cdn.shopify.com/s/files/1/2514/6232/files/TYRO-1_1.jpg?v=1723750994',
-  'HUDSON BLACK':      'https://cdn.shopify.com/s/files/1/2514/6232/files/Hudson-black-lateral_9dc8acae-628f-45b4-8cc5-7e671ef1be8d.jpg?v=1754073271',
-  'LEGACY TAUPE':      'https://cdn.shopify.com/s/files/1/2514/6232/files/legacytaup1_eed9b2d8-d366-4d5a-b5c2-2f469114e944.jpg?v=1723749956',
-  'LEGACY STUDS':      'https://cdn.shopify.com/s/files/1/2514/6232/files/legacystuds1_8d6e28d7-d5b7-40fe-b91b-d614064da8a1.jpg?v=1723749921',
-  'FENIX CHOCOLATE':   'https://cdn.shopify.com/s/files/1/2514/6232/files/fenixchocolate1.jpg?v=1727376962',
-  'LYRA SILVER':       'https://cdn.shopify.com/s/files/1/2514/6232/files/c04e70ecb93fe7b962a3f16db0d13b61_900x_952b937e-975e-416c-9256-0f955089d541.webp?v=1746036042',
-  'FLUX BABY BLUE':    'https://cdn.shopify.com/s/files/1/2514/6232/files/fluxblue1.jpg?v=1749063702',
-  'HUDSON CHOCOLATE':  'https://cdn.shopify.com/s/files/1/2514/6232/files/HUDSON-CHOCOLATE-1_c0cf5404-4257-4f0c-bf4b-9447e6798a59.jpg?v=1757952551',
-  'PENNY BLACK HONEY': 'https://cdn.shopify.com/s/files/1/2514/6232/files/7506652103494_x1_fr_d0e4c472-eb8c-41b8-883e-70a97e89f617.jpg?v=1769802274',
-  'PENNY BLACK SUEDE': 'https://cdn.shopify.com/s/files/1/2514/6232/files/PENNYBLACK.jpg?v=1776190431',
-  'PENNY BROWN':       'https://cdn.shopify.com/s/files/1/2514/6232/files/B1.jpg?v=1776190431',
-  'PENNY TAUPE':       'https://cdn.shopify.com/s/files/1/2514/6232/files/PEN1_e207f618-1c9b-44f3-a549-3c769cf34758.jpg?v=1776190431',
+  'Bala Black':        'https://cdn.shopify.com/s/files/1/2514/6232/files/balablack1.jpg?v=1723743956',
+  'Calf Pony':         'https://cdn.shopify.com/s/files/1/2514/6232/files/CALF-PONY-1.jpg?v=1723744365',
+  'Dallas Black':      'https://cdn.shopify.com/s/files/1/2514/6232/files/99d052657b00b74adf8322ab87c1be29_900x_b77d143d-71b8-465c-a470-dcfbb3b3cef2.webp?v=1723744408',
+  'Dallas Camel':      'https://cdn.shopify.com/s/files/1/2514/6232/files/DALLAS-CAMEL-1_df96deb4-678b-47ca-8c91-cfabb19a0bb9.jpg?v=1723744475',
+  'Monarch Red':       'https://cdn.shopify.com/s/files/1/2514/6232/files/monarchred1.jpg?v=1737756069',
+  'Tyro Black':        'https://cdn.shopify.com/s/files/1/2514/6232/files/TYRO-1_1.jpg?v=1723750994',
+  'Hudson Black':      'https://cdn.shopify.com/s/files/1/2514/6232/files/Hudson-black-lateral_9dc8acae-628f-45b4-8cc5-7e671ef1be8d.jpg?v=1754073271',
+  'Legacy Taupe':      'https://cdn.shopify.com/s/files/1/2514/6232/files/legacytaup1_eed9b2d8-d366-4d5a-b5c2-2f469114e944.jpg?v=1723749956',
+  'Legacy Studs':      'https://cdn.shopify.com/s/files/1/2514/6232/files/legacystuds1_8d6e28d7-d5b7-40fe-b91b-d614064da8a1.jpg?v=1723749921',
+  'Fenix Chocolate':   'https://cdn.shopify.com/s/files/1/2514/6232/files/fenixchocolate1.jpg?v=1727376962',
+  'Lyra Silver':       'https://cdn.shopify.com/s/files/1/2514/6232/files/c04e70ecb93fe7b962a3f16db0d13b61_900x_952b937e-975e-416c-9256-0f955089d541.webp?v=1746036042',
+  'Flux Baby Blue':    'https://cdn.shopify.com/s/files/1/2514/6232/files/fluxblue1.jpg?v=1749063702',
+  'Hudson Chocolate':  'https://cdn.shopify.com/s/files/1/2514/6232/files/HUDSON-CHOCOLATE-1_c0cf5404-4257-4f0c-bf4b-9447e6798a59.jpg?v=1757952551',
+  'Penny Black Honey': 'https://cdn.shopify.com/s/files/1/2514/6232/files/7506652103494_x1_fr_d0e4c472-eb8c-41b8-883e-70a97e89f617.jpg?v=1769802274',
+  'Penny Black Suede': 'https://cdn.shopify.com/s/files/1/2514/6232/files/PENNYBLACK.jpg?v=1776190431',
+  'Penny Brown':       'https://cdn.shopify.com/s/files/1/2514/6232/files/B1.jpg?v=1776190431',
+  'Penny Taupe':       'https://cdn.shopify.com/s/files/1/2514/6232/files/PEN1_e207f618-1c9b-44f3-a549-3c769cf34758.jpg?v=1776190431',
 };
 
 // ── State ─────────────────────────────────────────────────────────────────────
-let _mode   = 'inv';
-let _open   = new Set();
-let _data   = null;   // { models, stores, updatedAt, updatedBy }
-let _csvFile  = null;
-let _xlsxFile = null;
-
-// ── Auth check ────────────────────────────────────────────────────────────────
-const _user = JSON.parse(localStorage.getItem('bdg_user') || 'null');
-const _isAdmin = !_user || _user.role === 'admin'; // visible para todos mientras el login no está activo
-document.getElementById('btnUpload').classList.remove('hidden');
-document.getElementById('emptyUploadBtn').classList.remove('hidden');
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function storeLabel(name) {
-  return name
-    .replace(/^Tienda\s+/i, '')
-    .replace(/Nuevo\s*Coyoacan/i, 'Coyoacán')
-    .replace(/Satelite/i, 'Satélite')
-    .replace(/Queretaro/i, 'Querétaro')
-    .replace(/Cedis\s*Ecommerce/i, 'Bodega');
-}
-
-function titleCase(str) {
-  return str.toLowerCase()
-    .replace(/(?:^|\s)\S/g, c => c.toUpperCase())
-    .replace(/\bDe\b/g, 'de').replace(/\bEl\b/g, 'el');
-}
-
-function getImage(name) {
-  const key = (name || '').toUpperCase().trim();
-  if (IMAGES[key]) return IMAGES[key];
-  // Fuzzy: normalize (remove spaces, accents)
-  const norm = k => k.replace(/\s+/g, '').replace(/[ÁÉÍÓÚ]/g, c => 'AEIOU'['ÁÉÍÓÚ'.indexOf(c)]);
-  const nKey = norm(key);
-  for (const [k, v] of Object.entries(IMAGES)) {
-    if (norm(k) === nKey) return v;
-  }
-  return null;
-}
-
-function invClass(v) {
-  if (!v || v <= 0) return 'c0';
-  if (v === 1)      return 'c1';
-  if (v <= 3)       return 'c2';
-  if (v <= 6)       return 'c3';
-  return 'c4';
-}
-function vtaClass(v) {
-  if (!v || v <= 0) return 'c0';
-  if (v <= 5)       return 'c2';
-  if (v <= 15)      return 'c3';
-  return 'c4';
-}
-
-// ── Load data from RTDB ───────────────────────────────────────────────────────
-async function loadData() {
-  try {
-    const res = await fetch(RTDB_URL + '.json');
-    const data = await res.json();
-    document.getElementById('loadingState').classList.add('hidden');
-
-    if (data && data.models) {
-      _data = data;
-      showDataUI();
-      render();
-    } else {
-      document.getElementById('emptyState').classList.remove('hidden');
-    }
-  } catch(e) {
-    console.error('[PDH] RTDB error:', e);
-    document.getElementById('loadingState').classList.add('hidden');
-    document.getElementById('emptyState').classList.remove('hidden');
-  }
-}
-
-function showDataUI() {
-  document.getElementById('emptyState').classList.add('hidden');
-  document.getElementById('kpiStrip').style.display = '';
-  document.getElementById('tableWrap').classList.remove('hidden');
-
-  if (_data.updatedAt) {
-    const d = new Date(_data.updatedAt);
-    document.getElementById('topDate').textContent =
-      `· Al ${d.toLocaleDateString('es-MX', {day:'numeric', month:'long', year:'numeric'})}`;
-  }
-}
-
-// ── Mode / Filter ─────────────────────────────────────────────────────────────
 function setMode(m) {
   _mode = m;
-  document.querySelectorAll('#modeSeg .seg-btn')
-    .forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+  document.querySelectorAll('#modeSeg .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
   const isApr = m === 'apr';
   document.getElementById('aprWrap').classList.toggle('show', isApr);
-  const tw = document.getElementById('tableWrap');
-  if (!tw.classList.contains('hidden')) {
-    tw.style.display = isApr ? 'none' : '';
-  }
+  document.getElementById('tableWrap').style.display = isApr ? 'none' : '';
   render();
+}
+function setCat(c) {
+  _cat = c;
+  document.querySelectorAll('#catSeg .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === c));
+  render();
+}
+
+// ── Color helpers ─────────────────────────────────────────────────────────────
+function invClass(v) {
+  if (v <= 0)  return 'c0';
+  if (v === 1) return 'c1';
+  if (v <= 3)  return 'c2';
+  if (v <= 6)  return 'c3';
+  return 'c4';
+}
+function rstClass(v) {
+  if (!v || v <= 0) return 'r0';
+  if (v <= 2)       return 'r1';
+  if (v <= 5)       return 'r2';
+  return 'r3';
+}
+function vtaClass(v) {
+  if (!v || v <= 0)  return 'c0';
+  if (v <= 5)        return 'c2';
+  if (v <= 15)       return 'c3';
+  return 'c4';
+}
+
+// ── Per-store value aggregated across all sizes ───────────────────────────────
+function storeAgg(modelData, storeIdx, isInv) {
+  return SIZES.reduce((s, t) => s + (modelData.tallas[t]?.s[storeIdx] || 0), 0);
+}
+function storeVta(modelData, storeIdx) {
+  // ventas_acum from total (approximation — we don't have per-store ventas split in compact data)
+  // We'll show total ventas in "total" col; per-store ventas not stored in compact form
+  return null;
 }
 
 // ── KPI Strip ─────────────────────────────────────────────────────────────────
 function renderKPIs(models) {
-  let totalInv = 0, totalVta = 0, totalBo = 0;
-  for (const [, m] of models) {
-    for (const sz of (m.sizes || [])) {
-      // inv
-      for (const v of Object.values(m.inv?.[sz] || {})) totalInv += v;
-      // vta
-      for (const v of Object.values(m.vta?.[sz] || {})) totalVta += v;
-      // bodega
-      totalBo += (m.bo?.[sz] || 0);
-    }
-  }
+  const totalInv  = models.reduce((s, [, d]) => s + Object.values(d.tallas).reduce((a, t) => a + t.ti, 0), 0);
+  const totalRst  = models.reduce((s, [, d]) => s + Object.values(d.tallas).reduce((a, t) => a + t.tr, 0), 0);
+  const totalVta  = models.reduce((s, [, d]) => s + Object.values(d.tallas).reduce((a, t) => a + t.tv, 0), 0);
+  const totalFalt = models.reduce((s, [, d]) => s + Object.values(d.tallas).reduce((a, t) => a + (t.fa < 0 ? t.fa : 0), 0), 0);
+
   document.getElementById('kpiStrip').innerHTML = `
     <div class="kpi-cell">
       <div class="kpi-lbl">Modelos</div>
       <div class="kpi-val hi">${models.length}</div>
-      <div class="kpi-sub">en vista actual</div>
+      <div class="kpi-sub">${_cat === 'ALL' ? '17 total' : 'Cat. '+_cat}</div>
     </div>
     <div class="kpi-cell">
       <div class="kpi-lbl">Inv. Total PDH</div>
@@ -520,490 +360,208 @@ function renderKPIs(models) {
       <div class="kpi-sub">pares en tiendas</div>
     </div>
     <div class="kpi-cell">
+      <div class="kpi-lbl">Restock Propuesto</div>
+      <div class="kpi-val warn">${totalRst}</div>
+      <div class="kpi-sub">pares pendientes</div>
+    </div>
+    <div class="kpi-cell">
       <div class="kpi-lbl">Ventas Acum.</div>
       <div class="kpi-val good">${totalVta}</div>
       <div class="kpi-sub">pares vendidos</div>
     </div>
     <div class="kpi-cell">
-      <div class="kpi-lbl">Bodega</div>
-      <div class="kpi-val warn">${totalBo}</div>
-      <div class="kpi-sub">pares disponibles</div>
+      <div class="kpi-lbl">Faltante Total</div>
+      <div class="kpi-val alert">${Math.abs(totalFalt)}</div>
+      <div class="kpi-sub">pares sin cubrir</div>
     </div>`;
 }
 
-// ── Table render ──────────────────────────────────────────────────────────────
-function renderTable(models, stores) {
-  // Header
-  const thead = document.getElementById('tableHead');
-  const storeThs = stores.map((s, i) =>
-    `<th style="border-top:2px solid ${STORE_COLORS[i % STORE_COLORS.length]}">${storeLabel(s)}</th>`
-  ).join('');
-  thead.innerHTML = `<tr>
-    <th style="text-align:left;min-width:200px;">Modelo</th>
-    ${storeThs}
-    <th class="th-total">Total PDH</th>
-    <th class="th-bodega">Bodega</th>
-  </tr>`;
-
-  const tbody = document.getElementById('tbody');
-  tbody.innerHTML = '';
-
-  for (const [key, m] of models) {
-    const isOpen = _open.has(key);
-    const sizes = m.sizes || [];
-    const isVta = _mode === 'vta';
-
-    // Aggregate totals across all sizes per store
-    const storeVals = stores.map(store => ({
-      inv: sizes.reduce((s, sz) => s + ((m.inv?.[sz] || {})[store] || 0), 0),
-      vta: sizes.reduce((s, sz) => s + ((m.vta?.[sz] || {})[store] || 0), 0),
-    }));
-
-    const totalInv = storeVals.reduce((s, sv) => s + sv.inv, 0);
-    const totalVta = storeVals.reduce((s, sv) => s + sv.vta, 0);
-    const totalBo  = sizes.reduce((s, sz) => s + (m.bo?.[sz] || 0), 0);
-
-    const storeCells = storeVals.map(sv => {
-      const v = isVta ? sv.vta : sv.inv;
-      const cls = isVta ? vtaClass(v) : invClass(v);
-      return `<td class="inv-cell"><span class="${cls}">${v}</span></td>`;
-    }).join('');
-
-    const totalVal = isVta ? totalVta : totalInv;
-    const totalCls = isVta ? vtaClass(totalVal) : invClass(totalVal);
-
-    const imgUrl = getImage(m.name);
-    const imgEl  = imgUrl
-      ? `<img class="prod-thumb" src="${imgUrl}" loading="lazy" crossorigin="anonymous" onerror="this.style.display='none'"/>`
-      : `<div class="prod-thumb-ph">👟</div>`;
-
-    const mRow = document.createElement('tr');
-    mRow.className = 'model-row';
-    mRow.dataset.model = key;
-    mRow.innerHTML = `
-      <td>
-        <div class="model-name">
-          <span class="chevron${isOpen ? ' open' : ''}">▶</span>
-          ${imgEl}
-          ${titleCase(m.name)}
-        </div>
-      </td>
-      ${storeCells}
-      <td class="inv-cell td-total"><span class="${totalCls}">${totalVal}</span></td>
-      <td class="td-bodega"><div class="bodega-val${totalBo===0?' zero':''}">${totalBo}</div></td>`;
-    mRow.addEventListener('click', () => toggleRow(key));
-    tbody.appendChild(mRow);
-
-    // Size rows
-    for (const sz of sizes) {
-      const szStoreCells = stores.map(store => {
-        const v = isVta
-          ? ((m.vta?.[sz] || {})[store] || 0)
-          : ((m.inv?.[sz] || {})[store] || 0);
-        const cls = isVta ? vtaClass(v) : invClass(v);
-        return `<td class="inv-cell sz"><span class="${cls}">${v}</span></td>`;
-      }).join('');
-
-      const szTotalInv = stores.reduce((s, st) => s + ((m.inv?.[sz] || {})[st] || 0), 0);
-      const szTotalVta = stores.reduce((s, st) => s + ((m.vta?.[sz] || {})[st] || 0), 0);
-      const szBo = m.bo?.[sz] || 0;
-      const szTotal = isVta ? szTotalVta : szTotalInv;
-      const szCls   = isVta ? vtaClass(szTotal) : invClass(szTotal);
-
-      const szRow = document.createElement('tr');
-      szRow.className = `size-row${isOpen ? ' open' : ''}`;
-      szRow.dataset.model = key;
-      szRow.innerHTML = `
-        <td><div class="sz-lbl">T${sz}</div></td>
-        ${szStoreCells}
-        <td class="inv-cell sz td-total"><span class="${szCls}">${szTotal}</span></td>
-        <td class="td-bodega"><div class="bodega-val${szBo===0?' zero':''}" style="font-size:11px;">${szBo}</div></td>`;
-      tbody.appendChild(szRow);
-    }
-  }
-}
-
 // ── Aparadores render ─────────────────────────────────────────────────────────
-function renderAparadores(models, stores) {
+function renderAparadores(models) {
   const wrap = document.getElementById('aprWrap');
   wrap.innerHTML = '';
 
-  stores.forEach((storeName, si) => {
-    const color = STORE_COLORS[si % STORE_COLORS.length];
-
-    const storeModels = models.map(([key, m]) => {
-      const sizes = m.sizes || [];
-      const sizeInvs = sizes.map(sz => ({ sz, inv: ((m.inv?.[sz] || {})[storeName] || 0) }));
-      const totalInv = sizeInvs.reduce((s, x) => s + x.inv, 0);
-      return { key, m, sizeInvs, totalInv };
+  for (const st of STORES) {
+    // For each store, gather models that have inventory there
+    const storeModels = models.map(([name, d]) => {
+      const sizes = SIZES.map(t => ({ t, inv: d.tallas[t]?.s[st.inv] || 0 }));
+      const totalInv = sizes.reduce((s, x) => s + x.inv, 0);
+      return { name, d, sizes, totalInv };
     }).filter(x => x.totalInv > 0).sort((a, b) => b.totalInv - a.totalInv);
 
     const totalPares = storeModels.reduce((s, x) => s + x.totalInv, 0);
 
     const card = document.createElement('div');
     card.className = 'apr-card';
-    card.style.setProperty('--store-color', color);
+    card.dataset.store = st.key;
 
     const modelsHtml = storeModels.length === 0
       ? `<div class="apr-no-stock">Sin inventario</div>`
-      : storeModels.map(({ m, sizeInvs }) => {
-          const imgUrl = getImage(m.name);
+      : storeModels.map(({ name, d, sizes }) => {
+          const imgUrl = IMAGES[name] || null;
           const imgEl = imgUrl
             ? `<img class="apr-thumb" src="${imgUrl}" loading="lazy" crossorigin="anonymous" onerror="this.style.display='none'"/>`
             : `<div class="apr-thumb-ph">👟</div>`;
-          const szBadges = sizeInvs.map(({ sz, inv }) =>
-            `<span class="apr-sz ${invClass(inv)}" title="T${sz}: ${inv} par${inv!==1?'es':''}">T${sz} <b>${inv}</b></span>`
+          const szBadges = sizes.map(({ t, inv }) =>
+            `<span class="apr-sz ${invClass(inv)}" title="T${t}: ${inv} par${inv !== 1 ? 'es' : ''}">T${t} <b>${inv}</b></span>`
           ).join('');
           return `<div class="apr-model">
             ${imgEl}
             <div class="apr-model-info">
-              <div class="apr-model-name">${titleCase(m.name)}</div>
+              <div class="apr-model-name">${name}</div>
               <div class="apr-sizes">${szBadges}</div>
             </div>
           </div>`;
         }).join('');
 
     card.innerHTML = `
-      <div class="apr-header" style="border-top:3px solid ${color}">
-        <div class="apr-store-name">${storeLabel(storeName)}</div>
+      <div class="apr-header">
+        <div class="apr-store-name">${st.label}</div>
         <div class="apr-store-total">${storeModels.length} modelos · ${totalPares} pares</div>
       </div>
       <div class="apr-body">${modelsHtml}</div>`;
 
     wrap.appendChild(card);
-  });
+  }
 }
 
 // ── Main render ───────────────────────────────────────────────────────────────
 function render() {
-  if (!_data || !_data.models) return;
-
-  const stores = _data.stores || [];
-  const search = (document.getElementById('searchInput').value || '').toLowerCase().trim();
-
-  const models = Object.entries(_data.models).filter(([key, m]) => {
-    if (!search) return true;
-    return (m.name || '').toLowerCase().includes(search) || key.toLowerCase().includes(search);
-  });
-
+  const models = Object.entries(DATA).filter(([, d]) => _cat === 'ALL' || d.cat === _cat);
   renderKPIs(models);
 
-  if (_mode === 'apr') {
-    renderAparadores(models, stores);
-    return;
+  if (_mode === 'apr') { renderAparadores(models); return; }
+
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+
+  for (const [name, d] of models) {
+    const isOpen = _open.has(name);
+
+    // Aggregate values per store
+    const storeVals = STORES.map(st => {
+      const inv = SIZES.reduce((s, t) => s + (d.tallas[t]?.s[st.inv] || 0), 0);
+      const rst = SIZES.reduce((s, t) => s + (d.tallas[t]?.s[st.rst] || 0), 0);
+      const tv  = SIZES.reduce((s, t) => s + (d.tallas[t]?.tv || 0), 0); // only in total
+      return {inv, rst};
+    });
+
+    const totalInv = SIZES.reduce((s, t) => s + (d.tallas[t]?.ti || 0), 0);
+    const totalRst = SIZES.reduce((s, t) => s + (d.tallas[t]?.tr || 0), 0);
+    const totalVta = SIZES.reduce((s, t) => s + (d.tallas[t]?.tv || 0), 0);
+    const bodega   = SIZES.reduce((s, t) => s + (d.tallas[t]?.bo || 0), 0);
+    const faltante = SIZES.reduce((s, t) => s + (d.tallas[t]?.fa || 0), 0);
+
+    const storeCells = storeVals.map(sv => {
+      if (_mode === 'inv') {
+        return `<td class="inv-cell"><span class="${invClass(sv.inv)}">${sv.inv}</span></td>`;
+      } else if (_mode === 'rst') {
+        return `<td class="inv-cell"><span class="${rstClass(sv.rst)}">${sv.rst > 0 ? sv.rst : '—'}</span></td>`;
+      } else {
+        // ventas: we only have per-model total, not per-store — show dash
+        return `<td class="inv-cell"><span class="c0">—</span></td>`;
+      }
+    }).join('');
+
+    const totalCell = _mode === 'inv'
+      ? `<span class="${invClass(totalInv)}">${totalInv}</span>`
+      : _mode === 'rst'
+        ? `<span class="${rstClass(totalRst)}">${totalRst > 0 ? totalRst : '—'}</span>`
+        : `<span class="${vtaClass(totalVta)}">${totalVta}</span>`;
+
+    const faltEl = faltante < 0
+      ? `<div class="faltante-lbl">${faltante} falt.</div>`
+      : faltante > 0
+        ? `<div class="sobrante-lbl">+${faltante}</div>`
+        : '';
+
+    // Model row
+    const imgUrl = IMAGES[name] || null;
+    const imgEl  = imgUrl
+      ? `<img class="prod-thumb" src="${imgUrl}" loading="lazy" crossorigin="anonymous" onerror="this.style.display='none'"/>`
+      : `<div class="prod-thumb-ph">👟</div>`;
+
+    const mRow = document.createElement('tr');
+    mRow.className = 'model-row';
+    mRow.dataset.model = name;
+    mRow.innerHTML = `
+      <td>
+        <div class="model-name">
+          <span class="chevron ${isOpen ? 'open' : ''}">▶</span>
+          ${imgEl}
+          <span class="cat-badge cat-${d.cat}">${d.cat}</span>
+          ${name}
+        </div>
+      </td>
+      ${storeCells}
+      <td class="inv-cell td-total">${totalCell}</td>
+      <td class="td-bodega">
+        <div class="bodega-val ${bodega === 0 ? 'zero' : ''}">${bodega}</div>
+        ${faltEl}
+      </td>`;
+    mRow.addEventListener('click', () => toggleRow(name));
+    tbody.appendChild(mRow);
+
+    // Size rows
+    for (const t of SIZES) {
+      const td = d.tallas[t];
+      if (!td) continue;
+
+      const szStoreCells = STORES.map(st => {
+        const inv = td.s[st.inv] || 0;
+        const rst = td.s[st.rst] || 0;
+        if (_mode === 'inv') {
+          return `<td class="inv-cell sz"><span class="${invClass(inv)}">${inv}</span></td>`;
+        } else if (_mode === 'rst') {
+          return `<td class="inv-cell sz"><span class="${rstClass(rst)}">${rst > 0 ? rst : '—'}</span></td>`;
+        } else {
+          return `<td class="inv-cell sz"><span class="c0">—</span></td>`;
+        }
+      }).join('');
+
+      const szTotal = _mode === 'inv'
+        ? `<span class="${invClass(td.ti)}">${td.ti}</span>`
+        : _mode === 'rst'
+          ? `<span class="${rstClass(td.tr)}">${td.tr > 0 ? td.tr : '—'}</span>`
+          : `<span class="${vtaClass(td.tv)}">${td.tv}</span>`;
+
+      const szFalt = td.fa < 0
+        ? `<div class="faltante-lbl">${td.fa}</div>`
+        : td.fa > 0 ? `<div class="sobrante-lbl">+${td.fa}</div>` : '';
+
+      const szRow = document.createElement('tr');
+      szRow.className = `size-row ${isOpen ? 'open' : ''}`;
+      szRow.dataset.model = name;
+      szRow.innerHTML = `
+        <td><div class="sz-lbl">T${t}</div></td>
+        ${szStoreCells}
+        <td class="inv-cell sz td-total">${szTotal}</td>
+        <td class="td-bodega">
+          <div class="bodega-val ${td.bo === 0 ? 'zero' : ''}" style="font-size:11px;">${td.bo}</div>
+          ${szFalt}
+        </td>`;
+      tbody.appendChild(szRow);
+    }
   }
-
-  // Ensure table is visible
-  const tw = document.getElementById('tableWrap');
-  if (!tw.classList.contains('hidden')) tw.style.display = '';
-  document.getElementById('aprWrap').classList.remove('show');
-
-  renderTable(models, stores);
 }
 
-function toggleRow(key) {
-  if (_open.has(key)) _open.delete(key);
-  else _open.add(key);
-  document.querySelectorAll(`[data-model="${CSS.escape(key)}"]`).forEach(el => {
+function toggleRow(name) {
+  if (_open.has(name)) {
+    _open.delete(name);
+  } else {
+    _open.add(name);
+  }
+  // Update chevron + size rows without full re-render
+  document.querySelectorAll(`[data-model="${CSS.escape(name)}"]`).forEach(el => {
     if (el.classList.contains('model-row')) {
-      el.querySelector('.chevron').classList.toggle('open', _open.has(key));
+      el.querySelector('.chevron').classList.toggle('open', _open.has(name));
     } else {
-      el.classList.toggle('open', _open.has(key));
+      el.classList.toggle('open', _open.has(name));
     }
   });
 }
 
-// ── Upload modal ──────────────────────────────────────────────────────────────
-function openUpload() {
-  document.getElementById('uploadOverlay').classList.add('show');
-}
-function closeUpload() {
-  document.getElementById('uploadOverlay').classList.remove('show');
-  setUploadError('');
-  setProgress('');
-}
-document.getElementById('uploadOverlay').addEventListener('click', e => {
-  if (e.target === document.getElementById('uploadOverlay')) closeUpload();
-});
-
-function handleFile(type, input) {
-  const file = input.files[0];
-  if (!file) return;
-
-  if (type === 'csv') {
-    _csvFile = file;
-    const el = document.getElementById('csvStatus');
-    el.textContent = `✓ ${file.name}`;
-    el.className = 'fz-status ok';
-    document.getElementById('zoneCSV').classList.add('has-file');
-  } else {
-    _xlsxFile = file;
-    const el = document.getElementById('xlsxStatus');
-    el.textContent = `✓ ${file.name}`;
-    el.className = 'fz-status ok';
-    document.getElementById('zoneXLSX').classList.add('has-file');
-  }
-
-  // Enable button when at least one file is loaded
-  document.getElementById('uploadBtn').disabled = !_csvFile && !_xlsxFile;
-}
-
-function setUploadError(msg) {
-  const el = document.getElementById('uploadError');
-  el.textContent = msg;
-  el.classList.toggle('show', !!msg);
-}
-function setProgress(msg) {
-  const el = document.getElementById('uploadProgress');
-  el.textContent = msg;
-  el.classList.toggle('show', !!msg);
-}
-
-// ── CSV Parser ────────────────────────────────────────────────────────────────
-async function parseInventarioCSV(file) {
-  const buf = await file.arrayBuffer();
-
-  // Try UTF-16 first (common export from PDH systems), fallback to UTF-8
-  let text;
-  try {
-    text = new TextDecoder('utf-16').decode(buf);
-  } catch(e) {
-    text = new TextDecoder('utf-8').decode(buf);
-  }
-
-  const lines = text.replace(/\r/g, '').split('\n');
-  if (lines.length < 2) throw new Error('CSV vacío o formato inválido');
-
-  // Parse headers (strip BOM, quotes, whitespace)
-  const headers = lines[0].split('\t').map(h => h.replace(/[﻿"]/g, '').trim());
-
-  // Find columns (flexible matching)
-  const findCol = (...patterns) => headers.findIndex(h => patterns.some(p => p.test(h)));
-  const COL_CENTRO = findCol(/centro/i, /tienda/i);
-  const COL_ART    = findCol(/^art.culo$/i, /^art$/i, /nombre.*art/i);
-  const COL_CLAVE  = findCol(/clave.*art/i, /sku/i, /c[oó]digo/i);
-  const COL_MNAME  = findCol(/measure.*name/i, /nombre.*medida/i, /indicador/i);
-  const COL_MVAL   = findCol(/measure.*value/i, /valor/i, /cantidad/i);
-
-  if (COL_CENTRO < 0) throw new Error(`No se encontró columna "Centro". Columnas detectadas: ${headers.join(', ')}`);
-  if (COL_CLAVE  < 0) throw new Error(`No se encontró columna de clave/SKU. Columnas: ${headers.join(', ')}`);
-
-  const invMap = {};
-
-  for (let i = 1; i < lines.length; i++) {
-    const line = lines[i];
-    if (!line.trim()) continue;
-    const cols = line.split('\t').map(c => c.replace(/"/g, '').trim());
-    if (cols.length < 4) continue;
-
-    // Filter for inventory measure (or accept all rows if no measure column)
-    if (COL_MNAME >= 0) {
-      const mname = cols[COL_MNAME] || '';
-      if (!/inventario/i.test(mname)) continue;
-    }
-
-    const store = cols[COL_CENTRO] || '';
-    const art   = COL_ART >= 0 ? (cols[COL_ART] || '') : '';
-    const clave = cols[COL_CLAVE] || '';
-    const rawQty = cols[COL_MVAL] || '0';
-    const qty   = parseFloat(rawQty.replace(/,/g, '')) || 0;
-
-    if (!store || !clave) continue;
-
-    // Extract size from clave (e.g. "BDGDALLBL23MX" → "23")
-    const { base: claveBase, size } = splitClave(clave);
-    if (!size) continue;
-
-    // Display name: from Artículo column, strip size suffix
-    let displayName = art || clave;
-    if (displayName.endsWith(size)) displayName = displayName.slice(0, -size.length).trim();
-
-    if (!invMap[claveBase]) invMap[claveBase] = { name: displayName, sizes: {}, bo: {} };
-    if (!invMap[claveBase].sizes[size]) invMap[claveBase].sizes[size] = {};
-
-    const isBo = BODEGA_RE.test(store);
-    if (isBo) {
-      invMap[claveBase].bo[size] = (invMap[claveBase].bo[size] || 0) + Math.round(qty);
-    } else {
-      const existing = invMap[claveBase].sizes[size][store] || 0;
-      invMap[claveBase].sizes[size][store] = existing + Math.round(qty);
-    }
-  }
-
-  return invMap;
-}
-
-// ── XLSX Parser ───────────────────────────────────────────────────────────────
-async function parseVentasXLSX(file) {
-  const buf = await file.arrayBuffer();
-  const wb  = XLSX.read(new Uint8Array(buf), { type: 'array' });
-  const ws  = wb.Sheets[wb.SheetNames[0]];
-  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null, raw: false });
-
-  if (rows.length < 2) throw new Error('XLSX vacío o formato inválido');
-
-  const headers = rows[0].map(h => h ? String(h).trim() : '');
-  const findCol = (...patterns) => headers.findIndex(h => patterns.some(p => p.test(h)));
-
-  const COL_ART    = findCol(/^art.culo$/i, /^art$/i);
-  const COL_CLAVE  = findCol(/clave.*art/i, /sku/i, /c[oó]digo/i);
-  const COL_CENTRO = findCol(/centro/i, /tienda/i, /sucursal/i);
-  const COL_VTA    = findCol(/venta.*neta/i, /neta.*um/i, /unidades/i, /pares/i, /venta/i);
-
-  if (COL_CENTRO < 0 || COL_CLAVE < 0) {
-    throw new Error(`Columnas necesarias no encontradas en XLSX. Headers: ${headers.join(', ')}`);
-  }
-
-  const vtaMap = {};
-  let currentArt = null;
-
-  for (let i = 1; i < rows.length; i++) {
-    const row = rows[i];
-    if (!row || row.every(c => c === null)) continue;
-
-    if (row[COL_ART] !== null && row[COL_ART] !== undefined) {
-      currentArt = String(row[COL_ART]).trim();
-    }
-    if (!currentArt) continue;
-
-    const clave = row[COL_CLAVE] ? String(row[COL_CLAVE]).trim() : '';
-    const store = row[COL_CENTRO] ? String(row[COL_CENTRO]).trim() : '';
-    const rawQty = COL_VTA >= 0 ? (row[COL_VTA] || '0') : '0';
-    const qty   = parseFloat(String(rawQty).replace(/,/g, '')) || 0;
-
-    if (!clave || !store) continue;
-
-    const { base: claveBase, size } = splitClave(clave);
-    if (!size) continue;
-
-    // Display name from article column
-    let displayName = currentArt;
-    if (displayName.endsWith(size)) displayName = displayName.slice(0, -size.length).trim();
-
-    if (!vtaMap[claveBase]) vtaMap[claveBase] = { name: displayName, sizes: {} };
-    if (!vtaMap[claveBase].sizes[size]) vtaMap[claveBase].sizes[size] = {};
-
-    const existing = vtaMap[claveBase].sizes[size][store] || 0;
-    vtaMap[claveBase].sizes[size][store] = existing + Math.round(qty);
-  }
-
-  return vtaMap;
-}
-
-// ── Clave split helper ────────────────────────────────────────────────────────
-function splitClave(clave) {
-  // Match last 2-digit number that is a valid shoe size (20–35)
-  // e.g. "BDGDALLBL23MX" → base="BDGDALLBL", size="23"
-  const m = clave.match(/^(.+?)(\d{2})[A-Za-z]*$/);
-  if (!m) return { base: clave, size: null };
-  const size = m[2];
-  const n = parseInt(size);
-  if (n < 20 || n > 35) return { base: clave, size: null };
-  return { base: m[1], size };
-}
-
-// ── Process & Save ────────────────────────────────────────────────────────────
-async function processAndSave() {
-  if (!_csvFile && !_xlsxFile) {
-    setUploadError('Selecciona al menos un archivo para continuar.');
-    return;
-  }
-
-  const btn = document.getElementById('uploadBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Procesando...';
-  setUploadError('');
-
-  try {
-    // Parse files
-    let invMap = {};
-    let vtaMap = {};
-
-    if (_csvFile) {
-      setProgress('Leyendo inventario CSV...');
-      invMap = await parseInventarioCSV(_csvFile);
-    }
-    if (_xlsxFile) {
-      setProgress('Leyendo ventas XLSX...');
-      vtaMap = await parseVentasXLSX(_xlsxFile);
-    }
-
-    setProgress('Consolidando datos...');
-
-    // Merge by claveBase
-    const allKeys = new Set([...Object.keys(invMap), ...Object.keys(vtaMap)]);
-    const models  = {};
-    const storeSet = new Set();
-
-    for (const key of allKeys) {
-      const inv = invMap[key] || { name: '', sizes: {}, bo: {} };
-      const vta = vtaMap[key] || { name: '', sizes: {} };
-
-      // Collect all sizes
-      const sizes = [...new Set([...Object.keys(inv.sizes), ...Object.keys(vta.sizes)])].sort();
-
-      // Collect all tienda stores (exclude bodega)
-      for (const sz of sizes) {
-        for (const st of Object.keys(inv.sizes[sz] || {})) {
-          if (!BODEGA_RE.test(st) && !SKIP_STORES.test(st)) storeSet.add(st);
-        }
-        for (const st of Object.keys(vta.sizes[sz] || {})) {
-          if (!BODEGA_RE.test(st) && !SKIP_STORES.test(st)) storeSet.add(st);
-        }
-      }
-
-      // Prefer XLSX display name (usually cleaner); fallback to CSV name or key
-      const displayName = (vta.name || inv.name || key).toUpperCase().trim();
-
-      models[key] = {
-        name: displayName,
-        sizes,
-        inv:  inv.sizes,
-        vta:  vta.sizes,
-        bo:   inv.bo || {},
-      };
-    }
-
-    const stores = [...storeSet].sort();
-
-    if (Object.keys(models).length === 0) {
-      throw new Error('No se pudo extraer ningún modelo de los archivos. Verifica el formato.');
-    }
-
-    setProgress(`Guardando en la nube (${Object.keys(models).length} modelos, ${stores.length} tiendas)...`);
-
-    const payload = {
-      models, stores,
-      updatedAt: new Date().toISOString(),
-      updatedBy: _user?.nombre || 'Admin',
-    };
-    const saveRes = await fetch(RTDB_URL + '.json', {
-      method:  'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(payload),
-    });
-    if (!saveRes.ok) throw new Error(`RTDB ${saveRes.status}: ${await saveRes.text()}`);
-
-    // Reload local state
-    _data = payload;
-    closeUpload();
-    showDataUI();
-    document.getElementById('topDate').textContent =
-      `· Al ${new Date().toLocaleDateString('es-MX', {day:'numeric', month:'long', year:'numeric'})}`;
-    render();
-
-  } catch(e) {
-    console.error('[PDH] Upload error:', e);
-    setUploadError(`Error: ${e.message}`);
-    setProgress('');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = 'Procesar y guardar';
-  }
-}
-
-// ── Boot ──────────────────────────────────────────────────────────────────────
-loadData();
+render();
 </script>
 </body>
 </html>
