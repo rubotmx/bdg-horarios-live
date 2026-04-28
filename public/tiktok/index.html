@@ -843,6 +843,15 @@ function initFirebase(){
     _db = firebase.database();
     try { _db.setPersistenceEnabled(true); } catch(e) {} // caché offline — sobrevive desconexiones
 
+    // Anonymous Auth: garantiza que TODOS los usuarios (login con código o con Google)
+    // tengan un Firebase Auth user para que las rules `auth != null` los dejen escribir.
+    // Si el usuario hace Google Sign-In después, ese flujo reemplaza al anónimo sin problema.
+    if(firebase.auth && !firebase.auth().currentUser){
+      firebase.auth().signInAnonymously().catch(err => {
+        console.warn("[Firebase] Anonymous auth falló — verificar que esté habilitado en Firebase Console:", err.code);
+      });
+    }
+
     _db.ref(FB_PATH).on("value", snap => {
       if(_fbWriting) return; // escribimos nosotros, ignorar eco
 
