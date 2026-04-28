@@ -412,7 +412,7 @@ async function refreshData(force = false) {
       lookback_days:  _params.lookback,
       ...(force ? { force: "1" } : {})
     }).toString();
-    const res = await fetch(`/api/restock-snapshot?${qs}`);
+    const res = await fetch(`/api/restock?action=snapshot&${qs}`);
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error || `HTTP ${res.status}`);
@@ -624,7 +624,7 @@ let _pos = []; // POs cargadas
 
 async function loadPOs() {
   try {
-    const r = await fetch("/api/restock-pos?status=open");
+    const r = await fetch("/api/restock?action=pos-list&status=open");
     if (!r.ok) return;
     const { pos } = await r.json();
     _pos = pos || [];
@@ -699,7 +699,7 @@ async function cancelPO(po_id) {
 
 async function patchPO(po_id, update) {
   try {
-    const r = await fetch(`/api/restock-pos?id=${po_id}`, {
+    const r = await fetch(`/api/restock?action=pos-update&id=${po_id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(update),
@@ -810,7 +810,7 @@ async function confirmPO() {
   const user     = JSON.parse(localStorage.getItem("bdg_user") || "{}");
 
   try {
-    const r = await fetch("/api/restock-pos", {
+    const r = await fetch("/api/restock?action=pos-create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -920,7 +920,7 @@ async function confirmArchive() {
 
     let totalSucceeded = 0, totalFailed = 0;
     for (const chunk of chunks) {
-      const r = await fetch("/api/shopify-archive", {
+      const r = await fetch("/api/restock?action=archive", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ product_ids: chunk }),
