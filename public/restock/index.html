@@ -84,12 +84,13 @@ tr.row:hover td:first-child{background:#FAFAF9;}
 
 /* Status badges */
 .status{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:3px;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;}
-.status-out{background:#1F1F1F;color:#FFF;}
+.status-out{background:#7F1D1D;color:#FFF;}
 .status-critical{background:#7F1D1D;color:#FFF;}
 .status-alert{background:var(--red-bg);color:var(--red-txt);}
 .status-warn{background:var(--amber-bg);color:var(--amber-txt);}
 .status-ok{background:var(--green-bg);color:var(--green-txt);}
 .status-dead{background:var(--dead-bg);color:var(--dead-txt);}
+.status-discontinued{background:#EBEBEB;color:#9A9590;}
 
 /* Number cells */
 .num{text-align:center;font-weight:700;letter-spacing:-.02em;font-feature-settings:'tnum';}
@@ -379,7 +380,7 @@ function render() {
 
   // Sort
   if (_sort === "urgency") {
-    const order = { critical: 0, out: 1, alert: 2, warn: 3, dead: 4, ok: 5 };
+    const order = { critical: 0, out: 1, alert: 2, warn: 3, ok: 4, dead: 5, discontinued: 6 };
     list.sort((a, b) => {
       const oa = order[a.status] ?? 9, ob = order[b.status] ?? 9;
       if (oa !== ob) return oa - ob;
@@ -448,12 +449,13 @@ function render() {
 
 function labelFor(status) {
   return {
-    out:      "Sin stock",
-    critical: "Crítico",
-    alert:    "Pedir ya",
-    warn:     "Advertencia",
-    ok:       "Sano",
-    dead:     "Sin rotación",
+    out:           "Sin stock",
+    critical:      "Crítico",
+    alert:         "Pedir ya",
+    warn:          "Advertencia",
+    ok:            "Sano",
+    dead:          "Sin rotación",
+    discontinued:  "Descontinuado",
   }[status] || status;
 }
 
