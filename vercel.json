@@ -1,6 +1,7 @@
 {
   "crons": [
-    { "path": "/api/remind", "schedule": "0 14 * * *" }
+    { "path": "/api/remind",        "schedule": "0 14 * * *" },
+    { "path": "/api/restock-cron",  "schedule": "0 11 * * *" }
   ],
   "rewrites": [
     { "source": "/favicon.ico", "destination": "/public/favicon.ico" },

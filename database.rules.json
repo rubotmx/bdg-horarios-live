@@ -1,31 +1,24 @@
 {
   "rules": {
-    "//": "Reglas mínimas no-disruptivas: lectura pública (cron remind.js usa REST), escritura requiere Google Auth.",
-    "//-future": "Cuando se migre remind.js a Firebase Admin SDK con service account, cambiar .read a 'auth != null' también.",
+    "//": "Lectura pública (cron remind.js + restock leen vía REST). Escritura general requiere Google Auth.",
+    "//-restock": "/restock_snapshot y /restock_pos permiten escritura sin auth porque las APIs serverless las escriben (CRON_SECRET protege el cron de actualización).",
 
     ".read": true,
     ".write": "auth != null",
 
     "bdg_horarios_v2": {
       ".read": true,
-      ".write": "auth != null",
+      ".write": "auth != null"
+    },
 
-      "lastModified": {
-        ".validate": "newData.isNumber()"
-      },
-      "members": {
-        ".validate": "newData.hasChildren() || newData.val() == null"
-      },
-      "slots": {
-        ".validate": "newData.hasChildren() || newData.val() == null"
-      },
-      "picks": {
-        ".validate": "newData.hasChildren() || newData.val() == null"
-      },
-      "pulse_channels": {
-        ".read": true,
-        ".write": "auth != null"
-      }
+    "restock_snapshot": {
+      ".read": true,
+      ".write": true
+    },
+
+    "restock_pos": {
+      ".read": true,
+      ".write": true
     }
   }
 }

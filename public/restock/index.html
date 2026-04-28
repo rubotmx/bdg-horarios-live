@@ -128,6 +128,48 @@ tr.row:hover td:first-child{background:#FAFAF9;}
 .btn-primary:hover{background:var(--terra-dark);}
 .btn-secondary{width:100%;padding:10px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;font-family:var(--fn);font-size:12px;font-weight:600;cursor:pointer;margin-top:8px;}
 .btn-secondary:hover{border-color:var(--terra);color:var(--terra);}
+.btn-danger{background:#7F1D1D;color:#fff;border:none;}
+.btn-danger:hover{background:#9F2D2D;}
+
+/* In-transit badge */
+.transit-badge{display:inline-block;background:#3a7bd5;color:#fff;font-size:8px;font-weight:800;padding:1px 5px;border-radius:3px;letter-spacing:.06em;margin-left:5px;}
+
+/* Action button (row) */
+.btn-act{padding:5px 11px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--terra);background:var(--terra);color:#fff;border-radius:4px;cursor:pointer;font-family:var(--fn);transition:all .12s;}
+.btn-act:hover{background:var(--terra-dark);border-color:var(--terra-dark);}
+.btn-act-secondary{background:var(--surface);color:var(--terra);border:1px solid var(--terra);}
+.btn-act-secondary:hover{background:var(--terra-light);}
+
+/* OC modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;display:none;align-items:flex-start;justify-content:center;padding:32px 16px;backdrop-filter:blur(4px);overflow-y:auto;}
+.modal.show{display:flex;}
+.modal-box{background:var(--surface);border-radius:12px;width:780px;max-width:96vw;box-shadow:0 24px 64px rgba(0,0,0,.18);overflow:hidden;display:flex;flex-direction:column;max-height:calc(100vh - 64px);}
+.modal-header{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.modal-title{font-size:16px;font-weight:900;letter-spacing:-.02em;}
+.modal-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.modal-close{font-size:24px;color:var(--muted2);cursor:pointer;line-height:1;}
+.modal-close:hover{color:var(--terra);}
+.modal-body{flex:1;overflow-y:auto;padding:18px 22px;}
+.modal-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:10px;flex-shrink:0;background:var(--bg);}
+.modal-footer .btn-primary,.modal-footer .btn-secondary{margin-top:0;}
+
+/* PO items table */
+.poi-table{width:100%;border-collapse:collapse;font-size:11px;}
+.poi-table th{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);}
+.poi-table td{padding:8px 10px;border-bottom:1px solid var(--border2);}
+.poi-table input.qty-edit{width:54px;padding:4px 7px;border:1px solid var(--border);border-radius:4px;font-family:var(--fn);font-size:11px;text-align:center;outline:none;}
+.poi-table input.qty-edit:focus{border-color:var(--terra);}
+.poi-remove{color:var(--muted2);cursor:pointer;font-size:14px;}
+.poi-remove:hover{color:var(--red-txt);}
+
+/* POs panel (in-transit list) */
+.pos-panel{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;display:none;gap:10px;flex-wrap:wrap;align-items:center;}
+.pos-panel.show{display:flex;}
+.pos-panel .pos-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;}
+.po-chip{display:inline-flex;align-items:center;gap:8px;padding:5px 10px;background:#EFF4FB;border:1px solid #C8DCF5;border-radius:999px;font-size:10px;color:#2563eb;font-weight:700;cursor:pointer;}
+.po-chip:hover{background:#DCE9F8;}
+.po-chip-id{font-weight:800;}
+.po-chip-meta{color:#5b85c5;font-weight:600;font-size:9px;}
 
 /* Scrollbar */
 ::-webkit-scrollbar{width:4px;height:4px;}
@@ -145,10 +187,18 @@ tr.row:hover td:first-child{background:#FAFAF9;}
   <div class="topbar-sub">Restock Inteligente</div>
   <span class="tp-date" id="topDate"></span>
   <div class="topbar-right">
-    <button class="btn-icon" onclick="openSettings()">⚙ Parámetros</button>
-    <button class="btn-icon" onclick="refreshData(true)">↻ Refrescar</button>
+    <button class="btn-icon" onclick="openPOsList()">📋 OCs <span id="posBadge" style="display:none;background:#3a7bd5;color:#fff;border-radius:999px;padding:1px 6px;font-size:9px;margin-left:4px;font-weight:800;">0</span></button>
+    <button class="btn-icon" onclick="openGeneratePO()">＋ Generar OC</button>
+    <button class="btn-icon" onclick="openSettings()">⚙</button>
+    <button class="btn-icon" onclick="refreshData(true)">↻</button>
     <a class="btn-back" href="/">← HQ</a>
   </div>
+</div>
+
+<!-- Panel chips de POs abiertas -->
+<div class="pos-panel" id="posPanel">
+  <span class="pos-label">En tránsito:</span>
+  <div id="posChips" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
 </div>
 
 <!-- Controls -->
@@ -159,8 +209,11 @@ tr.row:hover td:first-child{background:#FAFAF9;}
     <button class="seg-btn" data-filter="critical" onclick="setFilter('critical')">Crítico <span class="badge" id="cntCritical">0</span></button>
     <button class="seg-btn" data-filter="warn" onclick="setFilter('warn')">Advertencia <span class="badge" id="cntWarn">0</span></button>
     <button class="seg-btn" data-filter="dead" onclick="setFilter('dead')">Muerto <span class="badge" id="cntDead">0</span></button>
+    <button class="seg-btn" data-filter="discontinued" onclick="setFilter('discontinued')">Descont. <span class="badge" id="cntDiscontinued">0</span></button>
     <button class="seg-btn" data-filter="all" onclick="setFilter('all')">Todos <span class="badge" id="cntAll">0</span></button>
   </div>
+  <div class="ctrl-sep"></div>
+  <button id="cleanupBtn" class="btn-icon hidden" onclick="openCleanup()" style="background:#FDECEA;color:#7F1D1D;border-color:#f5c6c1;">🗑 Archivar descontinuados</button>
   <div class="ctrl-sep"></div>
   <span class="ctrl-label">Buscar</span>
   <input class="ctrl-search" id="searchInput" type="text" placeholder="Modelo o talla..." oninput="render()"/>
@@ -214,6 +267,70 @@ tr.row:hover td:first-child{background:#FAFAF9;}
     </thead>
     <tbody id="tbody"></tbody>
   </table>
+</div>
+
+<!-- Modal: Generar OC -->
+<div class="modal" id="modalPO">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Generar orden de compra</div>
+        <div class="modal-sub" id="poSubtitle">Editá las cantidades antes de confirmar</div>
+      </div>
+      <span class="modal-close" onclick="closeModal('modalPO')">×</span>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:160px;">
+          <label style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);">Fecha estimada llegada</label>
+          <input type="date" id="poEta" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:5px;font-family:var(--fn);font-size:12px;margin-top:4px;outline:none;"/>
+        </div>
+        <div style="flex:2;min-width:200px;">
+          <label style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);">Notas (opcional)</label>
+          <input type="text" id="poNotes" placeholder="Ej: pedido urgente para promo MTH" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:5px;font-family:var(--fn);font-size:12px;margin-top:4px;outline:none;"/>
+        </div>
+      </div>
+      <table class="poi-table" id="poiTable"><thead></thead><tbody></tbody></table>
+      <div style="margin-top:14px;text-align:right;font-size:13px;font-weight:800;">Total pares: <span id="poTotal" style="color:var(--terra);font-size:16px;">0</span></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="exportPOasCsv()" style="flex:1;">Exportar CSV</button>
+      <button class="btn-secondary" onclick="exportPOasText()" style="flex:1;">Copiar texto</button>
+      <button class="btn-primary" onclick="confirmPO()" style="flex:1.5;">Confirmar y guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Lista de POs -->
+<div class="modal" id="modalPOsList">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Órdenes de compra</div>
+        <div class="modal-sub">Histórico y en tránsito</div>
+      </div>
+      <span class="modal-close" onclick="closeModal('modalPOsList')">×</span>
+    </div>
+    <div class="modal-body" id="posListBody"></div>
+  </div>
+</div>
+
+<!-- Modal: Cleanup descontinuados -->
+<div class="modal" id="modalCleanup">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Archivar SKUs descontinuados</div>
+        <div class="modal-sub" id="cleanupSub">Estos productos NO se han vendido en 90+ días</div>
+      </div>
+      <span class="modal-close" onclick="closeModal('modalCleanup')">×</span>
+    </div>
+    <div class="modal-body" id="cleanupBody"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalCleanup')" style="flex:1;">Cancelar</button>
+      <button class="btn-primary btn-danger" onclick="confirmArchive()" style="flex:2;" id="cleanupConfirmBtn">Archivar en Shopify</button>
+    </div>
+  </div>
 </div>
 
 <!-- Settings drawer -->
@@ -328,6 +445,8 @@ function setFilter(f) {
   _filter = f;
   document.querySelectorAll("#filterSeg .seg-btn").forEach(b =>
     b.classList.toggle("active", b.dataset.filter === f));
+  // Cleanup button visible solo en filter "discontinued"
+  document.getElementById("cleanupBtn").classList.toggle("hidden", f !== "discontinued");
   render();
 }
 
@@ -340,12 +459,13 @@ function setSort(s) {
 
 function passesFilter(sku) {
   const f = _filter;
-  if (f === "all")      return true;
-  if (f === "critical") return sku.status === "critical" || sku.status === "out";
-  if (f === "alert")    return sku.status === "alert";
-  if (f === "warn")     return sku.status === "warn";
-  if (f === "dead")     return sku.status === "dead";
-  if (f === "action")   return sku.status === "out" || sku.status === "critical" || sku.status === "alert";
+  if (f === "all")          return true;
+  if (f === "critical")     return sku.status === "critical" || sku.status === "out";
+  if (f === "alert")        return sku.status === "alert";
+  if (f === "warn")         return sku.status === "warn";
+  if (f === "dead")         return sku.status === "dead";
+  if (f === "discontinued") return sku.status === "discontinued";
+  if (f === "action")       return sku.status === "out" || sku.status === "critical" || sku.status === "alert";
   return true;
 }
 
@@ -354,19 +474,21 @@ function render() {
   const search = (document.getElementById("searchInput").value || "").toLowerCase().trim();
 
   // Counts (independent of filter)
-  const counts = { all:0, action:0, critical:0, warn:0, dead:0 };
+  const counts = { all:0, action:0, critical:0, warn:0, dead:0, discontinued:0 };
   _data.skus.forEach(s => {
     counts.all++;
     if (s.status === "out" || s.status === "critical" || s.status === "alert") counts.action++;
     if (s.status === "out" || s.status === "critical") counts.critical++;
-    if (s.status === "warn") counts.warn++;
-    if (s.status === "dead") counts.dead++;
+    if (s.status === "warn")          counts.warn++;
+    if (s.status === "dead")          counts.dead++;
+    if (s.status === "discontinued")  counts.discontinued++;
   });
-  document.getElementById("cntAll").textContent      = counts.all;
-  document.getElementById("cntAction").textContent   = counts.action;
-  document.getElementById("cntCritical").textContent = counts.critical;
-  document.getElementById("cntWarn").textContent     = counts.warn;
-  document.getElementById("cntDead").textContent     = counts.dead;
+  document.getElementById("cntAll").textContent          = counts.all;
+  document.getElementById("cntAction").textContent       = counts.action;
+  document.getElementById("cntCritical").textContent     = counts.critical;
+  document.getElementById("cntWarn").textContent         = counts.warn;
+  document.getElementById("cntDead").textContent         = counts.dead;
+  document.getElementById("cntDiscontinued").textContent = counts.discontinued;
 
   // Filter + search
   let list = _data.skus.filter(passesFilter);
@@ -427,12 +549,13 @@ function render() {
       ? `<span class="num big terra">${s.suggested_order}</span>`
       : `<span class="num muted">—</span>`;
     const sizeBadge = s.size ? `<span class="prod-size">T${s.size}</span>` : "";
+    const transit = transitBadge(s.in_transit_qty);
     return `<tr class="row">
       <td>
         <div class="prod">
           ${img}
           <div class="prod-info">
-            <div class="prod-title">${s.product_title || s.sku || "—"}</div>
+            <div class="prod-title">${s.product_title || s.sku || "—"}${transit}</div>
             <div class="prod-meta">${sizeBadge}${s.sku || ""}</div>
           </div>
         </div>
@@ -484,8 +607,344 @@ function resetSettings() {
   applyParamsToDrawer();
 }
 
+// ── In-transit indicator en row de tabla ──────────────────────────────────────
+// Sobrescribir el render del prod-meta para mostrar transit-badge si aplica
+// (esto se hace inline en el render principal — agregamos helper)
+function transitBadge(qty) {
+  if (!qty || qty <= 0) return "";
+  return `<span class="transit-badge" title="${qty} pares en OC abierta">↗ ${qty}</span>`;
+}
+
+// ── Modales helpers ───────────────────────────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.add("show"); }
+function closeModal(id) { document.getElementById(id).classList.remove("show"); }
+
+// ── POs (purchase orders) ─────────────────────────────────────────────────────
+let _pos = []; // POs cargadas
+
+async function loadPOs() {
+  try {
+    const r = await fetch("/api/restock-pos?status=open");
+    if (!r.ok) return;
+    const { pos } = await r.json();
+    _pos = pos || [];
+    renderPOsPanel();
+  } catch(e) {
+    console.warn("[POs] error:", e);
+  }
+}
+
+function renderPOsPanel() {
+  const panel = document.getElementById("posPanel");
+  const chips = document.getElementById("posChips");
+  const badge = document.getElementById("posBadge");
+
+  if (_pos.length === 0) {
+    panel.classList.remove("show");
+    badge.style.display = "none";
+    return;
+  }
+  panel.classList.add("show");
+  badge.style.display = "";
+  badge.textContent = _pos.length;
+
+  chips.innerHTML = _pos.map(po => {
+    const eta = po.eta_date ? new Date(po.eta_date + "T00:00:00").toLocaleDateString("es-MX",{day:"numeric",month:"short"}) : "—";
+    return `<span class="po-chip" onclick="showPODetail('${po.po_id}')">
+      <span class="po-chip-id">${po.po_id}</span>
+      <span class="po-chip-meta">${po.total_pares} pares · ETA ${eta}</span>
+    </span>`;
+  }).join("");
+}
+
+function openPOsList() {
+  const body = document.getElementById("posListBody");
+  if (_pos.length === 0) {
+    body.innerHTML = `<div style="padding:30px 0;text-align:center;color:var(--muted);">No hay órdenes de compra abiertas</div>`;
+  } else {
+    body.innerHTML = _pos.map(po => {
+      const created = new Date(po.created_at).toLocaleString("es-MX",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
+      const eta = po.eta_date ? new Date(po.eta_date + "T00:00:00").toLocaleDateString("es-MX",{day:"numeric",month:"short",year:"numeric"}) : "—";
+      const items = (po.items || []).map(it =>
+        `<div style="font-size:11px;padding:3px 0;color:var(--muted);">· ${it.product_title} T${it.size} — <strong style="color:var(--text);">${it.qty} pares</strong></div>`
+      ).join("");
+      return `<div style="border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div>
+            <div style="font-size:13px;font-weight:800;">${po.po_id}</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">Creado ${created} · ETA ${eta} · ${po.total_pares} pares · por ${po.created_by}</div>
+            ${po.notes ? `<div style="font-size:10px;color:var(--muted);margin-top:3px;font-style:italic;">"${po.notes}"</div>` : ""}
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn-act" onclick="markPOReceived('${po.po_id}')" style="background:var(--green-txt);border-color:var(--green-txt);">Recibida</button>
+            <button class="btn-act-secondary" onclick="cancelPO('${po.po_id}')">Cancelar</button>
+          </div>
+        </div>
+        <div style="border-top:1px solid var(--border2);padding-top:8px;">${items}</div>
+      </div>`;
+    }).join("");
+  }
+  openModal("modalPOsList");
+}
+
+async function markPOReceived(po_id) {
+  if (!confirm(`¿Marcar ${po_id} como recibida? Esto actualizará el inventario virtual y la talla saldrá de "en tránsito".`)) return;
+  await patchPO(po_id, { status: "received" });
+}
+
+async function cancelPO(po_id) {
+  if (!confirm(`¿Cancelar ${po_id}? Esto removerá las cantidades del cálculo.`)) return;
+  await patchPO(po_id, { status: "cancelled" });
+}
+
+async function patchPO(po_id, update) {
+  try {
+    const r = await fetch(`/api/restock-pos?id=${po_id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(update),
+    });
+    if (!r.ok) throw new Error(await r.text());
+    closeModal("modalPOsList");
+    await loadPOs();
+    refreshData(true);
+  } catch(e) {
+    alert("Error: " + e.message);
+  }
+}
+
+function showPODetail(po_id) {
+  openPOsList();
+}
+
+// ── Generar OC ────────────────────────────────────────────────────────────────
+let _poDraft = []; // items en draft del modal Generar OC
+
+function openGeneratePO() {
+  if (!_data) return;
+  // Items por default: todos los SKUs en estado out/critical/alert con suggested_order > 0
+  const candidates = _data.skus
+    .filter(s => ['out','critical','alert'].includes(s.status) && s.suggested_order > 0)
+    .sort((a,b) => a.days_until_stockout - b.days_until_stockout);
+
+  if (candidates.length === 0) {
+    alert("No hay SKUs en estado crítico/out/alert con sugerencia. Revisa el filtro 'Pedir ya'.");
+    return;
+  }
+
+  _poDraft = candidates.map(s => ({
+    variant_id:    s.variant_id,
+    sku:           s.sku,
+    product_title: s.product_title,
+    size:          s.size,
+    qty:           s.suggested_order,
+    image:         s.image,
+    velocity:      s.velocity_per_day,
+    stock:         s.stock_current,
+  }));
+
+  // Default ETA = hoy + lead_time
+  const eta = new Date(Date.now() + _params.leadTime * 24*60*60*1000);
+  document.getElementById("poEta").value = eta.toISOString().slice(0,10);
+  document.getElementById("poNotes").value = "";
+
+  document.getElementById("poSubtitle").textContent =
+    `${_poDraft.length} SKUs sugeridos. Editá cantidades o quita los que no quieras pedir.`;
+
+  renderPODraft();
+  openModal("modalPO");
+}
+
+function renderPODraft() {
+  const tbl = document.getElementById("poiTable");
+  tbl.querySelector("thead").innerHTML = `<tr>
+    <th style="min-width:200px;">Modelo</th>
+    <th>Talla</th>
+    <th>Stock</th>
+    <th>Vel/día</th>
+    <th>Pedir</th>
+    <th></th>
+  </tr>`;
+  tbl.querySelector("tbody").innerHTML = _poDraft.map((it, i) => `
+    <tr>
+      <td><strong>${it.product_title}</strong></td>
+      <td><span class="prod-size">T${it.size}</span></td>
+      <td><span class="num">${it.stock}</span></td>
+      <td><span class="num">${it.velocity.toFixed(2)}</span></td>
+      <td><input type="number" class="qty-edit" min="0" value="${it.qty}" onchange="updatePOQty(${i}, this.value)"/></td>
+      <td><span class="poi-remove" onclick="removePOItem(${i})" title="Remover de la OC">✕</span></td>
+    </tr>`).join("");
+
+  const total = _poDraft.reduce((s, it) => s + (parseInt(it.qty) || 0), 0);
+  document.getElementById("poTotal").textContent = total;
+}
+
+function updatePOQty(idx, val) {
+  _poDraft[idx].qty = Math.max(0, parseInt(val) || 0);
+  // No re-render full — solo total
+  const total = _poDraft.reduce((s, it) => s + (parseInt(it.qty) || 0), 0);
+  document.getElementById("poTotal").textContent = total;
+}
+
+function removePOItem(idx) {
+  _poDraft.splice(idx, 1);
+  renderPODraft();
+}
+
+async function confirmPO() {
+  const items = _poDraft.filter(it => it.qty > 0).map(it => ({
+    variant_id:    it.variant_id,
+    sku:           it.sku,
+    product_title: it.product_title,
+    size:          it.size,
+    qty:           it.qty,
+  }));
+
+  if (items.length === 0) {
+    alert("La OC está vacía. Aumentá las cantidades o cancela.");
+    return;
+  }
+
+  const eta_date = document.getElementById("poEta").value || null;
+  const notes    = document.getElementById("poNotes").value || "";
+  const user     = JSON.parse(localStorage.getItem("bdg_user") || "{}");
+
+  try {
+    const r = await fetch("/api/restock-pos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        eta_date, notes, items,
+        created_by: user.nombre || user.email || "—",
+      }),
+    });
+    if (!r.ok) throw new Error(await r.text());
+    const { po } = await r.json();
+    alert(`✅ OC ${po.po_id} guardada con ${po.total_pares} pares.\n\nLos SKUs aparecerán como "en tránsito" y se ajustará la sugerencia automáticamente.`);
+    closeModal("modalPO");
+    await loadPOs();
+    refreshData(true);
+  } catch(e) {
+    alert("Error guardando OC: " + e.message);
+  }
+}
+
+function exportPOasCsv() {
+  const rows = [["SKU","Modelo","Talla","Cantidad","Stock actual","Vel/día"]];
+  _poDraft.filter(it => it.qty > 0).forEach(it =>
+    rows.push([it.sku, it.product_title, it.size, it.qty, it.stock, it.velocity.toFixed(2)])
+  );
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `OC_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportPOasText() {
+  const lines = ["BDG — Orden de compra propuesta", "=".repeat(50), ""];
+  _poDraft.filter(it => it.qty > 0).forEach(it => {
+    lines.push(`${it.product_title.padEnd(28)} T${it.size}  →  ${it.qty} pares  (SKU: ${it.sku})`);
+  });
+  const total = _poDraft.reduce((s, it) => s + (parseInt(it.qty) || 0), 0);
+  lines.push("", "=".repeat(50), `TOTAL: ${total} pares`);
+  const text = lines.join("\n");
+  navigator.clipboard.writeText(text).then(() =>
+    alert("✅ Texto copiado al portapapeles"),
+  () => prompt("Copia este texto:", text));
+}
+
+// ── Cleanup descontinuados ────────────────────────────────────────────────────
+function openCleanup() {
+  if (!_data) return;
+  const discontinued = _data.skus.filter(s => s.status === "discontinued");
+  // Agrupar por product_id para archivar el producto completo (no por variant)
+  const byProduct = {};
+  discontinued.forEach(s => {
+    if (!byProduct[s.product_id]) byProduct[s.product_id] = { product_id: s.product_id, title: s.product_title, variants: [] };
+    byProduct[s.product_id].variants.push(s);
+  });
+  // Solo archivamos productos donde TODAS las variantes estén descontinuadas
+  const allDiscByProductId = {};
+  _data.skus.forEach(s => {
+    if (!allDiscByProductId[s.product_id]) allDiscByProductId[s.product_id] = { total: 0, disc: 0, title: s.product_title };
+    allDiscByProductId[s.product_id].total++;
+    if (s.status === "discontinued") allDiscByProductId[s.product_id].disc++;
+  });
+  const fullyDiscontinued = Object.values(allDiscByProductId)
+    .filter(p => p.total === p.disc && p.total > 0)
+    .map(p => ({ product_id: Object.keys(allDiscByProductId).find(k => allDiscByProductId[k] === p), title: p.title }));
+  // Filter out duplicates by product_id
+  const seen = new Set();
+  const unique = fullyDiscontinued.filter(p => {
+    if (seen.has(p.product_id)) return false;
+    seen.add(p.product_id);
+    return true;
+  });
+
+  document.getElementById("cleanupSub").textContent =
+    `${unique.length} productos donde TODAS las variantes están sin rotación. Solo se archivarán productos completos.`;
+
+  document.getElementById("cleanupBody").innerHTML = unique.length === 0
+    ? `<div style="padding:30px 0;text-align:center;color:var(--muted);">No hay productos completamente descontinuados.</div>`
+    : `<div style="background:var(--amber-bg);border:1px solid #F5E0B7;border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:11px;color:var(--amber-txt);line-height:1.6;">
+        ⚠ Esta acción los marcará como <strong>"archived"</strong> en Shopify (no se borran, se pueden restaurar). Quedarán fuera del catálogo activo.
+       </div>
+       <div id="cleanupList">${unique.slice(0, 50).map(p => `<div style="font-size:11px;padding:4px 0;color:var(--muted);">· ${p.title}</div>`).join("")}
+        ${unique.length > 50 ? `<div style="font-size:10px;color:var(--muted2);font-style:italic;margin-top:8px;">y ${unique.length - 50} más...</div>` : ""}
+       </div>`;
+
+  document.getElementById("cleanupConfirmBtn").dataset.ids = JSON.stringify(unique.map(p => p.product_id));
+  document.getElementById("cleanupConfirmBtn").textContent = `Archivar ${unique.length} productos en Shopify`;
+  document.getElementById("cleanupConfirmBtn").disabled = unique.length === 0;
+  openModal("modalCleanup");
+}
+
+async function confirmArchive() {
+  const ids = JSON.parse(document.getElementById("cleanupConfirmBtn").dataset.ids || "[]");
+  if (ids.length === 0) return;
+
+  if (!confirm(`Vas a archivar ${ids.length} productos en Shopify. ¿Continuar?\n\nEsto puede tardar 1-2 minutos por el rate limit.`)) return;
+
+  const btn = document.getElementById("cleanupConfirmBtn");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-big" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:8px;"></span>Archivando...';
+
+  try {
+    // Procesar en chunks de 50 para no exceder el límite del endpoint
+    const chunks = [];
+    for (let i = 0; i < ids.length; i += 50) chunks.push(ids.slice(i, i + 50));
+
+    let totalSucceeded = 0, totalFailed = 0;
+    for (const chunk of chunks) {
+      const r = await fetch("/api/shopify-archive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ product_ids: chunk }),
+      });
+      if (!r.ok) throw new Error(await r.text());
+      const data = await r.json();
+      totalSucceeded += data.succeeded;
+      totalFailed    += data.failed;
+    }
+
+    alert(`✅ Archivado completado.\n\nÉxitos: ${totalSucceeded}\nFallos: ${totalFailed}\n\nRefrescando datos...`);
+    closeModal("modalCleanup");
+    refreshData(true);
+  } catch(e) {
+    alert("Error: " + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = `Archivar productos en Shopify`;
+  }
+}
+
 // ── Boot ──────────────────────────────────────────────────────────────────────
 refreshData();
+loadPOs();
 </script>
 </body>
 </html>

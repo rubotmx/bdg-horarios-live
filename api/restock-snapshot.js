@@ -21,11 +21,13 @@
 import { shopifyFetch, paginateAll, setCors } from "./_shopify.js";
 
 const STORE = "baladigalamx.myshopify.com";
+const FB_SNAPSHOT_URL = "https://bdg-horarios-default-rtdb.firebaseio.com/restock_snapshot/current.json";
 
 // ── Cache en memoria del lambda (10 min) ──────────────────────────────────────
 let _cache = null;
 let _cacheAt = 0;
 const CACHE_TTL_MS = 10 * 60 * 1000;
+const FB_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24h — más viejo que esto, recalculamos
 
 export default async function handler(req, res) {
   setCors(res, req);
@@ -37,12 +39,34 @@ export default async function handler(req, res) {
   const target    = parseInt(req.query.target_days)     || 30;
   const lookback  = parseInt(req.query.lookback_days)   || 90;
   const force     = req.query.force === "1";
+  const usingDefaults = (leadTime === 14 && safety === 7 && target === 30 && lookback === 90);
 
   const cacheKey = `${leadTime}|${safety}|${target}|${lookback}`;
 
-  // Cache hit
+  // 1. Cache en memoria (lambda warm)
   if (!force && _cache && _cache.key === cacheKey && Date.now() - _cacheAt < CACHE_TTL_MS) {
-    return res.status(200).json({ ..._cache.data, _cache: "HIT" });
+    return res.status(200).json({ ..._cache.data, _cache: "HIT_MEMORY" });
+  }
+
+  // 2. Cache persistente en Firebase (solo si usa defaults — el cron solo precalcula esos)
+  if (!force && usingDefaults) {
+    try {
+      const fbResp = await fetch(FB_SNAPSHOT_URL);
+      if (fbResp.ok) {
+        const fbData = await fbResp.json();
+        if (fbData && fbData.computed_at) {
+          const ageMs = Date.now() - new Date(fbData.computed_at).getTime();
+          if (ageMs < FB_CACHE_MAX_AGE_MS) {
+            // Cache fresh — devolverlo
+            _cache = { key: cacheKey, data: fbData };
+            _cacheAt = Date.now();
+            return res.status(200).json({ ...fbData, _cache: "HIT_FIREBASE", _cache_age_minutes: Math.round(ageMs / 60000) });
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("[restock-snapshot] Firebase cache read failed:", e.message);
+    }
   }
 
   try {
@@ -101,7 +125,27 @@ export default async function handler(req, res) {
       }
     }
 
-    // ── 3. Calcular velocity, RP, sugerencia, status ─────────────────────────
+    // ── 3. Pull OCs en tránsito desde Firebase ───────────────────────────────
+    let inTransit = {};
+    try {
+      const fbPos = await fetch("https://bdg-horarios-default-rtdb.firebaseio.com/restock_pos.json");
+      if (fbPos.ok) {
+        const pos = (await fbPos.json()) || {};
+        Object.values(pos).forEach(po => {
+          if (po && po.status === "open" && Array.isArray(po.items)) {
+            po.items.forEach(it => {
+              if (it.variant_id) {
+                inTransit[it.variant_id] = (inTransit[it.variant_id] || 0) + (it.qty || 0);
+              }
+            });
+          }
+        });
+      }
+    } catch (e) {
+      console.warn("[restock-snapshot] Error leyendo POs:", e.message);
+    }
+
+    // ── 4. Calcular velocity, RP, sugerencia, status ─────────────────────────
     const skus = Object.values(variants).map(v => {
       // Velocidad por día — weighted average
       const vel7  = v.sales_7d  / 7;
@@ -117,28 +161,29 @@ export default async function handler(req, res) {
       const target_stock    = velocity_per_day * (leadTime + target);
       const days_until_stockout = velocity_per_day > 0 ? v.stock_current / velocity_per_day : 999;
 
-      // SKU se considera "activo" si vendió en último mes O al menos 3 pares en 90d
-      // Esto filtra ruido: SKUs con 1 venta en 6 meses NO son críticos aunque se acaben
+      // En tránsito (OCs abiertas en Firebase)
+      const in_transit_qty = inTransit[v.variant_id] || 0;
+      const effective_stock = v.stock_current + in_transit_qty;
+
+      // SKU "activo" — vendió en último mes O al menos 3 pares en 90d (filtra ruido)
       const is_active = v.sales_30d > 0 || v.sales_90d >= 3;
 
-      // Si no es activo, no sugerir reorden
+      // Si no es activo, no sugerir reorden. Si tiene en tránsito, restar antes
       const suggested_order = is_active
-        ? Math.max(0, Math.ceil(target_stock - v.stock_current))
+        ? Math.max(0, Math.ceil(target_stock - effective_stock))
         : 0;
 
-      // Status semáforo
+      // Status — usa effective_stock (incluye in-transit)
       let status;
       if (!is_active) {
-        // SKU sin rotación significativa
-        if (v.stock_current > 0)  status = "dead";          // 💀 inventario inmóvil
-        else                       status = "discontinued"; // ⚫ sin stock y sin ventas
+        if (v.stock_current > 0)  status = "dead";
+        else                       status = "discontinued";
       } else {
-        // SKU activo → aplicar lógica de reorder
-        if (v.stock_current <= 0)                          status = "out";       // 🔴 sin stock pero sí vende
-        else if (days_until_stockout < leadTime)           status = "critical";  // 🔴 rompe antes de OC
-        else if (v.stock_current < reorder_point)          status = "alert";     // 🟠 cruzó reorder point
-        else if (v.stock_current < reorder_point * 1.25)  status = "warn";       // 🟡 cerca del reorder
-        else                                                status = "ok";       // 🟢
+        if (effective_stock <= 0)                            status = "out";
+        else if (effective_stock / velocity_per_day < leadTime) status = "critical";
+        else if (effective_stock < reorder_point)            status = "alert";
+        else if (effective_stock < reorder_point * 1.25)     status = "warn";
+        else                                                  status = "ok";
       }
 
       return {
@@ -148,6 +193,7 @@ export default async function handler(req, res) {
         target_stock:          Math.round(target_stock),
         suggested_order,
         days_until_stockout:   Math.round(days_until_stockout * 10) / 10,
+        in_transit_qty,
         status,
       };
     });
