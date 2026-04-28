@@ -117,23 +117,27 @@ export default async function handler(req, res) {
       const target_stock    = velocity_per_day * (leadTime + target);
       const days_until_stockout = velocity_per_day > 0 ? v.stock_current / velocity_per_day : 999;
 
-      // Si no hay rotación, no tiene sentido sugerir reorden
-      const suggested_order = velocity_per_day > 0
+      // SKU se considera "activo" si vendió en último mes O al menos 3 pares en 90d
+      // Esto filtra ruido: SKUs con 1 venta en 6 meses NO son críticos aunque se acaben
+      const is_active = v.sales_30d > 0 || v.sales_90d >= 3;
+
+      // Si no es activo, no sugerir reorden
+      const suggested_order = is_active
         ? Math.max(0, Math.ceil(target_stock - v.stock_current))
         : 0;
 
-      // Status semáforo — separado por si tiene rotación o no
+      // Status semáforo
       let status;
-      if (velocity_per_day === 0) {
-        // Sin rotación reciente
+      if (!is_active) {
+        // SKU sin rotación significativa
         if (v.stock_current > 0)  status = "dead";          // 💀 inventario inmóvil
-        else                       status = "discontinued"; // ⚫ probablemente descontinuado
+        else                       status = "discontinued"; // ⚫ sin stock y sin ventas
       } else {
-        // Con rotación → aplicar lógica de reorder
+        // SKU activo → aplicar lógica de reorder
         if (v.stock_current <= 0)                          status = "out";       // 🔴 sin stock pero sí vende
-        else if (days_until_stockout < leadTime)           status = "critical";  // 🔴 va a romper antes de llegar OC
+        else if (days_until_stockout < leadTime)           status = "critical";  // 🔴 rompe antes de OC
         else if (v.stock_current < reorder_point)          status = "alert";     // 🟠 cruzó reorder point
-        else if (v.stock_current < reorder_point * 1.25)   status = "warn";      // 🟡 cerca del reorder
+        else if (v.stock_current < reorder_point * 1.25)  status = "warn";       // 🟡 cerca del reorder
         else                                                status = "ok";       // 🟢
       }
 
