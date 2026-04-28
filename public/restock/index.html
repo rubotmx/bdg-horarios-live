@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>BDG · Restock</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;900&family=Jost:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#F4F2EF;--surface:#FFFFFF;--border:#E4E0DB;--border2:#EDEAE6;
+  --text:#0E0E0E;--muted:#8A857F;--muted2:#C2BCB6;
+  --terra:#c16452;--terra-light:#fdf0ed;--terra-dark:#9d4f3f;
+  --green-bg:#EBF5EE;--green-txt:#1B6E3E;
+  --amber-bg:#FFF8E6;--amber-txt:#B75000;
+  --red-bg:#FDECEA;--red-txt:#C62828;
+  --critical-bg:#7F1D1D;--critical-txt:#FECACA;
+  --dead-bg:#1F1F1F;--dead-txt:#A1A1AA;
+  --fn:'Archivo',sans-serif;--fl:'Jost',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--fn);overflow:hidden;}
+body{display:flex;flex-direction:column;}
+
+/* TOPBAR */
+.topbar{height:48px;background:#0E0E0E;display:flex;align-items:center;padding:0 20px;flex-shrink:0;gap:12px;}
+.logo{font-family:var(--fl);font-size:14px;font-weight:700;color:#fff;letter-spacing:.18em;}
+.logo span{color:var(--terra);}
+.topbar-divider{width:1px;height:20px;background:rgba(255,255,255,.12);}
+.topbar-sub{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.32);}
+.tp-date{font-size:9px;color:rgba(255,255,255,.18);letter-spacing:.06em;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:14px;}
+.btn-back{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.28);text-decoration:none;}
+.btn-back:hover{color:var(--terra);}
+.btn-icon{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.5);background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:4px;padding:4px 10px;cursor:pointer;font-family:var(--fn);}
+.btn-icon:hover{background:rgba(193,100,82,.2);color:var(--terra);}
+
+/* CONTROLS */
+.controls{display:flex;align-items:center;gap:8px;padding:10px 20px;border-bottom:1px solid var(--border);background:var(--surface);overflow-x:auto;flex-shrink:0;}
+.controls::-webkit-scrollbar{display:none;}
+.ctrl-label{font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted2);white-space:nowrap;}
+.ctrl-sep{width:1px;height:20px;background:var(--border);}
+.seg{display:flex;gap:4px;}
+.seg-btn{padding:5px 12px;border:1px solid var(--border);border-radius:999px;background:var(--surface);font-family:var(--fn);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .14s;}
+.seg-btn:hover{border-color:var(--terra);color:var(--terra-dark);}
+.seg-btn.active{background:var(--terra);color:#fff;border-color:var(--terra);}
+.seg-btn .badge{background:rgba(255,255,255,.18);color:#fff;border-radius:999px;padding:1px 6px;font-size:9px;margin-left:4px;font-weight:800;}
+.seg-btn:not(.active) .badge{background:var(--bg);color:var(--text);}
+.ctrl-search{padding:5px 12px;border:1px solid var(--border);border-radius:999px;font-family:var(--fn);font-size:10px;color:var(--text);background:var(--surface);outline:none;width:140px;}
+.ctrl-search:focus{border-color:var(--terra);}
+.ctrl-search::placeholder{color:var(--muted2);}
+
+/* KPI strip */
+.kpi-strip{display:flex;gap:1px;background:var(--border);border-bottom:1px solid var(--border);flex-shrink:0;}
+.kpi-cell{flex:1;padding:11px 14px;background:var(--surface);min-width:120px;}
+.kpi-lbl{font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px;}
+.kpi-val{font-size:18px;font-weight:900;letter-spacing:-.03em;line-height:1;color:var(--text);}
+.kpi-val.critical{color:#7F1D1D;}
+.kpi-val.alert{color:var(--red-txt);}
+.kpi-val.warn{color:var(--amber-txt);}
+.kpi-val.good{color:var(--green-txt);}
+.kpi-val.terra{color:var(--terra);}
+.kpi-sub{font-size:8px;color:var(--muted2);margin-top:3px;}
+
+/* States */
+.state-panel{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:40px 20px;}
+.state-icon{font-size:44px;opacity:.7;}
+.state-title{font-size:16px;font-weight:700;}
+.state-sub{font-size:12px;color:var(--muted);text-align:center;max-width:340px;line-height:1.7;}
+.spinner-big{width:38px;height:38px;border:3px solid var(--border);border-top-color:var(--terra);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TABLE */
+.table-wrap{flex:1;overflow:auto;}
+table{width:100%;border-collapse:collapse;min-width:900px;}
+thead th{position:sticky;top:0;z-index:10;background:#0E0E0E;font-family:var(--fn);font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.5);padding:11px 10px;white-space:nowrap;text-align:center;}
+thead th:first-child{text-align:left;position:sticky;left:0;z-index:20;background:#0E0E0E;padding-left:16px;}
+thead th.th-action{color:var(--terra);background:#1a1a1a;}
+tr.row{transition:background .1s;}
+tr.row:hover{background:#FAFAF9;}
+tr.row td{padding:9px 10px;border-bottom:1px solid var(--border2);font-size:11px;}
+tr.row td:first-child{position:sticky;left:0;background:var(--surface);z-index:5;padding-left:16px;}
+tr.row:hover td:first-child{background:#FAFAF9;}
+
+/* Status badges */
+.status{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:3px;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;}
+.status-out{background:#1F1F1F;color:#FFF;}
+.status-critical{background:#7F1D1D;color:#FFF;}
+.status-alert{background:var(--red-bg);color:var(--red-txt);}
+.status-warn{background:var(--amber-bg);color:var(--amber-txt);}
+.status-ok{background:var(--green-bg);color:var(--green-txt);}
+.status-dead{background:var(--dead-bg);color:var(--dead-txt);}
+
+/* Number cells */
+.num{text-align:center;font-weight:700;letter-spacing:-.02em;font-feature-settings:'tnum';}
+.num.big{font-size:13px;}
+.num.muted{color:var(--muted2);font-weight:500;}
+.num.terra{color:var(--terra);font-weight:800;}
+.num.red{color:var(--red-txt);font-weight:800;}
+
+/* Product cell */
+.prod{display:flex;align-items:center;gap:9px;}
+.prod-thumb{width:34px;height:34px;border-radius:4px;object-fit:cover;background:var(--bg);flex-shrink:0;border:1px solid var(--border2);}
+.prod-thumb-ph{width:34px;height:34px;border-radius:4px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;border:1px solid var(--border2);}
+.prod-info{min-width:0;}
+.prod-title{font-size:11px;font-weight:700;line-height:1.2;}
+.prod-meta{font-size:9px;color:var(--muted);margin-top:2px;letter-spacing:.04em;}
+.prod-size{display:inline-block;background:var(--terra-light);color:var(--terra-dark);font-weight:800;padding:1px 5px;border-radius:3px;font-size:9px;margin-right:4px;}
+
+/* Settings drawer */
+.drawer{position:fixed;top:0;right:0;bottom:0;width:340px;max-width:90vw;background:var(--surface);border-left:1px solid var(--border);transform:translateX(100%);transition:transform .25s ease;z-index:1000;display:flex;flex-direction:column;box-shadow:-8px 0 32px rgba(0,0,0,.08);}
+.drawer.show{transform:translateX(0);}
+.drawer-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.drawer-title{font-size:14px;font-weight:900;letter-spacing:-.02em;}
+.drawer-close{font-size:22px;color:var(--muted2);cursor:pointer;line-height:1;}
+.drawer-close:hover{color:var(--terra);}
+.drawer-body{flex:1;overflow-y:auto;padding:18px 20px;}
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:999;display:none;}
+.drawer-overlay.show{display:block;}
+.field{margin-bottom:18px;}
+.field label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text);margin-bottom:6px;}
+.field input{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--fn);font-size:13px;color:var(--text);outline:none;}
+.field input:focus{border-color:var(--terra);}
+.field .field-hint{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.5;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.btn-primary{width:100%;padding:11px;background:var(--terra);color:#fff;border:none;border-radius:6px;font-family:var(--fn);font-size:12px;font-weight:700;letter-spacing:.06em;cursor:pointer;}
+.btn-primary:hover{background:var(--terra-dark);}
+.btn-secondary{width:100%;padding:10px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;font-family:var(--fn);font-size:12px;font-weight:600;cursor:pointer;margin-top:8px;}
+.btn-secondary:hover{border-color:var(--terra);color:var(--terra);}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:var(--muted2);border-radius:2px;}
+
+.hidden{display:none!important;}
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="logo">BDG<span>·</span>HQ</div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-sub">Restock Inteligente</div>
+  <span class="tp-date" id="topDate"></span>
+  <div class="topbar-right">
+    <button class="btn-icon" onclick="openSettings()">⚙ Parámetros</button>
+    <button class="btn-icon" onclick="refreshData(true)">↻ Refrescar</button>
+    <a class="btn-back" href="/">← HQ</a>
+  </div>
+</div>
+
+<!-- Controls -->
+<div class="controls">
+  <span class="ctrl-label">Estado</span>
+  <div class="seg" id="filterSeg">
+    <button class="seg-btn active" data-filter="action" onclick="setFilter('action')">Pedir ya <span class="badge" id="cntAction">0</span></button>
+    <button class="seg-btn" data-filter="critical" onclick="setFilter('critical')">Crítico <span class="badge" id="cntCritical">0</span></button>
+    <button class="seg-btn" data-filter="warn" onclick="setFilter('warn')">Advertencia <span class="badge" id="cntWarn">0</span></button>
+    <button class="seg-btn" data-filter="dead" onclick="setFilter('dead')">Muerto <span class="badge" id="cntDead">0</span></button>
+    <button class="seg-btn" data-filter="all" onclick="setFilter('all')">Todos <span class="badge" id="cntAll">0</span></button>
+  </div>
+  <div class="ctrl-sep"></div>
+  <span class="ctrl-label">Buscar</span>
+  <input class="ctrl-search" id="searchInput" type="text" placeholder="Modelo o talla..." oninput="render()"/>
+  <div class="ctrl-sep"></div>
+  <span class="ctrl-label">Orden</span>
+  <div class="seg">
+    <button class="seg-btn active" data-sort="urgency" onclick="setSort('urgency')">Urgencia</button>
+    <button class="seg-btn" data-sort="velocity" onclick="setSort('velocity')">Velocidad</button>
+    <button class="seg-btn" data-sort="qty" onclick="setSort('qty')">Cantidad</button>
+  </div>
+</div>
+
+<!-- KPI -->
+<div class="kpi-strip" id="kpiStrip" style="display:none;"></div>
+
+<!-- Loading -->
+<div class="state-panel" id="loadingState">
+  <div class="spinner-big"></div>
+  <div class="state-title">Calculando…</div>
+  <div class="state-sub">Estamos analizando el inventario actual y las ventas de los últimos 90 días para identificar qué necesitas pedir.</div>
+</div>
+
+<!-- Empty -->
+<div class="state-panel hidden" id="emptyState">
+  <div class="state-icon">✅</div>
+  <div class="state-title">Todo bajo control</div>
+  <div class="state-sub">No hay variantes que requieran reorden con los parámetros actuales.</div>
+</div>
+
+<!-- Error -->
+<div class="state-panel hidden" id="errorState">
+  <div class="state-icon">⚠</div>
+  <div class="state-title">Error cargando datos</div>
+  <div class="state-sub" id="errorMsg"></div>
+  <button class="btn-primary" style="max-width:200px;margin-top:8px;" onclick="refreshData(true)">Reintentar</button>
+</div>
+
+<!-- Table -->
+<div class="table-wrap hidden" id="tableWrap">
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align:left;min-width:240px;">Modelo · Talla</th>
+        <th>Stock</th>
+        <th>Vel/día</th>
+        <th>Días restantes</th>
+        <th>Reorder Pt</th>
+        <th>Estado</th>
+        <th class="th-action">Pedir</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<!-- Settings drawer -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeSettings()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-title">Parámetros del modelo</div>
+    <span class="drawer-close" onclick="closeSettings()">×</span>
+  </div>
+  <div class="drawer-body">
+    <div class="field">
+      <label>Lead time (días)</label>
+      <input type="number" id="paramLead" min="1" max="120" value="14"/>
+      <div class="field-hint">Cuántos días tarda la fábrica desde que mandas la OC hasta que tienes el producto en bodega.</div>
+    </div>
+    <div class="field">
+      <label>Stock de seguridad (días)</label>
+      <input type="number" id="paramSafety" min="0" max="60" value="7"/>
+      <div class="field-hint">Días extra de cobertura para absorber picos de venta o retrasos. Más alto = menos riesgo de rotura, más capital inmovilizado.</div>
+    </div>
+    <div class="field">
+      <label>Días objetivo (target)</label>
+      <input type="number" id="paramTarget" min="7" max="120" value="30"/>
+      <div class="field-hint">Cuántos días de inventario quieres tener después de recibir la OC. 30 = un mes de stock.</div>
+    </div>
+    <div class="field">
+      <label>Histórico de análisis (días)</label>
+      <input type="number" id="paramLookback" min="14" max="365" value="90"/>
+      <div class="field-hint">Cuánto historial de ventas usar para calcular velocidad. Más datos = más estable, pero menos sensible a tendencias recientes.</div>
+    </div>
+    <button class="btn-primary" onclick="applySettings()">Aplicar y recalcular</button>
+    <button class="btn-secondary" onclick="resetSettings()">Restaurar defaults</button>
+
+    <div style="margin-top:24px;padding:14px;background:var(--bg);border-radius:6px;font-size:10px;color:var(--muted);line-height:1.7;">
+      <strong style="color:var(--text);">Cómo se calcula:</strong><br>
+      • <strong>Velocidad</strong>: weighted average de ventas (50% últimos 7d, 30% 30d, 20% 90d)<br>
+      • <strong>Reorder point</strong> = velocidad × lead_time + (velocidad × safety_days)<br>
+      • <strong>Cantidad sugerida</strong> = max(0, target_stock − stock_actual)<br>
+      • <strong>Días restantes</strong> = stock_actual / velocidad
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+let _data = null;
+let _filter = "action";
+let _sort = "urgency";
+let _params = loadParams();
+
+function loadParams() {
+  try {
+    const raw = localStorage.getItem("bdg_restock_params");
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { leadTime: 14, safety: 7, target: 30, lookback: 90 };
+}
+function saveParams() {
+  localStorage.setItem("bdg_restock_params", JSON.stringify(_params));
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+function applyParamsToDrawer() {
+  document.getElementById("paramLead").value     = _params.leadTime;
+  document.getElementById("paramSafety").value   = _params.safety;
+  document.getElementById("paramTarget").value   = _params.target;
+  document.getElementById("paramLookback").value = _params.lookback;
+}
+applyParamsToDrawer();
+
+// ── Data ──────────────────────────────────────────────────────────────────────
+async function refreshData(force = false) {
+  showState("loadingState");
+  try {
+    const qs = new URLSearchParams({
+      lead_time_days: _params.leadTime,
+      safety_days:    _params.safety,
+      target_days:    _params.target,
+      lookback_days:  _params.lookback,
+      ...(force ? { force: "1" } : {})
+    }).toString();
+    const res = await fetch(`/api/restock-snapshot?${qs}`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    _data = await res.json();
+    updateTopDate();
+    render();
+  } catch(e) {
+    document.getElementById("errorMsg").textContent = e.message;
+    showState("errorState");
+  }
+}
+
+function updateTopDate() {
+  if (!_data?.computed_at) return;
+  const d = new Date(_data.computed_at);
+  document.getElementById("topDate").textContent =
+    `· Calculado ${d.toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}`;
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function showState(id) {
+  ["loadingState","emptyState","errorState","tableWrap"].forEach(s =>
+    document.getElementById(s).classList.toggle("hidden", s !== id)
+  );
+  document.getElementById("kpiStrip").style.display = (id === "tableWrap") ? "" : "none";
+}
+
+function setFilter(f) {
+  _filter = f;
+  document.querySelectorAll("#filterSeg .seg-btn").forEach(b =>
+    b.classList.toggle("active", b.dataset.filter === f));
+  render();
+}
+
+function setSort(s) {
+  _sort = s;
+  document.querySelectorAll("[data-sort]").forEach(b =>
+    b.classList.toggle("active", b.dataset.sort === s));
+  render();
+}
+
+function passesFilter(sku) {
+  const f = _filter;
+  if (f === "all")      return true;
+  if (f === "critical") return sku.status === "critical" || sku.status === "out";
+  if (f === "alert")    return sku.status === "alert";
+  if (f === "warn")     return sku.status === "warn";
+  if (f === "dead")     return sku.status === "dead";
+  if (f === "action")   return sku.status === "out" || sku.status === "critical" || sku.status === "alert";
+  return true;
+}
+
+function render() {
+  if (!_data) return;
+  const search = (document.getElementById("searchInput").value || "").toLowerCase().trim();
+
+  // Counts (independent of filter)
+  const counts = { all:0, action:0, critical:0, warn:0, dead:0 };
+  _data.skus.forEach(s => {
+    counts.all++;
+    if (s.status === "out" || s.status === "critical" || s.status === "alert") counts.action++;
+    if (s.status === "out" || s.status === "critical") counts.critical++;
+    if (s.status === "warn") counts.warn++;
+    if (s.status === "dead") counts.dead++;
+  });
+  document.getElementById("cntAll").textContent      = counts.all;
+  document.getElementById("cntAction").textContent   = counts.action;
+  document.getElementById("cntCritical").textContent = counts.critical;
+  document.getElementById("cntWarn").textContent     = counts.warn;
+  document.getElementById("cntDead").textContent     = counts.dead;
+
+  // Filter + search
+  let list = _data.skus.filter(passesFilter);
+  if (search) {
+    list = list.filter(s =>
+      (s.product_title || "").toLowerCase().includes(search) ||
+      (s.sku || "").toLowerCase().includes(search) ||
+      String(s.size).includes(search)
+    );
+  }
+
+  // Sort
+  if (_sort === "urgency") {
+    const order = { critical: 0, out: 1, alert: 2, warn: 3, dead: 4, ok: 5 };
+    list.sort((a, b) => {
+      const oa = order[a.status] ?? 9, ob = order[b.status] ?? 9;
+      if (oa !== ob) return oa - ob;
+      return a.days_until_stockout - b.days_until_stockout;
+    });
+  } else if (_sort === "velocity") {
+    list.sort((a, b) => b.velocity_per_day - a.velocity_per_day);
+  } else if (_sort === "qty") {
+    list.sort((a, b) => b.suggested_order - a.suggested_order);
+  }
+
+  // KPIs
+  const totalSuggest = list.reduce((s, x) => s + x.suggested_order, 0);
+  const avgDaysLeft  = list.length ? list.reduce((s,x)=>s+(x.days_until_stockout < 999 ? x.days_until_stockout : 0),0) / list.length : 0;
+  document.getElementById("kpiStrip").innerHTML = `
+    <div class="kpi-cell"><div class="kpi-lbl">SKUs en vista</div><div class="kpi-val">${list.length}</div><div class="kpi-sub">de ${counts.all} totales</div></div>
+    <div class="kpi-cell"><div class="kpi-lbl">Pedir ya</div><div class="kpi-val alert">${counts.action}</div><div class="kpi-sub">SKUs requieren OC</div></div>
+    <div class="kpi-cell"><div class="kpi-lbl">Crítico / Sin stock</div><div class="kpi-val critical">${counts.critical}</div><div class="kpi-sub">en peligro inmediato</div></div>
+    <div class="kpi-cell"><div class="kpi-lbl">Pares sugeridos</div><div class="kpi-val terra">${totalSuggest}</div><div class="kpi-sub">total a producir</div></div>
+    <div class="kpi-cell"><div class="kpi-lbl">Días restantes prom.</div><div class="kpi-val warn">${avgDaysLeft.toFixed(1)}</div><div class="kpi-sub">cobertura del stock</div></div>`;
+
+  // Empty state
+  if (list.length === 0) {
+    document.getElementById("kpiStrip").style.display = "";
+    document.getElementById("tableWrap").classList.add("hidden");
+    document.getElementById("emptyState").classList.remove("hidden");
+    document.getElementById("loadingState").classList.add("hidden");
+    document.getElementById("errorState").classList.add("hidden");
+    return;
+  }
+
+  // Table
+  showState("tableWrap");
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = list.map(s => {
+    const img = s.image
+      ? `<img class="prod-thumb" src="${s.image}" loading="lazy" crossorigin="anonymous" onerror="this.outerHTML='<div class=&quot;prod-thumb-ph&quot;>👟</div>'"/>`
+      : `<div class="prod-thumb-ph">👟</div>`;
+    const days = s.days_until_stockout >= 999
+      ? `<span class="num muted">—</span>`
+      : `<span class="num ${s.days_until_stockout < _params.leadTime ? 'red' : (s.days_until_stockout < _params.leadTime + _params.safety ? 'terra' : '')}">${s.days_until_stockout}</span>`;
+    const stockClass = s.stock_current === 0 ? 'red' : (s.stock_current < s.reorder_point ? 'terra' : '');
+    const orderTxt = s.suggested_order > 0
+      ? `<span class="num big terra">${s.suggested_order}</span>`
+      : `<span class="num muted">—</span>`;
+    const sizeBadge = s.size ? `<span class="prod-size">T${s.size}</span>` : "";
+    return `<tr class="row">
+      <td>
+        <div class="prod">
+          ${img}
+          <div class="prod-info">
+            <div class="prod-title">${s.product_title || s.sku || "—"}</div>
+            <div class="prod-meta">${sizeBadge}${s.sku || ""}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="num big ${stockClass}">${s.stock_current}</span></td>
+      <td><span class="num">${s.velocity_per_day.toFixed(2)}</span></td>
+      <td>${days}</td>
+      <td><span class="num muted">${s.reorder_point}</span></td>
+      <td><span class="status status-${s.status}">${labelFor(s.status)}</span></td>
+      <td>${orderTxt}</td>
+    </tr>`;
+  }).join("");
+}
+
+function labelFor(status) {
+  return {
+    out:      "Sin stock",
+    critical: "Crítico",
+    alert:    "Pedir ya",
+    warn:     "Advertencia",
+    ok:       "Sano",
+    dead:     "Sin rotación",
+  }[status] || status;
+}
+
+// ── Settings drawer ───────────────────────────────────────────────────────────
+function openSettings() {
+  applyParamsToDrawer();
+  document.getElementById("drawer").classList.add("show");
+  document.getElementById("drawerOverlay").classList.add("show");
+}
+function closeSettings() {
+  document.getElementById("drawer").classList.remove("show");
+  document.getElementById("drawerOverlay").classList.remove("show");
+}
+function applySettings() {
+  _params.leadTime = parseInt(document.getElementById("paramLead").value)     || 14;
+  _params.safety   = parseInt(document.getElementById("paramSafety").value)   || 7;
+  _params.target   = parseInt(document.getElementById("paramTarget").value)   || 30;
+  _params.lookback = parseInt(document.getElementById("paramLookback").value) || 90;
+  saveParams();
+  closeSettings();
+  refreshData(true);
+}
+function resetSettings() {
+  _params = { leadTime: 14, safety: 7, target: 30, lookback: 90 };
+  saveParams();
+  applyParamsToDrawer();
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+refreshData();
+</script>
+</body>
+</html>
