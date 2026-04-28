@@ -8,7 +8,12 @@
 
     "bdg_horarios_v2": {
       ".read": true,
-      ".write": "auth != null"
+      ".write": "auth != null",
+
+      "pulse_channels": {
+        ".read": true,
+        ".write": true
+      }
     },
 
     "restock_snapshot": {

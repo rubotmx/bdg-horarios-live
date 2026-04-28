@@ -30,11 +30,17 @@ export default async function handler(req, res) {
     }
 
     try {
-      await fetch(`${FB}/${week}/${channel}.json`, {
+      const fbRes = await fetch(`${FB}/${week}/${channel}.json`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(isNaN(gmvNum) ? 0 : gmvNum),
       });
+      if (!fbRes.ok) {
+        // No fallar silenciosamente: si Firebase rechaza (rules, red, etc.) devolver el error real
+        const txt = await fbRes.text();
+        console.error(`[channels] Firebase rechazó escritura: ${fbRes.status} ${txt}`);
+        return res.status(502).json({ error: `Firebase ${fbRes.status}: ${txt.slice(0, 200)}` });
+      }
       return res.status(200).json({ ok: true });
     } catch (e) {
       return res.status(500).json({ error: e.message });
