@@ -832,6 +832,7 @@ const FB_PATH = "bdg_horarios_v2"; // nodo raíz en Realtime Database
 let _db = null;           // referencia Firebase Database
 let _fbReady = false;     // true cuando Firebase está conectado
 let _fbWriting = false;   // true mientras nosotros escribimos (evita re-render propio)
+let _lastKnownRemoteTs = 0; // último lastModified conocido del servidor (anti-clobber)
 let currentAdminTab = "equipo"; // tab activo en vista admin
 
 let _googleUser = null; // usuario Google pendiente de vincular
@@ -899,6 +900,7 @@ function _applyRemote(remote){
   // Preservar fotos locales — Firebase solo guarda flags (true/false), no el base64
   const localPhotos = (STATE.photos && typeof STATE.photos === "object") ? STATE.photos : {};
   STATE = remote;
+  _lastKnownRemoteTs = remote && remote.lastModified ? remote.lastModified : Date.now();
   if(!STATE.members)   STATE.members   = [];
   if(!STATE.slots)     STATE.slots     = [];
   if(!STATE.picks)     STATE.picks     = [];
@@ -946,7 +948,7 @@ function _sanitizeBeforePush(){
   }
 }
 
-function _pushToFirebase(){
+async function _pushToFirebase(){
   if(!_db) return;
   _sanitizeBeforePush();
 
@@ -954,20 +956,94 @@ function _pushToFirebase(){
   // Firebase solo almacena referencias (flag), no la imagen completa.
   const photoKeys = STATE.photos ? Object.keys(STATE.photos) : [];
   const photoFlags = {};
-  photoKeys.forEach(k => { photoFlags[k] = true; }); // solo marca "tiene foto"
+  photoKeys.forEach(k => { photoFlags[k] = true; });
   const payload = { ...STATE, photos: photoFlags };
 
-  // Aviso si el payload es grande (>2MB)
   const payloadSize = JSON.stringify(payload).length;
   if(payloadSize > 2_000_000) console.warn("[Firebase] payload grande:", Math.round(payloadSize/1024), "KB");
 
+  // Anti-clobber: antes de sobreescribir, verificar que no hay cambios remotos
+  // más recientes que aún no hemos visto (race entre admins, o picks atómicos).
+  // Si los hay, descargar y MERGE PROTECTOR antes de escribir.
+  try {
+    const remoteSnap = await _db.ref(FB_PATH).once("value");
+    const remote = remoteSnap.val();
+    if(remote && remote.lastModified && remote.lastModified > _lastKnownRemoteTs + 1000){
+      // Hay cambios remotos pendientes. Reglar conflictos: traer los nuevos picks
+      // (que pudieron venir de transacciones atómicas) ANTES de sobreescribir todo.
+      console.warn("[Firebase] cambios remotos pendientes detectados — fusionando picks antes de escribir");
+      if(remote.picks){
+        const remotePicks = Array.isArray(remote.picks) ? remote.picks : Object.values(remote.picks);
+        // Estrategia conservadora: tomar la unión de picks remotos y locales basada en (slotId, memberCode)
+        const merged = remotePicks.slice();
+        (STATE.picks || []).forEach(localP => {
+          const exists = merged.find(rp =>
+            rp.slotId === localP.slotId && rp.memberCode === localP.memberCode
+          );
+          if(!exists) merged.push(localP);
+        });
+        STATE.picks = merged;
+        payload.picks = merged;
+      }
+      _lastKnownRemoteTs = remote.lastModified;
+    }
+  } catch(e){
+    // Si la lectura previa falla, continuar con el set normal (mejor esto que bloquear el guardado)
+    console.warn("[Firebase] anti-clobber check falló, continuando:", e?.code || e?.message);
+  }
+
   _fbWriting = true;
   _db.ref(FB_PATH).set(payload)
-    .then(() => { console.info("[Firebase] write OK, lastModified:", STATE.lastModified); })
+    .then(() => {
+      _lastKnownRemoteTs = STATE.lastModified || Date.now();
+      console.info("[Firebase] write OK, lastModified:", STATE.lastModified);
+    })
     .catch(e => {
       console.warn("[Firebase] write FAILED — datos solo en localStorage:", e);
     })
     .finally(() => setTimeout(() => { _fbWriting = false; }, 3000));
+}
+
+// ── TRANSACCIÓN ATÓMICA EN PICKS ──────────────────────────────────────────────
+// Usa Firebase transaction para evitar race conditions cuando 2+ personas reclaman
+// o cancelan slots al mismo tiempo. El updater recibe el array más reciente de
+// Firebase y devuelve el array modificado, o undefined para abortar.
+async function _pickTransaction(updater, errorMsg){
+  // Sin Firebase: fallback local (modo offline)
+  if(!_db){
+    const local  = (STATE.picks || []).slice();
+    const result = updater(local);
+    if(result === undefined){ if(errorMsg) showAlert(errorMsg); return false; }
+    STATE.picks = result;
+    save();
+    return true;
+  }
+
+  _fbWriting = true; // evitar eco del listener mientras escribimos
+  try {
+    const result = await _db.ref(FB_PATH + "/picks").transaction(remote => {
+      let arr = remote ? (Array.isArray(remote) ? remote.slice() : Object.values(remote)) : [];
+      return updater(arr);
+    });
+    if(!result.committed){
+      if(errorMsg) showAlert(errorMsg);
+      return false;
+    }
+    // Sincronizar STATE local con el resultado real
+    const newPicks = result.snapshot.val();
+    STATE.picks = Array.isArray(newPicks) ? newPicks : (newPicks ? Object.values(newPicks) : []);
+    STATE.lastModified = Date.now();
+    localStorage.setItem("bdg_horarios_v2", JSON.stringify(STATE));
+    // Actualizar lastModified remoto sin bloquear
+    _db.ref(FB_PATH + "/lastModified").set(STATE.lastModified).catch(() => {});
+    return true;
+  } catch(e){
+    console.error("[picks] transaction error:", e);
+    showAlert("Error al guardar. Verifica tu conexión e inténtalo de nuevo.");
+    return false;
+  } finally {
+    setTimeout(() => { _fbWriting = false; }, 1500);
+  }
 }
 
 // ── PERSISTENCIA ──────────────────────────────────────────────────────────────
@@ -1942,16 +2018,41 @@ function buildMemberLeaderboard(){
 function memberRole(code){ const m=STATE.members.find(mb=>mb.code===code); return m?m.role:null; }
 function memberName(code){ const m=STATE.members.find(mb=>mb.code===code); return m?m.name:code; }
 
-function selectSlot(slotId){
+async function selectSlot(slotId){
   if(STATE.picks.find(p=>p.slotId===slotId&&p.memberCode===SESSION.code&&p.status!=="cancelled")) return;
   const slot  = STATE.slots.find(s=>s.id===slotId);
   const limit = memberLimit(SESSION.role);
   const count = dayPickCount(SESSION.code, slot.date);
   if(count >= limit){ showAlert(`Ya tienes ${limit} sesion${limit!==1?"es":""} ese día (límite diario).`); return; }
-  // Backend se confirma automático; anfitrionas siguen con flujo de confirmación manual
   const autoStatus = SESSION.role === "backend" ? "confirmed" : "pending";
-  STATE.picks.push({ slotId, memberCode:SESSION.code, status:autoStatus, notes:"" });
-  save(); renderMember(); renderPublicCal();
+  const newPick = { slotId, memberCode:SESSION.code, status:autoStatus, notes:"" };
+
+  const ok = await _pickTransaction(picks => {
+    // Verificar contra el estado MÁS RECIENTE de Firebase (no contra STATE local)
+    // 1. ¿Ya estoy reclamado en este slot?
+    if(picks.find(p => p.slotId === slotId && p.memberCode === SESSION.code && p.status !== "cancelled")){
+      return; // abort silencioso (no error, ya estaba)
+    }
+    // 2. ¿Otro usuario con mi mismo rol ya reclamó este slot?
+    const conflict = picks.find(p =>
+      p.slotId === slotId &&
+      p.status !== "cancelled" &&
+      memberRole(p.memberCode) === SESSION.role &&
+      p.memberCode !== SESSION.code
+    );
+    if(conflict) return; // abort con error (lugar tomado)
+    // 3. ¿Excedo el límite diario contando picks de OTRAS sesiones del mismo día?
+    const sameDayCount = picks.filter(p => {
+      if(p.memberCode !== SESSION.code || p.status === "cancelled") return false;
+      const s = STATE.slots.find(sl => sl.id === p.slotId);
+      return s && s.date === slot.date;
+    }).length;
+    if(sameDayCount >= limit) return;
+    picks.push(newPick);
+    return picks;
+  }, "Otra persona ya reclamó este lugar. Refresca para ver el horario actualizado.");
+
+  if(ok){ renderMember(); renderPublicCal(); }
 }
 
 let _pendingCancelSlotId = null;
@@ -1962,24 +2063,38 @@ function cancelPick(slotId){
   document.getElementById('cancelReasonModal').style.display = 'flex';
 }
 
-function confirmCancelPick(){
+async function confirmCancelPick(){
   const reasonEl = document.querySelector('input[name="cancelReason"]:checked');
   if(!reasonEl){
-    // Dar feedback visual al usuario
     const btns = document.querySelectorAll('#cancelReasonModal input[name="cancelReason"]');
     btns.forEach(b => b.closest('label') && (b.closest('label').style.color = 'var(--neg)'));
     setTimeout(() => btns.forEach(b => b.closest('label') && (b.closest('label').style.color = '')), 1500);
     return;
   }
-  const p = STATE.picks.find(pk => pk.slotId === _pendingCancelSlotId && pk.memberCode === SESSION.code && pk.status !== 'cancelled');
-  if(p){
-    p.status       = 'cancelled';
-    p.cancelReason = reasonEl.value;
-    p.cancelledAt  = new Date().toISOString().slice(0,10);
-  }
+  const slotId = _pendingCancelSlotId;
+  const reason = reasonEl.value;
+  const today  = new Date().toISOString().slice(0,10);
+
   document.getElementById('cancelReasonModal').style.display = 'none';
   _pendingCancelSlotId = null;
-  save(); renderMember(); renderPublicCal();
+
+  await _pickTransaction(picks => {
+    const idx = picks.findIndex(pk =>
+      pk.slotId === slotId &&
+      pk.memberCode === SESSION.code &&
+      pk.status !== 'cancelled'
+    );
+    if(idx < 0) return; // ya no existe (probablemente otro usuario lo canceló o admin lo movió)
+    picks[idx] = {
+      ...picks[idx],
+      status: 'cancelled',
+      cancelReason: reason,
+      cancelledAt: today,
+    };
+    return picks;
+  }, "El estado de tu reserva cambió. Refresca para ver el calendario actualizado.");
+
+  renderMember(); renderPublicCal();
 }
 
 function memberChangeWeek(d, reset=false){
@@ -1992,9 +2107,14 @@ function memberChangeWeek(d, reset=false){
   renderMember();
 }
 
-function setPickStatus(slotId, status){
-  const idx = STATE.picks.findIndex(pk => pk.slotId===slotId && pk.memberCode===SESSION.code);
-  if(idx >= 0){ STATE.picks[idx].status = status; save(); renderMember(); renderPublicCal(); }
+async function setPickStatus(slotId, status){
+  await _pickTransaction(picks => {
+    const idx = picks.findIndex(pk => pk.slotId === slotId && pk.memberCode === SESSION.code);
+    if(idx < 0) return; // pick desapareció (admin lo eliminó, otro flujo)
+    picks[idx] = { ...picks[idx], status };
+    return picks;
+  }, "El estado de tu reserva cambió. Refresca para ver el calendario actualizado.");
+  renderMember(); renderPublicCal();
 }
 
 // ── ADMIN ASIGNAR / CONFIRMAR ─────────────────────────────────────────────────
