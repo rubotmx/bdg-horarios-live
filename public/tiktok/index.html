@@ -946,7 +946,7 @@ function _sanitizeBeforePush(){
   }
 }
 
-function _pushToFirebase(){
+async function _pushToFirebase(){
   if(!_db) return;
   _sanitizeBeforePush();
 
@@ -954,10 +954,47 @@ function _pushToFirebase(){
   // Firebase solo almacena referencias (flag), no la imagen completa.
   const photoKeys = STATE.photos ? Object.keys(STATE.photos) : [];
   const photoFlags = {};
-  photoKeys.forEach(k => { photoFlags[k] = true; }); // solo marca "tiene foto"
+  photoKeys.forEach(k => { photoFlags[k] = true; });
   const payload = { ...STATE, photos: photoFlags };
 
-  // Aviso si el payload es grande (>2MB)
+  // MERGE PROTECTOR: antes de sobrescribir, traer picks remotos y mergear con
+  // locales por (slotId, memberCode). Esto evita que un admin que está guardando
+  // un slot/member sobrescriba picks que un host hizo segundos antes desde otra
+  // computadora.
+  try {
+    const picksSnap = await _db.ref(FB_PATH + "/picks").once("value");
+    const remotePicks = picksSnap.val();
+    if(remotePicks){
+      const remoteArr = Array.isArray(remotePicks) ? remotePicks : Object.values(remotePicks);
+      const localArr = Array.isArray(payload.picks) ? payload.picks : (payload.picks ? Object.values(payload.picks) : []);
+      // Estrategia: tomar todos los remotos, luego añadir locales que no estén
+      const merged = remoteArr.slice();
+      localArr.forEach(localP => {
+        if(!localP || !localP.slotId || !localP.memberCode) return;
+        const existsIdx = merged.findIndex(rp =>
+          rp && rp.slotId === localP.slotId && rp.memberCode === localP.memberCode
+        );
+        if(existsIdx < 0){
+          merged.push(localP);
+        } else {
+          // Si existe en ambos, preferir el que tenga estado "más reciente":
+          // priorizar local si modificó el status (ej. cancelled, confirmed)
+          // pero solo si el local NO está cancelled cuando el remoto sí lo está.
+          if(merged[existsIdx].status === "cancelled" && localP.status !== "cancelled"){
+            // mantener remoto cancelado
+          } else if(merged[existsIdx].status !== "cancelled" && localP.status === "cancelled"){
+            merged[existsIdx] = localP; // local canceló — aplicar
+          }
+          // Si ambos tienen el mismo status, dejar el remoto (no hay conflicto)
+        }
+      });
+      payload.picks = merged;
+      STATE.picks = merged;
+    }
+  } catch(e){
+    console.warn("[Firebase] merge protector falló (procedo sin merge):", e?.code || e?.message);
+  }
+
   const payloadSize = JSON.stringify(payload).length;
   if(payloadSize > 2_000_000) console.warn("[Firebase] payload grande:", Math.round(payloadSize/1024), "KB");
 
@@ -983,6 +1020,45 @@ function _pushToFirebase(){
       if(typeof showAlert === "function") showAlert(errMsg);
     })
     .finally(() => setTimeout(() => { _fbWriting = false; }, 3000));
+}
+
+// ── ESCRITURA AISLADA DE PICKS ────────────────────────────────────────────────
+// Escribe SOLO /picks y /lastModified (sin tocar slots/members/etc).
+// Esto evita que hosts pisen los cambios de admins y viceversa cuando trabajan
+// en paralelo desde diferentes computadoras.
+function _savePicksOnly(){
+  if(!STATE.picks) STATE.picks = [];
+  STATE.lastModified = Date.now();
+  localStorage.setItem("bdg_horarios_v2", JSON.stringify(STATE));
+
+  if(!_db) return; // offline: solo localStorage
+
+  _fbWriting = true;
+  // Multi-path update atómico: ambos cambios viajan juntos a Firebase.
+  // No sobrescribe slots/members/changelog/etc.
+  const updates = {};
+  updates[FB_PATH + "/picks"]        = STATE.picks;
+  updates[FB_PATH + "/lastModified"] = STATE.lastModified;
+
+  _db.ref().update(updates)
+    .then(() => { console.info("[Firebase] picks-only write OK"); })
+    .catch(e => {
+      console.error("[Firebase] picks-only write FAILED:", e);
+      try {
+        localStorage.setItem("bdg_last_fb_error", JSON.stringify({
+          ts: new Date().toISOString(),
+          op: "savePicksOnly",
+          code: e?.code || "unknown",
+          message: e?.message || String(e),
+          user: SESSION ? `${SESSION.role}:${SESSION.code}` : "no-session",
+        }));
+      } catch(_) {}
+      const errMsg = e?.code === "PERMISSION_DENIED"
+        ? "⚠️ No se guardó tu reserva: permisos bloqueados. Refresca la página y vuelve a iniciar sesión."
+        : `⚠️ No se guardó tu reserva (${e?.code || "error de red"}). Verifica tu conexión e inténtalo de nuevo.`;
+      if(typeof showAlert === "function") showAlert(errMsg);
+    })
+    .finally(() => setTimeout(() => { _fbWriting = false; }, 1500));
 }
 
 // ── PERSISTENCIA ──────────────────────────────────────────────────────────────
@@ -1966,7 +2042,8 @@ function selectSlot(slotId){
   // Backend se confirma automático; anfitrionas siguen con flujo de confirmación manual
   const autoStatus = SESSION.role === "backend" ? "confirmed" : "pending";
   STATE.picks.push({ slotId, memberCode:SESSION.code, status:autoStatus, notes:"" });
-  save(); renderMember(); renderPublicCal();
+  // Guardar SOLO picks: no toca slots/members/etc → admins pueden editar en paralelo sin clobber
+  _savePicksOnly(); renderMember(); renderPublicCal();
 }
 
 let _pendingCancelSlotId = null;
@@ -1994,7 +2071,7 @@ function confirmCancelPick(){
   }
   document.getElementById('cancelReasonModal').style.display = 'none';
   _pendingCancelSlotId = null;
-  save(); renderMember(); renderPublicCal();
+  _savePicksOnly(); renderMember(); renderPublicCal();
 }
 
 function memberChangeWeek(d, reset=false){
@@ -2009,7 +2086,7 @@ function memberChangeWeek(d, reset=false){
 
 function setPickStatus(slotId, status){
   const idx = STATE.picks.findIndex(pk => pk.slotId===slotId && pk.memberCode===SESSION.code);
-  if(idx >= 0){ STATE.picks[idx].status = status; save(); renderMember(); renderPublicCal(); }
+  if(idx >= 0){ STATE.picks[idx].status = status; _savePicksOnly(); renderMember(); renderPublicCal(); }
 }
 
 // ── ADMIN ASIGNAR / CONFIRMAR ─────────────────────────────────────────────────
