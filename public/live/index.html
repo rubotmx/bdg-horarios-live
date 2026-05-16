@@ -2,262 +2,291 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <link rel="icon" href="/favicon.ico"/>
 <meta name="robots" content="noindex, nofollow"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <title>BDG · En Vivo</title>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;900&family=Jost:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
+/* ── TOKENS ──────────────────────────────────────────────── */
 :root{
-  --bg:#080808; --s1:#0f0f0f; --s2:#161616; --s3:#1c1c1c;
-  --line:rgba(255,255,255,.07); --muted:rgba(255,255,255,.22); --sub:rgba(255,255,255,.5);
-  --terra:#c16452; --green:#3ecf8e; --yellow:#f5c518; --blue:#5b9cf6; --red:#f26b6b;
-  --fh:'Archivo',sans-serif; --fl:'Jost',sans-serif;
+  --bg:#0A0A0A;    --s1:#111111;    --s2:#1A1A1A;    --s3:#222222;
+  --line:rgba(255,255,255,.07);
+  --line2:rgba(255,255,255,.12);
+  --muted:rgba(255,255,255,.3);
+  --sub:rgba(255,255,255,.55);
+  --txt:rgba(255,255,255,.92);
+  --oxide:#B8432A;   --oxide2:#D4573E;  --oxide-dim:rgba(184,67,42,.12);
+  --green:#3ECF8E;   --green-dim:rgba(62,207,142,.1);
+  --yellow:#F5C518;  --yellow-dim:rgba(245,197,24,.1);
+  --red:#F26B6B;     --red-dim:rgba(242,107,107,.1);
+  --tiktok:#FF3B5C;  --tiktok-dim:rgba(255,59,92,.1);
+  --web:#B8432A;
+  --fn:'Jost',sans-serif;
+  --fv:'EB Garamond',Georgia,serif;
+  --r:0px;
 }
-*{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;background:var(--bg);color:#e8e4de;font-family:var(--fh);overflow:hidden;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--fn);overflow:hidden;}
 body{display:flex;flex-direction:column;}
 
-/* ── TOPBAR ──────────────────────────────────────────────────── */
-.topbar{height:44px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);flex-shrink:0;gap:12px;}
-.logo{font-family:var(--fl);font-size:12px;font-weight:700;color:#fff;letter-spacing:.18em;}
-.logo span{color:var(--terra);}
-.pill{display:flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.18);}
-.dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 1.4s infinite;}
-@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(62,207,142,.5)}60%{opacity:.7;box-shadow:0 0 0 4px rgba(62,207,142,0)}}
-.pill-lbl{font-size:8px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:var(--green);}
-.topbar-r{display:flex;align-items:center;gap:10px;}
-.countdown{font-size:9px;color:var(--muted);min-width:130px;text-align:right;}
+/* ── TOPBAR ──────────────────────────────────────────────── */
+.topbar{
+  height:48px;padding:0 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--line);flex-shrink:0;
+  background:rgba(10,10,10,.95);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  position:sticky;top:0;z-index:100;
+}
+.tb-left{display:flex;align-items:center;gap:10px;}
+.logo-img{height:16px;width:auto;display:block;filter:brightness(0) invert(1);}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border:1px solid rgba(62,207,142,.25);background:rgba(62,207,142,.07);}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 1.4s infinite;}
+@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(62,207,142,.5)}60%{opacity:.6;box-shadow:0 0 0 4px rgba(62,207,142,0)}}
+.pill-lbl{font-size:8px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:var(--green);}
+.pill-hist{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border:1px solid rgba(91,156,246,.2);background:rgba(91,156,246,.07);}
+.pill-hist .pill-lbl{color:#5b9cf6;}
+.tb-mid{display:flex;align-items:center;gap:4px;}
+.date-nav-btn{padding:3px 8px;background:transparent;border:1px solid var(--line2);color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--fn);line-height:1.4;transition:all .12s;}
+.date-nav-btn:hover{background:rgba(255,255,255,.07);color:var(--txt);}
+#datePicker{background:transparent;border:1px solid var(--line2);color:var(--txt);font-size:9px;font-family:var(--fn);padding:3px 6px;outline:none;cursor:pointer;letter-spacing:.04em;}
+#datePicker::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:pointer;}
+.tb-right{display:flex;align-items:center;gap:8px;}
+.countdown{font-size:9px;color:var(--muted);white-space:nowrap;}
+.btn{padding:4px 10px;background:transparent;border:1px solid var(--line2);color:var(--muted);font-size:9px;font-weight:600;letter-spacing:.1em;cursor:pointer;font-family:var(--fn);transition:all .12s;}
+.btn:hover{background:rgba(255,255,255,.07);color:var(--txt);}
+.btn.tv-on{border-color:rgba(184,67,42,.4);color:var(--oxide);}
+.btn-today{display:none;}
+.back{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-decoration:none;}
+.back:hover{color:var(--txt);}
 
-/* Date picker */
-.date-nav{display:flex;align-items:center;gap:4px;}
-.date-nav-btn{padding:2px 7px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:3px;color:var(--muted);font-size:11px;cursor:pointer;font-family:var(--fh);line-height:1.4;transition:all .12s;}
-.date-nav-btn:hover{background:rgba(255,255,255,.1);color:#fff;}
-#datePicker{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:3px;color:#e8e4de;font-size:9px;font-family:var(--fh);padding:3px 6px;outline:none;cursor:pointer;letter-spacing:.04em;}
-#datePicker::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:pointer;opacity:.6;}
-.pill-hist{display:flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;background:rgba(91,156,246,.08);border:1px solid rgba(91,156,246,.18);}
-.pill-hist .pill-lbl{color:var(--blue);}
-.btn{padding:3px 10px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:3px;color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.1em;cursor:pointer;font-family:var(--fh);transition:all .12s;}
-.btn:hover{background:rgba(255,255,255,.1);color:#fff;}
-.btn.tv-on{background:rgba(193,100,82,.12);border-color:rgba(193,100,82,.3);color:var(--terra);}
-.back{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .12s;}
-.back:hover{color:#fff;}
+/* ── PAGE — mobile: single column ───────────────────────── */
+.page{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  display:flex;flex-direction:column;gap:8px;
+  padding:10px 10px calc(10px + env(safe-area-inset-bottom));
+  background:var(--bg);
+}
 
-/* ── GRID ────────────────────────────────────────────────────── */
-.grid{flex:1;display:grid;grid-template-columns:320px 1fr 300px;gap:1px;background:var(--line);min-height:0;}
-.col{background:var(--bg);display:flex;flex-direction:column;min-height:0;overflow:hidden;}
+/* ── CARDS / SHARED ──────────────────────────────────────── */
+.card{background:var(--s1);border:1px solid var(--line);padding:16px;}
+.sec-lbl{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:10px;}
+.val{font-family:var(--fv);letter-spacing:-.01em;}
 
-/* ── COL 1: HERO ─────────────────────────────────────────────── */
-.hero-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 16px 14px;border-bottom:1px solid var(--line);flex-shrink:0;position:relative;}
-.goal-hint{font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
-
-/* Progress ring */
-.ring-wrap{position:relative;width:180px;height:180px;flex-shrink:0;}
-.ring-wrap svg{transform:rotate(-90deg);}
-.ring-bg{fill:none;stroke:rgba(255,255,255,.06);stroke-width:8;}
-.ring-fill{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1s ease,stroke .4s;}
-.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
-.ring-gmv{font-size:22px;font-weight:900;letter-spacing:-.04em;line-height:1;color:var(--green);}
-.ring-gmv.warn{color:var(--yellow);}
-.ring-lbl{font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:3px;}
-.ring-pct{font-size:11px;font-weight:700;color:var(--muted);margin-top:2px;}
-
-/* Delta vs ayer */
-.delta-row{display:flex;flex-direction:column;align-items:center;gap:5px;margin-top:10px;width:100%;}
-.delta-main{display:flex;align-items:center;gap:6px;}
-.delta{font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;}
-.delta.up{color:var(--green);background:rgba(62,207,142,.1);}
-.delta.down{color:var(--red);background:rgba(242,107,107,.1);}
+/* ── HERO CARD ───────────────────────────────────────────── */
+.hero-card{background:var(--s1);border:1px solid var(--line);padding:20px 16px 16px;}
+.hero-eyebrow{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:12px;}
+.hero-gmv{
+  font-family:var(--fv);font-size:52px;font-weight:600;
+  letter-spacing:-.03em;line-height:1;color:var(--txt);margin-bottom:2px;
+}
+.hero-gmv.warn{color:var(--yellow);}
+.hero-goal{font-size:10px;color:var(--muted);margin-bottom:14px;}
+/* Progress bar */
+.prog-wrap{height:3px;background:rgba(255,255,255,.07);margin-bottom:14px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--oxide);transition:width 1s ease;width:0%;}
+.prog-fill.done{background:var(--green);}
+/* Deltas */
+.delta-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.delta{font-size:11px;font-weight:700;padding:3px 8px;letter-spacing:.02em;}
+.delta.up{color:var(--green);background:var(--green-dim);}
+.delta.down{color:var(--red);background:var(--red-dim);}
 .delta.flat{color:var(--muted);background:rgba(255,255,255,.05);}
 .delta-lbl{font-size:9px;color:var(--muted);}
-/* Same-hour row */
-.delta-samehour{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:6px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);width:calc(100% - 24px);}
-.delta-sh-ico{font-size:10px;flex-shrink:0;}
-.delta-sh-lbl{font-size:8px;color:var(--muted);flex:1;}
-.delta-sh-val{font-size:11px;font-weight:900;color:var(--sub);}
-.delta-sh-val.sh-up{color:var(--green);}
-.delta-sh-val.sh-down{color:var(--red);}
-
-/* KPI pills */
-.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border-bottom:1px solid var(--line);flex-shrink:0;}
-.kpi{padding:11px 14px;background:var(--bg);}
-.kpi-lbl{font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:4px;}
-.kpi-val{font-size:18px;font-weight:900;letter-spacing:-.03em;line-height:1;}
-.kpi-val.blue{color:var(--blue);}
-.kpi-val.yellow{color:var(--yellow);}
-.kpi-val.green{color:var(--green);}
-.kpi-val.red{color:var(--red);}
-.kpi-d{font-size:8px;margin-top:3px;}
-
-/* Channels */
-.channels{padding:12px 14px;border-bottom:1px solid var(--line);flex-shrink:0;}
-.ch-lbl{font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:8px;}
-.ch-bar{height:6px;border-radius:3px;overflow:hidden;display:flex;gap:1px;margin-bottom:8px;}
-.ch-seg{height:100%;border-radius:2px;transition:width .8s ease;}
-.ch-legend{display:flex;flex-wrap:wrap;gap:6px 12px;}
-.ch-item{display:flex;align-items:center;gap:4px;font-size:8px;color:var(--muted);}
-.ch-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-
-/* Meta mini */
-.meta-mini{padding:12px 14px;flex-shrink:0;}
-.meta-mini-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
-.meta-mini-lbl{font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700;}
-.roas-track{flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;margin:0 10px;overflow:hidden;}
-.roas-fill{height:100%;border-radius:2px;transition:width .8s ease;}
-.roas-val{font-size:10px;font-weight:700;}
-
-/* ── COL 2: ACTIVIDAD ────────────────────────────────────────── */
-.col-hdr{padding:10px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-.col-title{font-size:8px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:var(--sub);}
-.col-meta{font-size:9px;color:var(--muted);}
-
-/* SVG area chart */
-.chart-wrap{padding:14px 16px 10px;border-bottom:1px solid var(--line);flex-shrink:0;}
-.chart-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
-.chart-lbl{font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700;}
-.chart-peak{font-size:9px;color:var(--muted);}
-#areaSvg{width:100%;height:80px;display:block;overflow:visible;}
-
-/* Products */
-.prod-list{flex:1;overflow-y:auto;padding:4px 0;}
-.prod-row{display:flex;align-items:center;gap:10px;padding:7px 16px;transition:background .1s;}
-.prod-row:hover{background:rgba(255,255,255,.02);}
-.medal{font-size:14px;width:20px;text-align:center;flex-shrink:0;}
-.rank-num{font-size:10px;font-weight:900;color:var(--muted);width:20px;text-align:center;flex-shrink:0;}
-.prod-img{width:34px;height:34px;border-radius:4px;object-fit:cover;background:var(--s2);flex-shrink:0;}
-.prod-img-ph{width:34px;height:34px;border-radius:4px;background:var(--s2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;color:rgba(255,255,255,.1);}
-.prod-info{flex:1;min-width:0;}
-.prod-name{font-size:10px;font-weight:700;color:#e8e4de;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;}
-.prod-track{height:2px;background:rgba(255,255,255,.06);border-radius:1px;overflow:hidden;}
-.prod-fill{height:100%;border-radius:1px;background:var(--terra);}
-.prod-r{text-align:right;flex-shrink:0;}
-.prod-gmv{font-size:11px;font-weight:900;color:#fff;}
-.prod-units{font-size:8px;color:var(--muted);margin-top:1px;}
-
-/* ── COL 3: ADS ──────────────────────────────────────────────── */
-.ads-uncfg{padding:30px 16px;text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.ads-uncfg-ico{font-size:28px;opacity:.15;margin-bottom:10px;}
-.ads-uncfg-txt{font-size:9px;color:var(--muted);line-height:1.7;}
-.ads-uncfg-txt code{font-size:8px;background:rgba(255,255,255,.07);padding:1px 5px;border-radius:3px;color:var(--sub);}
-
-/* Summary strip */
-.ads-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-bottom:1px solid var(--line);flex-shrink:0;}
-.ads-sum-cell{background:var(--bg);padding:8px 10px;text-align:center;}
-.ads-sum-val{font-size:14px;font-weight:900;letter-spacing:-.02em;line-height:1;}
-.ads-sum-lbl{font-size:6.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:2px;}
-
-/* Scroll container */
-.ads-scroll{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:6px;}
-
-/* Section divider */
-.ads-section-hdr{font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.18);font-weight:700;padding:4px 2px 2px;}
-
-/* ── AD ROW (con y sin data) ─────────────────── */
-.ad-row{display:flex;align-items:center;gap:8px;padding:6px 6px;border-radius:6px;background:var(--s2);border:1px solid rgba(255,255,255,.05);transition:border-color .12s;}
-.ad-row:hover{border-color:rgba(255,255,255,.12);}
-.ad-row-thumb{width:40px;height:40px;border-radius:4px;flex-shrink:0;background:var(--s3);background-size:cover;background-position:center;}
-.ad-row-body{flex:1;min-width:0;}
-.ad-row-top{display:flex;align-items:center;gap:4px;margin-bottom:3px;}
-.ad-row-rank{font-size:10px;line-height:1;flex-shrink:0;}
-.ad-row-name{font-size:8px;font-weight:700;color:#e8e4de;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ad-row-stats{display:flex;align-items:center;gap:6px;}
-.ad-row-stat{font-size:9px;font-weight:700;line-height:1;}
-.ad-row-stat span{font-size:7px;font-weight:400;color:var(--muted);margin-left:1px;}
-.ad-row-bar{height:2px;background:rgba(255,255,255,.06);border-radius:1px;overflow:hidden;margin-top:4px;}
-.ad-row-bar-fill{height:100%;border-radius:1px;}
-/* no-data variant */
-.ad-row.no-data .ad-row-name{color:rgba(255,255,255,.3);}
-.ad-row-dot{width:5px;height:5px;border-radius:50%;background:rgba(62,207,142,.35);flex-shrink:0;}
-
-/* ── SALE FLASH ─────────────────────────────────────────────── */
-#saleFlash{position:fixed;inset:0;pointer-events:none;z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;}
-#saleFlash.fire{animation:salePop .8s ease-out forwards;}
-@keyframes salePop{
-  0%  {opacity:0;transform:scale(.8);}
-  15% {opacity:1;transform:scale(1.08);}
-  40% {opacity:1;transform:scale(1);}
-  100%{opacity:0;transform:scale(1.05);}
+/* Same hour */
+.same-hour{
+  margin-top:10px;padding:8px 12px;
+  background:rgba(255,255,255,.03);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
 }
-.sale-badge{background:linear-gradient(135deg,#1a3a28,#0d2018);border:1px solid rgba(62,207,142,.35);border-radius:12px;padding:14px 22px;display:flex;align-items:center;gap:10px;box-shadow:0 0 40px rgba(62,207,142,.25),0 4px 24px rgba(0,0,0,.6);}
-.sale-icon{font-size:22px;}
-.sale-txt{font-size:13px;font-weight:900;color:var(--green);letter-spacing:.04em;}
-.sale-amt{font-size:11px;color:rgba(62,207,142,.7);font-weight:700;}
-/* Green border pulse on ring when sale fires */
-@keyframes ringPulse{0%,100%{filter:drop-shadow(0 0 0 transparent)}50%{filter:drop-shadow(0 0 12px rgba(62,207,142,.6))}}
-.ring-wrap.pulse svg{animation:ringPulse .7s ease-out;}
+.sh-left{font-size:9px;color:var(--muted);}
+.sh-val{font-family:var(--fv);font-size:15px;font-weight:600;color:var(--sub);}
+.sh-val.sh-up{color:var(--green);}
+.sh-val.sh-down{color:var(--red);}
 
-/* ── PROYECCIÓN ──────────────────────────────────────────────── */
-.proyec-row{padding:10px 14px;border-bottom:1px solid var(--line);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:8px;}
-.proyec-lbl{font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:3px;}
-.proyec-val{font-size:17px;font-weight:900;letter-spacing:-.03em;line-height:1;}
-.proyec-sub{font-size:7px;color:var(--muted);}
+/* ── CANAL SPLIT ─────────────────────────────────────────── */
+.chan-split{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.chan-card{background:var(--s1);border:1px solid var(--line);padding:14px 14px 12px;position:relative;overflow:hidden;}
+.chan-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.chan-card.tiktok::before{background:var(--tiktok);}
+.chan-card.web::before{background:var(--oxide);}
+.chan-card.other::before{background:var(--muted);}
+.chan-name{font-size:8px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;margin-bottom:10px;}
+.chan-card.tiktok .chan-name{color:var(--tiktok);}
+.chan-card.web .chan-name{color:var(--oxide);}
+.chan-card.other .chan-name{color:var(--muted);}
+.chan-gmv{font-family:var(--fv);font-size:24px;font-weight:600;letter-spacing:-.02em;line-height:1;color:var(--txt);margin-bottom:4px;}
+.chan-orders{font-size:9px;color:var(--muted);margin-bottom:6px;}
+.chan-share{font-size:10px;font-weight:700;color:var(--sub);}
+/* Split bar at bottom of section */
+.chan-bar-wrap{height:2px;background:rgba(255,255,255,.06);display:flex;overflow:hidden;margin-top:-4px;}
+.chan-bar-seg{height:100%;transition:width .9s ease;}
 
-/* ── VELOCIDAD badge ─────────────────────────────────────────── */
-.vel-badge{font-size:8px;font-weight:700;padding:2px 8px;border-radius:3px;white-space:nowrap;}
-.vel-badge.up{color:var(--green);background:rgba(62,207,142,.1);}
-.vel-badge.down{color:var(--red);background:rgba(242,107,107,.1);}
-.vel-badge.flat{color:var(--muted);background:rgba(255,255,255,.05);}
+/* ── KPI ROW ─────────────────────────────────────────────── */
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.kpi{background:var(--s1);border:1px solid var(--line);padding:12px 12px 10px;}
+.kpi-lbl{font-size:7.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px;}
+.kpi-val{font-family:var(--fv);font-size:22px;font-weight:600;letter-spacing:-.02em;line-height:1;}
+.kpi-val.green{color:var(--green);}
+.kpi-val.yellow{color:var(--yellow);}
+.kpi-val.red{color:var(--red);}
+.kpi-val.oxide{color:var(--oxide);}
+.kpi-d{font-size:8px;color:var(--muted);margin-top:4px;}
 
-/* ── HEAT MAP ────────────────────────────────────────────────── */
-.heat-row{display:flex;gap:2px;padding:5px 16px 7px;border-bottom:1px solid var(--line);flex-shrink:0;}
+/* ── PROYECCIÓN ──────────────────────────────────────────── */
+.proj-card{background:var(--s1);border:1px solid var(--line);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.proj-left .proj-lbl{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px;}
+.proj-sub{font-size:9px;color:var(--muted);}
+.proj-val{font-family:var(--fv);font-size:28px;font-weight:600;letter-spacing:-.02em;line-height:1;}
+.proj-tag{font-size:9px;color:var(--muted);text-align:right;margin-top:2px;}
+
+/* ── CHART ───────────────────────────────────────────────── */
+.chart-card{background:var(--s1);border:1px solid var(--line);padding:14px 14px 10px;}
+.chart-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.chart-lbl{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:600;}
+.chart-peak{font-size:9px;color:var(--muted);}
+.chart-vel{font-size:9px;font-weight:700;padding:2px 7px;}
+.chart-vel.up{color:var(--green);background:var(--green-dim);}
+.chart-vel.down{color:var(--red);background:var(--red-dim);}
+.chart-vel.flat{color:var(--muted);background:rgba(255,255,255,.04);}
+#areaSvg{width:100%;height:72px;display:block;overflow:visible;}
+/* Heatmap (oculto en mobile, visible en desktop) */
+.heat-row{display:none;gap:2px;padding:8px 14px 2px;}
 .heat-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
-.heat-bar{width:100%;height:12px;border-radius:2px;transition:background .4s;}
-.heat-lbl{font-size:5.5px;color:rgba(255,255,255,.18);text-align:center;}
+.heat-bar{width:100%;height:10px;transition:background .4s;}
+.heat-lbl{font-size:5px;color:rgba(255,255,255,.18);text-align:center;}
 
-/* ── TICKER ──────────────────────────────────────────────────── */
-.ticker-strip{height:30px;border-top:1px solid var(--line);display:flex;align-items:center;overflow:hidden;flex-shrink:0;background:rgba(255,255,255,.012);}
-.ticker-label{font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding:0 14px;flex-shrink:0;border-right:1px solid var(--line);height:100%;display:flex;align-items:center;white-space:nowrap;font-weight:700;}
-.ticker-overflow{flex:1;overflow:hidden;mask-image:linear-gradient(to right,transparent 0%,black 4%,black 96%,transparent 100%);}
+/* ── PRODUCTS ────────────────────────────────────────────── */
+.prod-card{background:var(--s1);border:1px solid var(--line);}
+.prod-hdr{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
+.prod-meta{font-size:9px;color:var(--muted);}
+.prod-list{padding:4px 0;}
+.prod-row{display:flex;align-items:center;gap:10px;padding:8px 14px;transition:background .1s;}
+.prod-row:hover{background:rgba(255,255,255,.02);}
+.medal{font-size:13px;width:18px;text-align:center;flex-shrink:0;}
+.rank-num{font-size:10px;font-weight:700;color:var(--muted);width:18px;text-align:center;flex-shrink:0;}
+.prod-img{width:36px;height:36px;border-radius:4px;object-fit:cover;background:var(--s2);flex-shrink:0;}
+.prod-img-ph{width:36px;height:36px;border-radius:4px;background:var(--s2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;color:rgba(255,255,255,.1);}
+.prod-info{flex:1;min-width:0;}
+.prod-name{font-size:10px;font-weight:600;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;}
+.prod-track{height:2px;background:rgba(255,255,255,.06);overflow:hidden;}
+.prod-fill{height:100%;background:var(--oxide);}
+.prod-r{text-align:right;flex-shrink:0;}
+.prod-gmv{font-family:var(--fv);font-size:14px;font-weight:600;color:var(--txt);}
+.prod-units{font-size:8px;color:var(--muted);margin-top:2px;}
+
+/* ── ADS ─────────────────────────────────────────────────── */
+.ads-card{background:var(--s1);border:1px solid var(--line);}
+.ads-hdr{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
+.ads-meta{font-size:9px;color:var(--muted);}
+/* Summary strip */
+.ads-strip{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--line);}
+.ads-strip-cell{padding:10px 10px;text-align:center;}
+.ads-strip-cell:not(:last-child){border-right:1px solid var(--line);}
+.ads-strip-val{font-family:var(--fv);font-size:18px;font-weight:600;letter-spacing:-.02em;line-height:1;}
+.ads-strip-lbl{font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:3px;}
+/* Ad rows */
+.ads-list{padding:6px 8px;display:flex;flex-direction:column;gap:5px;}
+.ad-row{display:flex;align-items:center;gap:8px;padding:7px 8px;background:var(--s2);border:1px solid rgba(255,255,255,.04);transition:border-color .12s;}
+.ad-row:hover{border-color:var(--line2);}
+.ad-thumb{width:38px;height:38px;border-radius:4px;flex-shrink:0;background:var(--s3);background-size:cover;background-position:center;}
+.ad-body{flex:1;min-width:0;}
+.ad-name{font-size:8px;font-weight:600;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;}
+.ad-stats{display:flex;align-items:center;gap:6px;}
+.ad-stat{font-size:9px;font-weight:700;}
+.ad-stat span{font-size:7px;font-weight:400;color:var(--muted);margin-left:1px;}
+.ad-sep{width:1px;height:10px;background:rgba(255,255,255,.08);flex-shrink:0;}
+.ad-bar{height:2px;background:rgba(255,255,255,.06);margin-top:4px;overflow:hidden;}
+.ad-bar-fill{height:100%;}
+.ads-empty{padding:20px 14px;text-align:center;font-size:11px;color:var(--muted);}
+.ads-uncfg{padding:24px 14px;text-align:center;}
+.ads-uncfg-ico{font-size:24px;opacity:.15;margin-bottom:8px;}
+.ads-uncfg-txt{font-size:9px;color:var(--muted);line-height:1.7;}
+.ads-uncfg-txt code{font-size:8px;background:rgba(255,255,255,.07);padding:1px 5px;color:var(--sub);}
+
+/* ── TICKER ──────────────────────────────────────────────── */
+.ticker-strip{display:none;height:30px;border-top:1px solid var(--line);align-items:center;overflow:hidden;flex-shrink:0;background:rgba(255,255,255,.012);}
+.ticker-label{font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding:0 14px;flex-shrink:0;border-right:1px solid var(--line);height:100%;display:flex;align-items:center;font-weight:600;}
+.ticker-overflow{flex:1;overflow:hidden;mask-image:linear-gradient(to right,transparent 0%,black 5%,black 95%,transparent 100%);}
 .ticker-track{display:flex;align-items:center;animation:tickScroll 35s linear infinite;will-change:transform;}
 @keyframes tickScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 .t-item{display:flex;align-items:center;gap:7px;padding:0 20px;white-space:nowrap;}
 .t-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
-.t-prod{color:rgba(255,255,255,.65);font-weight:700;font-size:9px;max-width:180px;overflow:hidden;text-overflow:ellipsis;}
-.t-amt{color:var(--green);font-weight:900;font-size:10px;}
+.t-prod{color:rgba(255,255,255,.6);font-weight:600;font-size:9px;max-width:180px;overflow:hidden;text-overflow:ellipsis;}
+.t-amt{color:var(--green);font-weight:700;font-size:10px;}
 .t-time{color:rgba(255,255,255,.2);font-size:8px;}
 .t-sep{color:rgba(255,255,255,.07);font-size:16px;padding:0 4px;}
 
-/* ── SK ──────────────────────────────────────────────────────── */
-.sk{background:linear-gradient(90deg,#111 25%,#1a1a1a 50%,#111 75%);background-size:200% 100%;animation:sh 1.3s infinite;border-radius:4px;}
+/* ── SALE FLASH ──────────────────────────────────────────── */
+#saleFlash{position:fixed;inset:0;pointer-events:none;z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;}
+#saleFlash.fire{animation:salePop .8s ease-out forwards;}
+@keyframes salePop{0%{opacity:0;transform:scale(.8);}15%{opacity:1;transform:scale(1.06);}40%{opacity:1;transform:scale(1);}100%{opacity:0;transform:scale(1.04);}}
+.sale-badge{background:linear-gradient(135deg,#0d2018,#1a3a28);border:1px solid rgba(62,207,142,.3);padding:14px 22px;display:flex;align-items:center;gap:10px;box-shadow:0 0 40px rgba(62,207,142,.2),0 4px 24px rgba(0,0,0,.6);}
+.sale-icon{font-size:22px;}
+.sale-txt{font-size:13px;font-weight:700;color:var(--green);letter-spacing:.04em;}
+.sale-amt{font-size:11px;color:rgba(62,207,142,.7);font-weight:600;}
+
+/* ── SKELETON ────────────────────────────────────────────── */
+.sk{background:linear-gradient(90deg,#161616 25%,#222 50%,#161616 75%);background-size:200% 100%;animation:sh 1.3s infinite;}
 @keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-/* goal modal removed — meta fija */
+/* ── TV MODE ─────────────────────────────────────────────── */
+body.tv .hero-gmv{font-size:72px;}
+body.tv .kpi-val{font-size:32px;}
+body.tv .chan-gmv{font-size:34px;}
+body.tv .prod-name{font-size:13px;}
+body.tv .prod-gmv{font-size:17px;}
+body.tv .prod-img{width:44px;height:44px;}
+body.tv .ticker-strip{display:flex;}
+body.tv .heat-row{display:flex;}
 
-/* ── TV MODE ─────────────────────────────────────────────────── */
-body.tv .topbar{height:36px;}
-body.tv .grid{grid-template-columns:360px 1fr 340px;}
-body.tv .ring-wrap{width:220px;height:220px;}
-body.tv .ring-gmv{font-size:28px;}
-body.tv .kpi-val{font-size:24px;}
-body.tv .prod-name{font-size:12px;}
-body.tv .prod-gmv{font-size:13px;}
-body.tv .prod-img{width:40px;height:40px;}
-body.tv .ticker-strip{height:36px;}
-body.tv .t-prod{font-size:11px;}
-body.tv .t-amt{font-size:12px;}
+/* ── DESKTOP (≥900px): 3-column grid ────────────────────── */
+@media(min-width:900px){
+  html,body{overflow:hidden;}
+  .page{
+    display:grid;
+    grid-template-columns:310px 1fr 300px;
+    grid-template-rows:auto;
+    grid-template-areas:
+      "hero   chart  ads"
+      "chans  chart  ads"
+      "kpis   prods  ads"
+      "proj   prods  ads"
+      "......  prods  ads";
+    gap:1px;
+    padding:0;
+    background:var(--line);
+    overflow:hidden;
+  }
+  .hero-card { grid-area:hero;  overflow:hidden; }
+  .chan-split { grid-area:chans; display:flex; gap:1px; background:var(--line); }
+  .chan-card  { flex:1; border:none; }
+  .kpi-row   { grid-area:kpis;  display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); }
+  .kpi       { border:none; }
+  .proj-card { grid-area:proj;  border:none; border-top:1px solid var(--line); }
+  .chart-card{ grid-area:chart; border:none; border-right:1px solid var(--line); border-left:1px solid var(--line); }
+  .heat-row  { display:flex; }
+  .prod-card { grid-area:prods; border:none; border-right:1px solid var(--line); border-left:1px solid var(--line); overflow-y:auto; }
+  .ads-card  { grid-area:ads;   border:none; overflow-y:auto; display:flex; flex-direction:column; }
+  .ads-list  { flex:1; overflow-y:auto; }
+  .ticker-strip { display:flex; }
+  .chan-bar-wrap { display:none; }
+  .page>*{background:var(--s1);}
+}
 
 /* Scrollbar */
-::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar{width:2px;height:2px;}
 ::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,.07);border-radius:2px;}
-
-/* ── RESPONSIVE ──────────────────────────────────────────────── */
-@media(max-width:1000px){
-  html,body{overflow:auto;}
-  .grid{grid-template-columns:1fr 1fr;grid-template-rows:auto auto;}
-  .col:last-child{grid-column:1/-1;}
-  .ads-col{flex-direction:row;}
-  .ad-featured{min-height:220px;}
-}
-@media(max-width:600px){
-  .grid{grid-template-columns:1fr;}
-  .col:last-child{grid-column:1;}
-}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);}
 </style>
 </head>
 <body>
 
-<!-- SALE FLASH OVERLAY -->
+<!-- SALE FLASH -->
 <div id="saleFlash">
   <div class="sale-badge">
     <div class="sale-icon">💰</div>
@@ -270,153 +299,105 @@ body.tv .t-amt{font-size:12px;}
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <div style="display:flex;align-items:center;gap:10px;">
-    <img src="https://baladigala.com/cdn/shop/files/TIPOGRAFIA_0eeef2c9-8447-407e-940f-5d63c2a8467c.webp?v=1737764437&width=610" alt="Bala Di Gala" style="height:18px;width:auto;display:block;filter:brightness(0) invert(1);"/>
+  <div class="tb-left">
+    <img class="logo-img" src="https://baladigala.com/cdn/shop/files/TIPOGRAFIA_0eeef2c9-8447-410e-940f-5d63c2a8467c.webp?v=1737764437&width=610" alt="Bala Di Gala" onerror="this.style.display='none';this.nextSibling.style.display='block';"/>
+    <span style="display:none;font-size:11px;font-weight:700;letter-spacing:.12em;color:#fff;">BDG</span>
     <div id="livePill" class="pill"><div class="dot"></div><div class="pill-lbl">En Vivo</div></div>
   </div>
-  <div style="display:flex;align-items:center;gap:6px;">
-    <div class="date-nav">
-      <button class="date-nav-btn" onclick="changeDate(-1)" title="Día anterior">‹</button>
-      <input type="date" id="datePicker" onchange="onDateChange()" title="Seleccionar fecha"/>
-      <button class="date-nav-btn" id="dateNextBtn" onclick="changeDate(1)" title="Día siguiente">›</button>
-    </div>
-    <button class="btn" id="todayBtn" onclick="goToday()" style="display:none;">Hoy</button>
+
+  <div class="tb-mid">
+    <button class="date-nav-btn" onclick="changeDate(-1)">‹</button>
+    <input type="date" id="datePicker" onchange="onDateChange()"/>
+    <button class="date-nav-btn" id="dateNextBtn" onclick="changeDate(1)">›</button>
+    <button class="btn btn-today" id="todayBtn" onclick="goToday()">Hoy</button>
   </div>
-  <div class="topbar-r">
-    <span class="countdown" id="countdown">Cargando…</span>
-    <button class="btn" onclick="load(true)">↻ Refresh</button>
-    <button class="btn" id="tvBtn" onclick="toggleTV()">⛶ TV</button>
-    <a class="back" href="/">← HQ</a>
+
+  <div class="tb-right">
+    <span class="countdown" id="countdown">…</span>
+    <button class="btn" onclick="load(true)">↻</button>
+    <button class="btn" id="tvBtn" onclick="toggleTV()">TV</button>
+    <a class="back" href="/">HQ</a>
   </div>
 </div>
 
-<!-- GRID -->
-<div class="grid">
+<!-- PAGE -->
+<div class="page">
 
-  <!-- ── COL 1: HERO ───────────────────────────────────────────── -->
-  <div class="col">
-
-    <!-- Ring + GMV -->
-    <div class="hero-wrap">
-      <div class="goal-hint">Meta diaria $133,333</div>
-      <div class="ring-wrap">
-        <svg viewBox="0 0 180 180" width="180" height="180">
-          <defs>
-            <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#3ecf8e"/>
-              <stop offset="100%" stop-color="#5b9cf6"/>
-            </linearGradient>
-          </defs>
-          <circle class="ring-bg"   cx="90" cy="90" r="82"/>
-          <circle class="ring-fill" cx="90" cy="90" r="82" id="ringFill"
-            stroke="url(#ringGrad)"
-            stroke-dasharray="515 515"
-            stroke-dashoffset="515"/>
-        </svg>
-        <div class="ring-center">
-          <div class="ring-gmv" id="ringGmv"><div class="sk" style="width:90px;height:22px;"></div></div>
-          <div class="ring-lbl" id="ringLbl">Ventas Totales</div>
-          <div class="ring-pct" id="ringPct"></div>
-        </div>
-      </div>
-      <div class="delta-row" id="deltaRow">
-        <div class="sk" style="width:80px;height:16px;"></div>
-      </div>
-      <div id="sameHourRow" style="display:none;width:calc(100% - 24px);margin-top:2px;"></div>
-    </div>
-
-    <!-- KPIs 2×2 -->
-    <div class="kpi-grid" id="kpiGrid">
-      <div class="kpi"><div class="kpi-lbl">Órdenes</div><div class="sk" style="height:18px;width:50px;"></div></div>
-      <div class="kpi"><div class="kpi-lbl">Ticket Prom.</div><div class="sk" style="height:18px;width:70px;"></div></div>
-      <div class="kpi"><div class="kpi-lbl">Gasto Meta</div><div class="sk" style="height:18px;width:70px;"></div></div>
-      <div class="kpi"><div class="kpi-lbl">ROAS</div><div class="sk" style="height:18px;width:40px;"></div></div>
-    </div>
-
-    <!-- Proyección cierre -->
-    <div class="proyec-row" id="proyecRow" style="display:none;"></div>
-
-    <!-- Channels -->
-    <div class="channels" id="channels">
-      <div class="ch-lbl">Canal de venta</div>
-      <div class="ch-bar"><div class="sk" style="width:100%;height:6px;border-radius:3px;"></div></div>
-    </div>
-
-    <!-- Meta ROAS mini -->
-    <div class="meta-mini" id="metaMini" style="display:none;">
-      <div class="meta-mini-row">
-        <div class="meta-mini-lbl">Meta ROAS</div>
-        <div class="roas-track"><div class="roas-fill" id="roasFill"></div></div>
-        <div class="roas-val" id="roasVal"></div>
-      </div>
-    </div>
-
+  <!-- 1. HERO -->
+  <div class="hero-card" id="heroCard">
+    <div class="hero-eyebrow">Ventas del día · Meta $133,333</div>
+    <div class="hero-gmv" id="heroGmv"><span class="sk" style="display:inline-block;width:200px;height:46px;"></span></div>
+    <div class="hero-goal" id="heroGoal"></div>
+    <div class="prog-wrap"><div class="prog-fill" id="progFill"></div></div>
+    <div class="delta-row" id="deltaRow"><div class="sk" style="width:90px;height:16px;"></div></div>
+    <div id="sameHourWrap"></div>
   </div>
 
-  <!-- ── COL 2: ACTIVIDAD ───────────────────────────────────────── -->
-  <div class="col">
+  <!-- 2. CANAL SPLIT -->
+  <div class="chan-split" id="chanSplit">
+    <div class="chan-card tiktok sk" style="height:90px;"></div>
+    <div class="chan-card web   sk" style="height:90px;"></div>
+  </div>
 
-    <div class="col-hdr">
-      <div class="col-title">Ventas por hora</div>
+  <!-- 3. KPIs -->
+  <div class="kpi-row" id="kpiRow">
+    <div class="kpi"><div class="kpi-lbl">Órdenes</div><div class="sk" style="height:22px;width:50px;margin-top:6px;"></div></div>
+    <div class="kpi"><div class="kpi-lbl">Ticket</div><div class="sk" style="height:22px;width:70px;margin-top:6px;"></div></div>
+    <div class="kpi"><div class="kpi-lbl">ROAS</div><div class="sk" style="height:22px;width:45px;margin-top:6px;"></div></div>
+  </div>
+
+  <!-- 4. PROYECCIÓN -->
+  <div class="proj-card" id="projCard" style="display:none;"></div>
+
+  <!-- 5. CHART -->
+  <div class="chart-card">
+    <div class="chart-hdr">
+      <div class="chart-lbl">Ventas por hora</div>
       <div style="display:flex;align-items:center;gap:8px;">
-        <span id="velocidadBadge" class="vel-badge"></span>
-        <div class="col-meta" id="chartMeta">—</div>
+        <span id="velBadge" class="chart-vel"></span>
+        <span class="chart-peak" id="chartPeak"></span>
       </div>
     </div>
-
-    <!-- SVG Area Chart -->
-    <div class="chart-wrap">
-      <div class="chart-top">
-        <div class="chart-lbl">MXN · hoy</div>
-        <div class="chart-peak" id="chartPeak"></div>
-      </div>
-      <svg id="areaSvg" viewBox="0 0 560 80" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stop-color="#c16452" stop-opacity=".35"/>
-            <stop offset="100%" stop-color="#c16452" stop-opacity="0"/>
-          </linearGradient>
-          <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%"   stop-color="#c16452"/>
-            <stop offset="100%" stop-color="#5b9cf6"/>
-          </linearGradient>
-        </defs>
-        <path id="areaPath" fill="url(#areaGrad)"/>
-        <path id="linePath" fill="none" stroke="url(#lineGrad)" stroke-width="1.5" stroke-linecap="round"/>
-        <circle id="nowDot" r="3" fill="var(--green)" style="display:none;"/>
-      </svg>
-    </div>
-
-    <!-- Heat map horario -->
+    <svg id="areaSvg" viewBox="0 0 560 72" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#B8432A" stop-opacity=".3"/>
+          <stop offset="100%" stop-color="#B8432A" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path id="areaPath" fill="url(#areaGrad)"/>
+      <path id="linePath" fill="none" stroke="#B8432A" stroke-width="1.5" stroke-linecap="round"/>
+      <circle id="nowDot" r="3" fill="var(--green)" style="display:none;"/>
+    </svg>
     <div class="heat-row" id="heatRow"></div>
+  </div>
 
-    <!-- Products -->
-    <div class="col-hdr">
-      <div class="col-title">Más vendidos hoy</div>
-      <div class="col-meta" id="prodMeta">—</div>
+  <!-- 6. PRODUCTS -->
+  <div class="prod-card">
+    <div class="prod-hdr">
+      <div class="sec-lbl" style="margin:0;">Más vendidos</div>
+      <div class="prod-meta" id="prodMeta"></div>
     </div>
     <div class="prod-list" id="prodList">
-      <div style="padding:14px;"><div class="sk" style="height:240px;"></div></div>
-    </div>
-
-  </div>
-
-  <!-- ── COL 3: ADS ─────────────────────────────────────────────── -->
-  <div class="col">
-    <div class="col-hdr" style="flex-shrink:0;">
-      <div class="col-title">Meta Ads</div>
-      <div class="col-meta" id="adsMeta">—</div>
-    </div>
-    <div id="adsSummary" style="display:none;" class="ads-summary"></div>
-    <div class="ads-scroll" id="adsScroll">
-      <div style="padding:20px;"><div class="sk" style="height:200px;border-radius:6px;"></div></div>
+      <div style="padding:14px;"><div class="sk" style="height:180px;"></div></div>
     </div>
   </div>
 
-</div>
+  <!-- 7. ADS -->
+  <div class="ads-card" id="adsCard">
+    <div class="ads-hdr">
+      <div class="sec-lbl" style="margin:0;">Meta Ads</div>
+      <div class="ads-meta" id="adsMeta"></div>
+    </div>
+    <div id="adsInner">
+      <div style="padding:14px;"><div class="sk" style="height:120px;"></div></div>
+    </div>
+  </div>
 
-<!-- TICKER -->
-<div class="ticker-strip" id="tickerStrip" style="display:none;">
+</div><!-- /page -->
+
+<!-- TICKER (desktop/TV) -->
+<div class="ticker-strip" id="tickerStrip">
   <div class="ticker-label">🛍 Órdenes</div>
   <div class="ticker-overflow">
     <div class="ticker-track" id="tickerTrack"></div>
@@ -424,670 +405,517 @@ body.tv .t-amt{font-size:12px;}
 </div>
 
 <script>
-// ── Utils ──────────────────────────────────────────────────────────────────────
+// ── Utils ──────────────────────────────────────────────────
 const MXN  = n => '$' + Math.round(n).toLocaleString('es-MX');
 const N    = n => parseInt(n).toLocaleString('es-MX');
 const PERC = n => (n >= 0 ? '+' : '') + n.toFixed(1) + '%';
 
-// Animated counter
-function animCount(el, target, fmt, duration = 900) {
+function animCount(el, target, fmt, dur = 900) {
   const start = performance.now();
-  const from  = 0;
-  function step(now) {
-    const p = Math.min((now - start) / duration, 1);
-    const ease = 1 - Math.pow(1 - p, 3); // ease-out cubic
-    el.textContent = fmt(from + (target - from) * ease);
+  (function step(now) {
+    const p = Math.min((now - start) / dur, 1);
+    const e = 1 - Math.pow(1 - p, 3);
+    el.textContent = fmt(target * e);
     if (p < 1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
+  })(performance.now());
 }
 
-// ── Meta fija ──────────────────────────────────────────────────────────────────
-const _goal = 133333;
+// ── Meta fija ──────────────────────────────────────────────
+const GOAL = 133333;
+const DAY_START = 7, DAY_END = 23;
 
-// ── Date state ─────────────────────────────────────────────────────────────────
+// ── Date state ─────────────────────────────────────────────
 function mxToday() {
   return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' });
 }
 let _selectedDate = mxToday();
 
 function initDatePicker() {
-  const picker = document.getElementById('datePicker');
-  picker.max   = mxToday();
-  picker.value = _selectedDate;
+  const p = document.getElementById('datePicker');
+  p.max = p.value = _selectedDate;
 }
 
 function onDateChange() {
-  const picker = document.getElementById('datePicker');
-  _selectedDate = picker.value || mxToday();
-  updateDateUI();
-  load(true);
+  _selectedDate = document.getElementById('datePicker').value || mxToday();
+  updateDateUI(); load(true);
 }
 
-function changeDate(delta) {
-  const d = new Date(_selectedDate + 'T12:00:00');
-  d.setDate(d.getDate() + delta);
-  const next = d.toISOString().slice(0, 10);
-  const today = mxToday();
-  if (next > today) return; // can't go into future
-  _selectedDate = next;
-  document.getElementById('datePicker').value = _selectedDate;
-  updateDateUI();
-  load(true);
+function changeDate(d) {
+  const nd = new Date(_selectedDate + 'T12:00:00');
+  nd.setDate(nd.getDate() + d);
+  const s = nd.toISOString().slice(0, 10);
+  if (s > mxToday()) return;
+  _selectedDate = s;
+  document.getElementById('datePicker').value = s;
+  updateDateUI(); load(true);
 }
 
 function goToday() {
   _selectedDate = mxToday();
   document.getElementById('datePicker').value = _selectedDate;
-  updateDateUI();
-  load(true);
+  updateDateUI(); load(true);
 }
 
 function updateDateUI() {
-  const today    = mxToday();
-  const isToday  = _selectedDate === today;
-  const nextBtn  = document.getElementById('dateNextBtn');
+  const today   = mxToday();
+  const isToday = _selectedDate === today;
+  const nextBtn = document.getElementById('dateNextBtn');
   const todayBtn = document.getElementById('todayBtn');
-  const pill     = document.getElementById('livePill');
-  const ringLbl  = document.getElementById('ringLbl');
-
-  // Next button — disable when on today
+  const pill = document.getElementById('livePill');
   nextBtn.disabled = isToday;
   nextBtn.style.opacity = isToday ? '.3' : '';
-  nextBtn.style.cursor  = isToday ? 'default' : 'pointer';
-
-  // Today shortcut button
   todayBtn.style.display = isToday ? 'none' : '';
-
-  // Pill
   if (isToday) {
     pill.className = 'pill';
     pill.innerHTML = '<div class="dot"></div><div class="pill-lbl">En Vivo</div>';
   } else {
-    const [y, m, d] = _selectedDate.split('-');
+    const [y, m, dd] = _selectedDate.split('-');
     pill.className = 'pill-hist';
-    pill.innerHTML = `<div class="pill-lbl">📅 ${d}/${m}/${y}</div>`;
+    pill.innerHTML = `<div class="pill-lbl">📅 ${dd}/${m}/${y}</div>`;
   }
-
-  // Ring label
-  ringLbl.textContent = isToday ? 'Ventas Totales' : 'Ventas del día';
-
-  // picker max
   document.getElementById('datePicker').max = today;
 }
 
-// ── TV mode ────────────────────────────────────────────────────────────────────
+// ── TV mode ────────────────────────────────────────────────
 let _tv = false;
 function toggleTV() {
   _tv = !_tv;
   document.body.classList.toggle('tv', _tv);
-  document.getElementById('tvBtn').classList.toggle('tv-on', _tv);
-  document.getElementById('tvBtn').textContent = _tv ? '✕ TV' : '⛶ TV';
+  const b = document.getElementById('tvBtn');
+  b.classList.toggle('tv-on', _tv);
+  b.textContent = _tv ? '✕ TV' : 'TV';
 }
 
-// ── Countdown ─────────────────────────────────────────────────────────────────
+// ── Countdown ──────────────────────────────────────────────
 let _timer = null, _cd = 60;
 function startCountdown() {
   clearInterval(_timer); _cd = 60;
   _timer = setInterval(() => {
     _cd--;
-    document.getElementById('countdown').textContent = `Actualiza en ${_cd}s`;
+    document.getElementById('countdown').textContent = `${_cd}s`;
     if (_cd <= 0) { clearInterval(_timer); load(); }
   }, 1000);
 }
 
-// ── Sale sound (Web Audio API — sin archivos externos) ────────────────────────
+// ── Sale sound ─────────────────────────────────────────────
 let _audioCtx = null;
-function getSaleSound() {
-  // Lazy-create context on first user gesture or on first sale
-  if (!_audioCtx) {
-    try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return null; }
-  }
+function getAudio() {
+  if (!_audioCtx) try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
   return _audioCtx;
 }
-function playSaleSound(newOrders = 1) {
-  const ctx = getSaleSound();
-  if (!ctx) return;
-  // Cha-ching: two quick high tones + resonance
+function playSaleSound() {
+  const ctx = getAudio(); if (!ctx) return;
   const now = ctx.currentTime;
-  [[660, 0, 0.12, 0.08], [880, 0.1, 0.12, 0.07], [1100, 0.18, 0.09, 0.06]].forEach(([freq, delay, dur, vol]) => {
-    const osc  = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(freq, now + delay);
-    osc.frequency.exponentialRampToValueAtTime(freq * 0.92, now + delay + dur);
-    gain.gain.setValueAtTime(vol, now + delay);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + delay + dur + 0.15);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(now + delay);
-    osc.stop(now + delay + dur + 0.2);
+  [[660,0,.12,.08],[880,.1,.12,.07],[1100,.18,.09,.06]].forEach(([freq,delay,dur,vol]) => {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'sine'; o.frequency.setValueAtTime(freq, now+delay);
+    o.frequency.exponentialRampToValueAtTime(freq*.92, now+delay+dur);
+    g.gain.setValueAtTime(vol, now+delay);
+    g.gain.exponentialRampToValueAtTime(.001, now+delay+dur+.15);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(now+delay); o.stop(now+delay+dur+.2);
   });
 }
 
-// ── Sale flash animation ───────────────────────────────────────────────────────
-let _flashTimeout = null;
-function fireSaleFlash(newCount, lastTopProduct) {
-  const flash   = document.getElementById('saleFlash');
-  const txtEl   = document.getElementById('saleFlashTxt');
-  const amtEl   = document.getElementById('saleFlashAmt');
-  const ringWrap = document.querySelector('.ring-wrap');
-
-  txtEl.textContent = newCount === 1 ? '¡Venta nueva!' : `¡+${newCount} ventas!`;
-  amtEl.textContent = lastTopProduct ? lastTopProduct : '';
-
+// ── Sale flash ─────────────────────────────────────────────
+let _flashTO = null;
+function fireSaleFlash(n, prod) {
+  const flash = document.getElementById('saleFlash');
+  document.getElementById('saleFlashTxt').textContent = n === 1 ? '¡Venta nueva!' : `¡+${n} ventas!`;
+  document.getElementById('saleFlashAmt').textContent = prod || '';
   flash.classList.remove('fire');
-  void flash.offsetWidth; // reflow
+  void flash.offsetWidth;
   flash.classList.add('fire');
-
-  // Ring pulse
-  if (ringWrap) {
-    ringWrap.classList.add('pulse');
-    setTimeout(() => ringWrap.classList.remove('pulse'), 800);
-  }
-
-  clearTimeout(_flashTimeout);
-  _flashTimeout = setTimeout(() => flash.classList.remove('fire'), 900);
-
-  playSaleSound(newCount);
+  clearTimeout(_flashTO);
+  _flashTO = setTimeout(() => flash.classList.remove('fire'), 900);
+  playSaleSound();
 }
 
-// ── Data ───────────────────────────────────────────────────────────────────────
-let _lastGmv    = null;
-let _lastOrders = null;   // track order count between refreshes
+// ── Load ───────────────────────────────────────────────────
+let _lastGmv = null, _lastOrders = null;
 
 async function load(force = false) {
   clearInterval(_timer);
-  const today   = mxToday();
-  const isToday = _selectedDate === today;
-
-  document.getElementById('countdown').textContent = 'Actualizando…';
+  const today = mxToday(), isToday = _selectedDate === today;
+  document.getElementById('countdown').textContent = '…';
   try {
     let url = '/api/live';
-    const params = [];
-    if (!isToday) params.push('date=' + _selectedDate);
-    if (force)    params.push('t=' + Date.now());
-    if (params.length) url += '?' + params.join('&');
-
-    const res  = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const p = []; if (!isToday) p.push('date='+_selectedDate); if (force) p.push('t='+Date.now());
+    if (p.length) url += '?' + p.join('&');
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP '+res.status);
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-
-    const newOrders  = data.shopify?.orders || 0;
+    const newOrders = data.shopify?.orders || 0;
     const prevOrders = _lastOrders;
-
     _lastGmv    = data.shopify?.gmv || 0;
     _lastOrders = newOrders;
-
     renderAll(data, isToday);
-
-    // Detect new sales only when watching live
     if (isToday && prevOrders !== null && newOrders > prevOrders) {
-      const diff = newOrders - prevOrders;
-      const top  = data.shopify?.top_products?.[0]?.title || '';
-      fireSaleFlash(diff, top);
+      fireSaleFlash(newOrders - prevOrders, data.shopify?.top_products?.[0]?.title || '');
     }
-  } catch (e) {
-    document.getElementById('ringGmv').textContent = '—';
+  } catch(e) {
+    document.getElementById('heroGmv').textContent = '—';
     document.getElementById('countdown').textContent = 'Error: ' + e.message;
   }
-
-  if (isToday) {
-    startCountdown();
-  } else {
-    document.getElementById('countdown').textContent = _selectedDate;
-  }
+  if (isToday) startCountdown();
+  else document.getElementById('countdown').textContent = _selectedDate;
 }
 
-// Init AudioContext on first interaction so it's ready when a sale fires
-document.addEventListener('click', () => getSaleSound(), { once: true });
+document.addEventListener('click', () => getAudio(), { once: true });
+initDatePicker(); updateDateUI();
 
-// Init date picker on load
-initDatePicker();
-updateDateUI();
-
+// ── Render all ─────────────────────────────────────────────
 function renderAll(data, isToday = true) {
   const sh   = data.shopify || {};
-  const meta = data.meta   || {};
-  // For historical dates use end-of-day (23) so heat/chart show full day
+  const meta = data.meta    || {};
   const nowH = isToday
-    ? parseInt(new Date().toLocaleTimeString('en-US', { timeZone: 'America/Mexico_City', hour: '2-digit', hour12: false }))
+    ? parseInt(new Date().toLocaleTimeString('en-US', { timeZone:'America/Mexico_City', hour:'2-digit', hour12:false }))
     : 23;
-  renderHero(sh, meta, isToday);
+
+  renderHero(sh, isToday);
+  renderChannelSplit(sh.by_channel || {}, sh.gmv || 0);
   renderKPIs(sh, meta, isToday);
   if (isToday) renderProyeccion(sh.gmv || 0, sh.by_hour || {}, nowH);
-  else { const el = document.getElementById('proyecRow'); if (el) el.style.display = 'none'; }
-  renderChannels(sh.by_channel || {});
+  else { const el = document.getElementById('projCard'); if(el) el.style.display='none'; }
   renderChart(sh.by_hour || {}, sh.gmv || 0, isToday ? nowH : -1);
   renderHeatMap(sh.by_hour || {}, isToday ? nowH : 24);
   if (isToday) renderVelocidad(sh.by_hour || {}, sh.yesterday?.by_hour || {}, nowH);
-  else { const el = document.getElementById('velocidadBadge'); if (el) { el.textContent = ''; el.className = 'vel-badge'; } }
   renderProducts(sh.top_products || [], sh.gmv || 0);
   renderTicker(sh.recent_orders || []);
   renderAds(meta, isToday);
-  if (isToday && meta.configured && !meta.error && meta.spend > 0) renderMetaMini(meta);
 }
 
-// ── Proyección cierre del día ──────────────────────────────────────────────────
-const GOAL = 133333;
-const DAY_START = 7, DAY_END = 23;   // horas hábiles MX
+// ── Hero ───────────────────────────────────────────────────
+function renderHero(sh, isToday) {
+  const gmv  = sh.gmv || 0;
+  const ayer = sh.yesterday || {};
+  const el   = document.getElementById('heroGmv');
+  animCount(el, gmv, v => MXN(v));
 
-function renderProyeccion(gmv, byHour, nowH) {
-  const el = document.getElementById('proyecRow');
-  if (!el) return;
-  if (!gmv || nowH < DAY_START) { el.style.display = 'none'; return; }
-  el.style.display = '';
+  // Progress bar
+  const pct  = Math.min(gmv / GOAL, 1);
+  const fill = document.getElementById('progFill');
+  fill.style.width = (pct * 100).toFixed(1) + '%';
+  fill.className   = 'prog-fill' + (pct >= 1 ? ' done' : '');
+  document.getElementById('heroGmv').className = 'hero-gmv' + (pct < .5 && isToday ? ' warn' : '');
+  document.getElementById('heroGoal').textContent = Math.round(pct * 100) + '% de ' + MXN(GOAL);
 
-  if (nowH >= DAY_END) {
-    el.innerHTML = `<div><div class="proyec-lbl">Proyección cierre</div><div class="proyec-sub">Día terminado</div></div>
-      <div class="proyec-val" style="color:var(--sub)">${MXN(gmv)}</div>`;
-    return;
+  // Delta vs ayer
+  const dRow = document.getElementById('deltaRow');
+  if (ayer.gmv > 0) {
+    const diff = (gmv - ayer.gmv) / ayer.gmv * 100;
+    const cls  = diff > 2 ? 'up' : diff < -2 ? 'down' : 'flat';
+    const arr  = diff > 2 ? '▲' : diff < -2 ? '▼' : '→';
+    dRow.innerHTML = `<div class="delta ${cls}">${arr} ${PERC(diff)}</div><div class="delta-lbl">vs ayer (${MXN(ayer.gmv)})</div>`;
+  } else {
+    dRow.innerHTML = `<div class="delta-lbl">Sin datos de ayer</div>`;
   }
-  const elapsed   = Math.max(0.5, nowH - DAY_START + 0.5);
-  const totalH    = DAY_END - DAY_START;
-  const pace      = gmv / elapsed;           // $/hora actual
-  const projected = Math.round(pace * totalH);
-  const hoursLeft = DAY_END - nowH;
-  const pctGoal   = projected / GOAL * 100;
-  const clr       = projected >= GOAL ? 'var(--green)' : projected >= GOAL * .7 ? 'var(--yellow)' : 'var(--red)';
-  const tag       = projected >= GOAL ? '🎯 Meta' : Math.round(pctGoal) + '% meta';
 
-  el.innerHTML = `
-    <div>
-      <div class="proyec-lbl">Proyección cierre</div>
-      <div class="proyec-sub">${MXN(Math.round(pace))}/hr · ${hoursLeft}h restantes</div>
+  // Same-hour
+  const shWrap = document.getElementById('sameHourWrap');
+  if (isToday && ayer.gmv_same_hour !== undefined) {
+    const shGmv = ayer.gmv_same_hour || 0;
+    const shDiff = shGmv > 0 ? (gmv - shGmv) / shGmv * 100 : null;
+    const shCls  = shDiff === null ? '' : shDiff > 2 ? 'sh-up' : shDiff < -2 ? 'sh-down' : '';
+    const shArr  = shDiff === null ? '' : shDiff > 2 ? ' ▲' : shDiff < -2 ? ' ▼' : ' →';
+    const shPctTxt = shDiff !== null ? `${shArr} ${Math.abs(shDiff).toFixed(1)}%` : '';
+    shWrap.innerHTML = `<div class="same-hour">
+      <div class="sh-left">Ayer a las ${ayer.same_hour_time || '--'} · ${N(ayer.orders_same_hour||0)} órdenes</div>
+      <div class="sh-val ${shCls}">${MXN(shGmv)}${shPctTxt}</div>
+    </div>`;
+  } else {
+    shWrap.innerHTML = '';
+  }
+}
+
+// ── Canal Split ────────────────────────────────────────────
+const CHAN_CFG = {
+  tiktok: { label: 'TikTok',        cls: 'tiktok', color: '#FF3B5C' },
+  web:    { label: 'Online Store',   cls: 'web',    color: '#B8432A' },
+};
+
+function renderChannelSplit(byChannel, totalGmv) {
+  const wrap = document.getElementById('chanSplit');
+  if (!totalGmv) return;
+
+  const main = ['tiktok', 'web'];
+  // "Otros" = everything else with GMV
+  const otherGmv    = Object.entries(byChannel)
+    .filter(([k]) => !main.includes(k))
+    .reduce((s, [,v]) => s + (v.gmv||0), 0);
+  const otherOrders = Object.entries(byChannel)
+    .filter(([k]) => !main.includes(k))
+    .reduce((s, [,v]) => s + (v.orders||0), 0);
+
+  const cards = main.map(key => {
+    const cfg = CHAN_CFG[key];
+    const d   = byChannel[key] || { gmv: 0, orders: 0 };
+    const pct = totalGmv > 0 ? (d.gmv / totalGmv * 100) : 0;
+    return `<div class="chan-card ${cfg.cls}">
+      <div class="chan-name">${cfg.label}</div>
+      <div class="chan-gmv">${MXN(d.gmv)}</div>
+      <div class="chan-orders">${N(d.orders)} orden${d.orders !== 1 ? 'es' : ''}</div>
+      <div class="chan-share">${pct.toFixed(1)}%</div>
+    </div>`;
+  }).join('');
+
+  // Bar showing split
+  const tiktokPct = totalGmv > 0 ? ((byChannel.tiktok?.gmv||0) / totalGmv * 100).toFixed(1) : 0;
+  const webPct    = totalGmv > 0 ? ((byChannel.web?.gmv||0) / totalGmv * 100).toFixed(1) : 0;
+  const otherPct  = totalGmv > 0 ? (otherGmv / totalGmv * 100).toFixed(1) : 0;
+
+  const bar = `<div class="chan-bar-wrap">
+    <div class="chan-bar-seg" style="width:${tiktokPct}%;background:#FF3B5C;"></div>
+    <div class="chan-bar-seg" style="width:${webPct}%;background:#B8432A;"></div>
+    ${otherPct > 0 ? `<div class="chan-bar-seg" style="width:${otherPct}%;background:rgba(255,255,255,.2);"></div>` : ''}
+  </div>`;
+
+  wrap.innerHTML = cards + bar;
+}
+
+// ── KPIs ───────────────────────────────────────────────────
+function renderKPIs(sh, meta, isToday) {
+  const spend = isToday ? (meta.spend || 0) : 0;
+  const roas  = spend > 0 ? sh.gmv / spend : null;
+  const roasC = roas === null ? '' : roas >= 5 ? 'green' : roas >= 2.5 ? 'yellow' : 'red';
+  const ayer  = sh.yesterday || {};
+  const ordDiff = ayer.orders > 0 ? ((sh.orders - ayer.orders) / ayer.orders * 100) : null;
+
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi">
+      <div class="kpi-lbl">Órdenes</div>
+      <div class="kpi-val">${N(sh.orders || 0)}</div>
+      ${ordDiff !== null ? `<div class="kpi-d" style="color:${ordDiff>=0?'var(--green)':'var(--red)'}">${PERC(ordDiff)} ayer</div>` : ''}
     </div>
-    <div style="text-align:right;">
-      <div class="proyec-val" style="color:${clr}">${MXN(projected)}</div>
-      <div class="proyec-sub">${tag}</div>
+    <div class="kpi">
+      <div class="kpi-lbl">Ticket prom.</div>
+      <div class="kpi-val oxide">${MXN(sh.aov || 0)}</div>
+      <div class="kpi-d">por orden</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">ROAS</div>
+      <div class="kpi-val ${roasC}">${roas !== null ? roas.toFixed(2)+'×' : '—'}</div>
+      <div class="kpi-d">${roas !== null ? (roas>=5?'🔥 Excelente':roas>=2.5?'✓ Positivo':'⚠ Bajo') : 'sin Meta'}</div>
     </div>`;
 }
 
-// ── Heat map horario ───────────────────────────────────────────────────────────
+// ── Proyección ─────────────────────────────────────────────
+function renderProyeccion(gmv, byHour, nowH) {
+  const el = document.getElementById('projCard');
+  if (!el) return;
+  if (!gmv || nowH < DAY_START) { el.style.display = 'none'; return; }
+  el.style.display = '';
+  if (nowH >= DAY_END) {
+    el.innerHTML = `<div class="proj-left"><div class="proj-lbl">Proyección cierre</div><div class="proj-sub">Día terminado</div></div><div class="proj-val" style="color:var(--sub)">${MXN(gmv)}</div>`;
+    return;
+  }
+  const elapsed   = Math.max(.5, nowH - DAY_START + .5);
+  const pace      = gmv / elapsed;
+  const projected = Math.round(pace * (DAY_END - DAY_START));
+  const hoursLeft = DAY_END - nowH;
+  const pctGoal   = projected / GOAL * 100;
+  const clr = projected >= GOAL ? 'var(--green)' : projected >= GOAL*.7 ? 'var(--yellow)' : 'var(--red)';
+  const tag = projected >= GOAL ? '🎯 Meta' : Math.round(pctGoal) + '% meta';
+  el.innerHTML = `
+    <div class="proj-left">
+      <div class="proj-lbl">Proyección cierre</div>
+      <div class="proj-sub">${MXN(Math.round(pace))}/hr · ${hoursLeft}h restantes</div>
+    </div>
+    <div style="text-align:right;">
+      <div class="proj-val" style="color:${clr}">${MXN(projected)}</div>
+      <div class="proj-tag">${tag}</div>
+    </div>`;
+}
+
+// ── Velocidad ──────────────────────────────────────────────
+function renderVelocidad(byHour, yesterByHour, nowH) {
+  const el = document.getElementById('velBadge');
+  if (!el) return;
+  const hoy   = byHour[nowH]?.gmv        || 0;
+  const ayer  = yesterByHour?.[nowH]?.gmv || 0;
+  if (!ayer || !hoy) { el.textContent = ''; el.className = 'chart-vel'; return; }
+  const diff = (hoy - ayer) / ayer * 100;
+  const cls  = diff > 5 ? 'up' : diff < -5 ? 'down' : 'flat';
+  const ico  = diff > 5 ? '🔥' : diff < -5 ? '❄️' : '→';
+  el.className = `chart-vel ${cls}`;
+  el.textContent = `${ico} ${diff > 0 ? '+' : ''}${diff.toFixed(0)}% esta hora`;
+}
+
+// ── Chart ──────────────────────────────────────────────────
+function renderChart(byHour, totalGmv, nowH = -1) {
+  const W = 560, H = 72;
+  const hours = Array.from({length:17}, (_, i) => i + 7);
+  const vals  = hours.map(h => byHour[h]?.gmv || 0);
+  const max   = Math.max(1, ...vals);
+  document.getElementById('chartPeak').textContent = max > 1 ? 'pico ' + MXN(max) : '';
+  const pts = hours.map((h, i) => ({
+    x: (i / (hours.length - 1)) * W,
+    y: vals[i] > 0 ? H - (vals[i] / max) * (H - 8) : H
+  }));
+  let area = `M 0 ${H}`, line = `M ${pts[0].x} ${pts[0].y}`;
+  for (let i = 1; i < pts.length; i++) {
+    const cp1x = pts[i-1].x + (pts[i].x - pts[i-1].x) * .4;
+    const cp2x = pts[i].x   - (pts[i].x - pts[i-1].x) * .4;
+    area += ` C ${cp1x} ${pts[i-1].y} ${cp2x} ${pts[i].y} ${pts[i].x} ${pts[i].y}`;
+    line += ` C ${cp1x} ${pts[i-1].y} ${cp2x} ${pts[i].y} ${pts[i].x} ${pts[i].y}`;
+    if (i === 0) area += ` L ${pts[0].x} ${pts[0].y}`;
+  }
+  area += ` L ${W} ${H} Z`;
+  document.getElementById('areaPath').setAttribute('d', area);
+  document.getElementById('linePath').setAttribute('d', line);
+  const nowIdx = hours.indexOf(nowH);
+  const dot = document.getElementById('nowDot');
+  if (nowIdx >= 0 && vals[nowIdx] > 0) {
+    dot.setAttribute('cx', pts[nowIdx].x); dot.setAttribute('cy', pts[nowIdx].y); dot.style.display = '';
+  } else dot.style.display = 'none';
+}
+
+// ── Heat map ───────────────────────────────────────────────
 function renderHeatMap(byHour, nowH) {
-  const el    = document.getElementById('heatRow');
+  const el = document.getElementById('heatRow');
   if (!el) return;
   const hours = Array.from({length: DAY_END - DAY_START + 1}, (_, i) => i + DAY_START);
   const vals  = hours.map(h => byHour[h]?.gmv || 0);
   const maxV  = Math.max(1, ...vals);
-
   el.innerHTML = hours.map((h, i) => {
-    const v       = vals[i];
-    const pct     = v / maxV;
-    const past    = h < nowH;
-    const current = h === nowH;
-    let bg;
-    if (current)   bg = `rgba(62,207,142,${Math.max(.18, pct)})`;
-    else if (past) bg = `rgba(193,100,82,${Math.max(.07, pct * .9)})`;
-    else           bg = 'rgba(255,255,255,.03)';
-    const border = current ? 'border:1px solid rgba(62,207,142,.45);box-sizing:border-box;' : '';
-    return `<div class="heat-col">
-      <div class="heat-bar" title="${h}:00 · ${v > 0 ? MXN(v) : '—'}" style="background:${bg};${border}"></div>
-      <div class="heat-lbl">${h}</div>
-    </div>`;
+    const v = vals[i], pct = v / maxV;
+    const past = h < nowH, cur = h === nowH;
+    let bg = cur ? `rgba(62,207,142,${Math.max(.2,pct)})` : past ? `rgba(184,67,42,${Math.max(.08,pct*.9)})` : 'rgba(255,255,255,.03)';
+    const bdr = cur ? 'border:1px solid rgba(62,207,142,.4);' : '';
+    return `<div class="heat-col"><div class="heat-bar" title="${h}:00 · ${v>0?MXN(v):'—'}" style="background:${bg};${bdr}"></div><div class="heat-lbl">${h}</div></div>`;
   }).join('');
 }
 
-// ── Velocidad de hora ──────────────────────────────────────────────────────────
-function renderVelocidad(byHour, yesterdayByHour, nowH) {
-  const el = document.getElementById('velocidadBadge');
-  if (!el) return;
-  const todayGmvH  = byHour[nowH]?.gmv          || 0;
-  const yesterGmvH = yesterdayByHour?.[nowH]?.gmv || 0;
-  if (!yesterGmvH || !todayGmvH) { el.textContent = ''; el.className = 'vel-badge'; return; }
-  const diff = ((todayGmvH - yesterGmvH) / yesterGmvH) * 100;
-  const cls  = diff > 5 ? 'up' : diff < -5 ? 'down' : 'flat';
-  const icon = diff > 5 ? '🔥' : diff < -5 ? '❄️' : '→';
-  el.className = `vel-badge ${cls}`;
-  el.textContent = `${icon} ${diff > 0 ? '+' : ''}${diff.toFixed(0)}% esta hora`;
-}
-
-// ── Ticker de órdenes ──────────────────────────────────────────────────────────
-function renderTicker(orders) {
-  const strip = document.getElementById('tickerStrip');
-  const track = document.getElementById('tickerTrack');
-  if (!strip || !track || !orders?.length) { if (strip) strip.style.display = 'none'; return; }
-  strip.style.display = '';
-
-  // Triple para loop seamless
-  const all = [...orders, ...orders, ...orders];
-  track.innerHTML = all.map(o => {
-    const col = CH_COLORS[o.channel] || '#888';
-    return `<div class="t-item">
-      <div class="t-dot" style="background:${col}"></div>
-      <span class="t-prod">${o.product}</span>
-      <span class="t-amt">${MXN(o.amount)}</span>
-      <span class="t-time">${o.time}</span>
-    </div><div class="t-sep">|</div>`;
-  }).join('');
-
-  track.style.animationDuration = `${Math.max(25, orders.length * 4)}s`;
-}
-
-// ── Ring + GMV ─────────────────────────────────────────────────────────────────
-function updateRing(gmv) {
-  const goal  = _goal || 0;
-  const pct   = goal > 0 ? Math.min(gmv / goal, 1) : 0;
-  const circ  = 2 * Math.PI * 82;  // r=82
-  const offset = circ * (1 - pct);
-  const fill   = document.getElementById('ringFill');
-  fill.style.strokeDashoffset = offset;
-
-  const pctEl = document.getElementById('ringPct');
-  if (goal > 0) {
-    pctEl.textContent = Math.round(pct * 100) + '% de ' + MXN(goal);
-    // Color warning si <50%
-    const gmvEl = document.getElementById('ringGmv');
-    gmvEl.className = 'ring-gmv' + (pct < 0.5 && goal > 0 ? ' warn' : '');
-  } else {
-    pctEl.textContent = 'Toca ▸ Meta diaria para fijar objetivo';
-    pctEl.style.fontSize = '7px';
-  }
-}
-
-function renderHero(sh, meta, isToday = true) {
-  const gmv  = sh.gmv || 0;
-  const ayer = sh.yesterday || {};
-  const el   = document.getElementById('ringGmv');
-  animCount(el, gmv, v => MXN(v));
-  updateRing(gmv);
-
-  // Delta vs ayer (total del día)
-  const deltaEl = document.getElementById('deltaRow');
-  if (ayer.gmv > 0) {
-    const diff  = ((gmv - ayer.gmv) / ayer.gmv) * 100;
-    const cls   = diff > 2 ? 'up' : diff < -2 ? 'down' : 'flat';
-    const arrow = diff > 2 ? '▲' : diff < -2 ? '▼' : '→';
-    deltaEl.innerHTML = `
-      <div class="delta-main">
-        <div class="delta ${cls}">${arrow} ${PERC(diff)}</div>
-        <div class="delta-lbl">vs ayer total ${MXN(ayer.gmv)}</div>
-      </div>`;
-  } else {
-    deltaEl.innerHTML = `<div class="delta-lbl" style="font-size:8px;">Sin datos de ayer</div>`;
-  }
-
-  // Ayer a esta misma hora (solo para vista live)
-  const shRow = document.getElementById('sameHourRow');
-  if (isToday && ayer.gmv_same_hour !== undefined) {
-    const shGmv  = ayer.gmv_same_hour || 0;
-    const shTime = ayer.same_hour_time || '';
-    // Compare current GMV vs yesterday-same-hour GMV
-    const shDiff  = shGmv > 0 ? ((gmv - shGmv) / shGmv) * 100 : null;
-    const shCls   = shDiff === null ? '' : shDiff > 2 ? 'sh-up' : shDiff < -2 ? 'sh-down' : '';
-    const shArrow = shDiff === null ? '' : shDiff > 2 ? '▲' : shDiff < -2 ? '▼' : '→';
-    const shPct   = shDiff !== null ? ` <span style="font-size:9px;font-weight:700;">${shArrow} ${Math.abs(shDiff).toFixed(1)}%</span>` : '';
-    shRow.style.display = '';
-    shRow.innerHTML = `
-      <div class="delta-samehour">
-        <div class="delta-sh-ico">🕐</div>
-        <div class="delta-sh-lbl">Ayer a las ${shTime} · ${N(ayer.orders_same_hour || 0)} órdenes</div>
-        <div class="delta-sh-val ${shCls}">${MXN(shGmv)}${shPct}</div>
-      </div>`;
-  } else {
-    shRow.style.display = 'none';
-  }
-}
-
-// ── KPIs ───────────────────────────────────────────────────────────────────────
-function renderKPIs(sh, meta, isToday = true) {
-  const spend = isToday ? (meta.spend || 0) : 0;
-  const roas  = spend > 0 ? sh.gmv / spend : null;
-  const roasC = roas === null ? '' : roas >= 5 ? 'green' : roas >= 2.5 ? 'yellow' : 'red';
-  const roasT = roas !== null ? roas.toFixed(2) + '×' : '—';
-
-  // Delta órdenes vs ayer
-  const ayer = sh.yesterday || {};
-  const ordDiff = ayer.orders > 0 ? ((sh.orders - ayer.orders) / ayer.orders * 100) : null;
-  const ordDelta = ordDiff !== null
-    ? `<div class="kpi-d" style="color:${ordDiff >= 0 ? 'var(--green)' : 'var(--red)'}">${PERC(ordDiff)} vs ayer</div>` : '';
-
-  document.getElementById('kpiGrid').innerHTML = `
-    <div class="kpi">
-      <div class="kpi-lbl">Órdenes</div>
-      <div class="kpi-val">${N(sh.orders || 0)}</div>
-      ${ordDelta}
-    </div>
-    <div class="kpi">
-      <div class="kpi-lbl">Ticket Prom.</div>
-      <div class="kpi-val blue">${MXN(sh.aov || 0)}</div>
-      <div class="kpi-d" style="color:var(--muted)">por orden</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-lbl">Gasto Meta</div>
-      <div class="kpi-val yellow">${spend > 0 ? MXN(spend) : '—'}</div>
-      <div class="kpi-d" style="color:var(--muted)">${spend > 0 ? N(meta.impressions || 0) + ' impr.' : 'sin datos'}</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-lbl">ROAS · Shopify/Meta</div>
-      <div class="kpi-val ${roasC}">${roasT}</div>
-      <div class="kpi-d" style="color:var(--muted)">${roas !== null ? (roas >= 5 ? '🔥 Excelente' : roas >= 2.5 ? '✓ Positivo' : '⚠ Bajo') : 'sin Meta'}</div>
-    </div>`;
-}
-
-// ── Channels ───────────────────────────────────────────────────────────────────
-const CH_COLORS = { tiktok: '#ff3b5c', web: '#5b9cf6', pos: '#f5c518', android: '#3ecf8e', ios: '#a78bfa', shopify_draft_orders: '#c16452' };
-const CH_LABELS = { tiktok: 'TikTok', web: 'Web', pos: 'POS', android: 'Android', ios: 'iOS', shopify_draft_orders: 'Draft' };
-
-function renderChannels(byChannel) {
-  const entries = Object.entries(byChannel).sort((a, b) => b[1].gmv - a[1].gmv);
-  const total   = entries.reduce((s, [, v]) => s + v.gmv, 0);
-  if (!total) return;
-
-  const bar = entries.map(([ch, v]) => {
-    const pct = (v.gmv / total * 100).toFixed(1);
-    const col = CH_COLORS[ch] || '#888';
-    return `<div class="ch-seg" style="width:${pct}%;background:${col};"></div>`;
-  }).join('');
-
-  const legend = entries.map(([ch, v]) => {
-    const pct = (v.gmv / total * 100).toFixed(0);
-    const col = CH_COLORS[ch] || '#888';
-    const lbl = CH_LABELS[ch] || ch;
-    return `<div class="ch-item"><div class="ch-dot" style="background:${col}"></div>${lbl} <span style="color:var(--sub);font-weight:700">${pct}%</span></div>`;
-  }).join('');
-
-  document.getElementById('channels').innerHTML = `
-    <div class="ch-lbl">Canal de venta</div>
-    <div class="ch-bar">${bar}</div>
-    <div class="ch-legend">${legend}</div>`;
-}
-
-// ── SVG Area Chart ─────────────────────────────────────────────────────────────
-function renderChart(byHour, totalGmv, nowH = -1) {
-  const W = 560, H = 80;
-  const hours = Array.from({ length: 17 }, (_, i) => i + 7); // 7–23
-  const vals  = hours.map(h => byHour[h]?.gmv || 0);
-  const max   = Math.max(1, ...vals);
-
-  document.getElementById('chartMeta').textContent  = totalGmv > 0 ? MXN(totalGmv) + ' · hoy' : '';
-  document.getElementById('chartPeak').textContent  = max > 0 ? 'Pico ' + MXN(max) : '';
-
-  // Smooth bezier points
-  const pts = hours.map((h, i) => {
-    const x = (i / (hours.length - 1)) * W;
-    const y = H - (vals[i] / max) * (H - 8);
-    return { x, y: vals[i] > 0 ? y : H };
-  });
-
-  let area = `M 0 ${H}`;
-  let line = `M ${pts[0].x} ${pts[0].y}`;
-  for (let i = 0; i < pts.length; i++) {
-    if (i === 0) { area += ` L ${pts[0].x} ${pts[0].y}`; continue; }
-    const cp1x = pts[i-1].x + (pts[i].x - pts[i-1].x) * 0.4;
-    const cp2x = pts[i].x   - (pts[i].x - pts[i-1].x) * 0.4;
-    area += ` C ${cp1x} ${pts[i-1].y} ${cp2x} ${pts[i].y} ${pts[i].x} ${pts[i].y}`;
-    line += ` C ${cp1x} ${pts[i-1].y} ${cp2x} ${pts[i].y} ${pts[i].x} ${pts[i].y}`;
-  }
-  area += ` L ${W} ${H} Z`;
-
-  document.getElementById('areaPath').setAttribute('d', area);
-  document.getElementById('linePath').setAttribute('d', line);
-
-  // Current hour dot
-  const nowIdx = hours.indexOf(nowH);
-  const dot    = document.getElementById('nowDot');
-  if (nowIdx >= 0 && vals[nowIdx] > 0) {
-    dot.setAttribute('cx', pts[nowIdx].x);
-    dot.setAttribute('cy', pts[nowIdx].y);
-    dot.style.display = '';
-  } else {
-    dot.style.display = 'none';
-  }
-}
-
-// ── Products ───────────────────────────────────────────────────────────────────
-const MEDALS = ['🥇', '🥈', '🥉'];
-
+// ── Products ───────────────────────────────────────────────
+const MEDALS = ['🥇','🥈','🥉'];
 function renderProducts(products, totalGmv) {
-  const metaEl = document.getElementById('prodMeta');
+  const meta = document.getElementById('prodMeta');
   if (!products.length) {
-    metaEl.textContent = '';
-    document.getElementById('prodList').innerHTML =
-      `<div style="padding:30px 16px;text-align:center;color:var(--muted);font-size:11px;">Sin ventas aún hoy.</div>`;
+    meta.textContent = '';
+    document.getElementById('prodList').innerHTML = `<div style="padding:24px;text-align:center;font-size:11px;color:var(--muted);">Sin ventas aún hoy</div>`;
     return;
   }
-  metaEl.textContent = N(products.reduce((s, p) => s + p.units, 0)) + ' pares · ' + MXN(products.reduce((s, p) => s + p.gmv, 0));
+  meta.textContent = N(products.reduce((s,p)=>s+p.units,0)) + ' pares';
   const maxGmv = products[0].gmv;
-
-  document.getElementById('prodList').innerHTML = products.map((p, i) => {
-    const medal = i < 3 ? `<div class="medal">${MEDALS[i]}</div>` : `<div class="rank-num">${i+1}</div>`;
+  document.getElementById('prodList').innerHTML = products.slice(0, 8).map((p, i) => {
+    const badge = i < 3 ? `<div class="medal">${MEDALS[i]}</div>` : `<div class="rank-num">${i+1}</div>`;
     const img   = p.image
       ? `<img class="prod-img" src="${p.image}" loading="lazy" onerror="this.outerHTML='<div class=prod-img-ph>👟</div>'"/>`
       : `<div class="prod-img-ph">👟</div>`;
     return `<div class="prod-row">
-      ${medal}
-      ${img}
+      ${badge}${img}
       <div class="prod-info">
         <div class="prod-name">${p.title}</div>
         <div class="prod-track"><div class="prod-fill" style="width:${Math.round(p.gmv/maxGmv*100)}%"></div></div>
       </div>
       <div class="prod-r">
         <div class="prod-gmv">${MXN(p.gmv)}</div>
-        <div class="prod-units">${p.units} par${p.units !== 1 ? 'es' : ''}</div>
+        <div class="prod-units">${p.units} par${p.units!==1?'es':''}</div>
       </div>
     </div>`;
   }).join('');
 }
 
-// ── Ads — card list ────────────────────────────────────────────────────────────
-function renderAds(meta) {
-  const scroll  = document.getElementById('adsScroll');
-  const summary = document.getElementById('adsSummary');
+// ── Ticker ─────────────────────────────────────────────────
+const CH_COLORS = { tiktok:'#FF3B5C', web:'#B8432A', pos:'#F5C518', android:'#3ECF8E', ios:'#a78bfa', shopify_draft_orders:'#F5C518' };
+function renderTicker(orders) {
+  const strip = document.getElementById('tickerStrip');
+  const track = document.getElementById('tickerTrack');
+  if (!strip || !track || !orders?.length) { if(strip) strip.style.display='none'; return; }
+  // Ticker only shows in TV/desktop via CSS
+  const all = [...orders,...orders,...orders];
+  track.innerHTML = all.map(o => {
+    const col = CH_COLORS[o.channel] || '#888';
+    return `<div class="t-item"><div class="t-dot" style="background:${col}"></div><span class="t-prod">${o.product}</span><span class="t-amt">${MXN(o.amount)}</span><span class="t-time">${o.time}</span></div><div class="t-sep">|</div>`;
+  }).join('');
+  track.style.animationDuration = `${Math.max(25, orders.length*4)}s`;
+}
+
+// ── Ads ────────────────────────────────────────────────────
+function renderAds(meta, isToday) {
+  const inner = document.getElementById('adsInner');
+  const metaEl = document.getElementById('adsMeta');
 
   if (!meta || meta.configured === false) {
-    summary.style.display = 'none';
-    scroll.innerHTML = `<div class="ads-uncfg">
-      <div class="ads-uncfg-ico">📡</div>
-      <div class="ads-uncfg-txt">Agrega en Vercel:<br><br><code>META_TOKEN</code><br><code>META_ACCOUNT_ID</code></div>
-    </div>`;
+    inner.innerHTML = `<div class="ads-uncfg"><div class="ads-uncfg-ico">📡</div><div class="ads-uncfg-txt">Configura <code>META_TOKEN</code> y <code>META_ACCOUNT_ID</code> en Vercel</div></div>`;
     return;
   }
   if (meta.error) {
-    summary.style.display = 'none';
-    scroll.innerHTML = `<div style="padding:16px;font-size:11px;color:var(--red);">Error Meta: ${meta.error}</div>`;
+    inner.innerHTML = `<div style="padding:14px;font-size:11px;color:var(--red);">Error Meta: ${meta.error}</div>`;
     return;
   }
 
   const ads = meta.active_ads || [];
-  document.getElementById('adsMeta').textContent = ads.length ? `${ads.length} activo${ads.length !== 1 ? 's' : ''}` : 'sin anuncios';
+  metaEl.textContent = ads.length ? `${ads.length} activos` : '';
+
+  const totalSpend = meta.spend || 0;
+  const totalPurch = meta.purchases || 0;
+  const roasShop   = totalSpend > 0 && _lastGmv ? _lastGmv / totalSpend : null;
+  const roasC = roasShop === null ? 'var(--sub)' : roasShop>=5?'var(--green)':roasShop>=2.5?'var(--yellow)':'var(--red)';
+
+  const strip = `<div class="ads-strip">
+    <div class="ads-strip-cell">
+      <div class="ads-strip-val" style="color:var(--yellow)">${totalSpend>0?MXN(totalSpend):'—'}</div>
+      <div class="ads-strip-lbl">Gasto</div>
+    </div>
+    <div class="ads-strip-cell">
+      <div class="ads-strip-val" style="color:${roasC}">${roasShop!==null?roasShop.toFixed(1)+'×':'—'}</div>
+      <div class="ads-strip-lbl">ROAS real</div>
+    </div>
+    <div class="ads-strip-cell">
+      <div class="ads-strip-val">${totalPurch>0?totalPurch:'—'}</div>
+      <div class="ads-strip-lbl">Compras</div>
+    </div>
+  </div>`;
 
   if (!ads.length) {
-    summary.style.display = 'none';
-    scroll.innerHTML = `<div class="ads-uncfg"><div class="ads-uncfg-ico">🎯</div><div class="ads-uncfg-txt">Sin anuncios activos.</div></div>`;
+    inner.innerHTML = strip + `<div class="ads-empty">Sin anuncios activos</div>`;
     return;
   }
 
-  // ── Summary strip (account-level) ──────────────────────────────────────────
-  const totalSpend  = meta.spend          || 0;
-  const totalPurch  = meta.purchases      || 0;
-  const roasShopify = totalSpend > 0 && _lastGmv ? _lastGmv / totalSpend : null;
-  const roasC       = roasShopify === null ? 'var(--sub)' : roasShopify >= 5 ? 'var(--green)' : roasShopify >= 2.5 ? 'var(--yellow)' : 'var(--red)';
-
-  summary.style.display = '';
-  summary.innerHTML = `
-    <div class="ads-sum-cell">
-      <div class="ads-sum-val" style="color:var(--yellow)">${totalSpend > 0 ? MXN(totalSpend) : '—'}</div>
-      <div class="ads-sum-lbl">Gasto total</div>
-    </div>
-    <div class="ads-sum-cell">
-      <div class="ads-sum-val" style="color:${roasC}">${roasShopify !== null ? roasShopify.toFixed(1) + '×' : '—'}</div>
-      <div class="ads-sum-lbl">ROAS real</div>
-    </div>
-    <div class="ads-sum-cell">
-      <div class="ads-sum-val">${totalPurch > 0 ? totalPurch : '—'}</div>
-      <div class="ads-sum-lbl">Compras Meta</div>
-    </div>`;
-
-  // ── Per-ad rows ─────────────────────────────────────────────────────────────
   const withData    = ads.filter(a => a.insights?.spend > 0);
   const withoutData = ads.filter(a => !(a.insights?.spend > 0));
   const maxSpend    = Math.max(1, ...withData.map(a => a.insights.spend));
-  const MEDALS      = ['🥇','🥈','🥉'];
 
-  const dataRows = withData.map((ad, i) => {
-    const ins      = ad.insights;
-    const roas     = ins.revenue > 0 ? ins.revenue / ins.spend : null;
-    const roasClr  = roas === null ? 'var(--muted)' : roas >= 5 ? 'var(--green)' : roas >= 2.5 ? 'var(--yellow)' : 'var(--red)';
-    const spendPct = Math.round(ins.spend / maxSpend * 100);
-    const rank     = MEDALS[i] || `<span style="font-size:8px;color:var(--muted)">#${i+1}</span>`;
-    const bg       = ad.thumbnail ? `background-image:url('${ad.thumbnail}')` : '';
-
+  const rows = withData.slice(0, 5).map((ad, i) => {
+    const ins    = ad.insights;
+    const roas   = ins.revenue > 0 ? ins.revenue / ins.spend : null;
+    const rClr   = roas===null?'var(--muted)':roas>=5?'var(--green)':roas>=2.5?'var(--yellow)':'var(--red)';
+    const spPct  = Math.round(ins.spend / maxSpend * 100);
+    const rank   = i < 3 ? ['🥇','🥈','🥉'][i] : `#${i+1}`;
+    const bg     = ad.thumbnail ? `background-image:url('${ad.thumbnail}')` : '';
     return `<div class="ad-row">
-      <div class="ad-row-thumb" style="${bg}"></div>
-      <div class="ad-row-body">
-        <div class="ad-row-top">
-          <div class="ad-row-rank">${rank}</div>
-          <div class="ad-row-name">${ad.name}</div>
+      <div class="ad-thumb" style="${bg}"></div>
+      <div class="ad-body">
+        <div class="ad-name">${rank} ${ad.name}</div>
+        <div class="ad-stats">
+          <div class="ad-stat" style="color:var(--yellow)">${MXN(ins.spend)}<span>gasto</span></div>
+          <div class="ad-sep"></div>
+          <div class="ad-stat" style="color:${rClr}">${roas!==null?roas.toFixed(1)+'×':'—'}<span>ROAS</span></div>
+          ${ins.purchases>0?`<div class="ad-sep"></div><div class="ad-stat" style="color:var(--green)">${ins.purchases}<span>comp.</span></div>`:''}
         </div>
-        <div class="ad-row-stats">
-          <div class="ad-row-stat" style="color:var(--yellow)">${MXN(ins.spend)}<span>gasto</span></div>
-          <div style="width:1px;height:10px;background:rgba(255,255,255,.08);flex-shrink:0;"></div>
-          <div class="ad-row-stat" style="color:${roasClr}">${roas !== null ? roas.toFixed(1)+'×' : '—'}<span>ROAS</span></div>
-          ${ins.purchases > 0 ? `<div style="width:1px;height:10px;background:rgba(255,255,255,.08);flex-shrink:0;"></div>
-          <div class="ad-row-stat" style="color:var(--green)">${ins.purchases}<span>comp.</span></div>` : ''}
-        </div>
-        <div class="ad-row-bar"><div class="ad-row-bar-fill" style="width:${spendPct}%;background:${roasClr};"></div></div>
+        <div class="ad-bar"><div class="ad-bar-fill" style="width:${spPct}%;background:${rClr};"></div></div>
       </div>
     </div>`;
   }).join('');
 
-  const noDataRows = withoutData.map(ad => {
-    const bg = ad.thumbnail ? `background-image:url('${ad.thumbnail}')` : '';
-    return `<div class="ad-row no-data">
-      <div class="ad-row-thumb" style="${bg}"></div>
-      <div class="ad-row-name" style="flex:1;font-size:8px;">${ad.name}</div>
-      <div class="ad-row-dot"></div>
-    </div>`;
-  }).join('');
+  const noData = withoutData.length
+    ? `<div style="padding:6px 8px 2px;font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.18);font-weight:600;">Sin gasto hoy · ${withoutData.length}</div>`
+      + withoutData.slice(0,3).map(ad => {
+        const bg = ad.thumbnail ? `background-image:url('${ad.thumbnail}')` : '';
+        return `<div class="ad-row" style="opacity:.5;padding:5px 8px;">
+          <div class="ad-thumb" style="${bg};width:28px;height:28px;"></div>
+          <div class="ad-name" style="font-size:8px;color:var(--muted);">${ad.name}</div>
+        </div>`;
+      }).join('')
+    : '';
 
-  let html = '';
-  if (withData.length) {
-    html += `<div class="ads-section-hdr">Con gasto hoy · ${withData.length} anuncio${withData.length !== 1 ? 's' : ''}</div>`;
-    html += dataRows;
-  }
-  if (withoutData.length) {
-    html += `<div class="ads-section-hdr" style="margin-top:${withData.length ? '6px' : '0'};">Sin gasto hoy · ${withoutData.length} activo${withoutData.length !== 1 ? 's' : ''}</div>`;
-    html += noDataRows;
-  }
-  scroll.innerHTML = html;
+  inner.innerHTML = strip + `<div class="ads-list">${rows}${noData}</div>`;
 }
 
-// ── Meta ROAS mini ─────────────────────────────────────────────────────────────
-function renderMetaMini(meta) {
-  const roas  = meta.purchase_value > 0 && meta.spend > 0 ? meta.purchase_value / meta.spend : null;
-  const el    = document.getElementById('metaMini');
-  if (!roas) return;
-  el.style.display = '';
-  const clr   = roas >= 5 ? 'var(--green)' : roas >= 2.5 ? 'var(--yellow)' : 'var(--red)';
-  const pct   = Math.min(roas / 8 * 100, 100);
-  document.getElementById('roasFill').style.cssText = `width:${pct}%;background:${clr};`;
-  document.getElementById('roasVal').style.color = clr;
-  document.getElementById('roasVal').textContent  = roas.toFixed(2) + '×';
-}
-
-load(); // initial load — date already set by initDatePicker() above
+// ── Boot ───────────────────────────────────────────────────
+load();
 </script>
 </body>
 </html>
