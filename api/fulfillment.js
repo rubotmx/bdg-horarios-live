@@ -66,11 +66,16 @@ export default async function handler(req, res) {
       };
     });
 
-    // Sort: critical first, then warning, then ok; within each group oldest first
+    // Sort: critical first → warning → ok
+    // Within each urgency group: TikTok first, then by days_waiting desc
     const urgOrder = { critical: 0, warning: 1, ok: 2 };
+    const isTikTok = (o) => (o.source || '').toLowerCase() === 'tiktok' ? 0 : 1;
     orders.sort((a, b) => {
       const ud = urgOrder[a.urgency] - urgOrder[b.urgency];
-      return ud !== 0 ? ud : b.days_waiting - a.days_waiting;
+      if (ud !== 0) return ud;
+      const td = isTikTok(a) - isTikTok(b);
+      if (td !== 0) return td;
+      return b.days_waiting - a.days_waiting;
     });
 
     const critical = orders.filter(o => o.urgency === "critical").length;

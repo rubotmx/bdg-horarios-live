@@ -285,9 +285,25 @@ a { color: inherit; text-decoration: none; }
   text-transform: uppercase;
 }
 .source-web     { color: var(--oxide); }
-.source-tiktok  { color: #FF3B5C; }
+.source-tiktok  { color: #FF3B5C; font-weight: 700; }
 .source-draft   { color: var(--yellow); }
 .source-other   { color: var(--muted); }
+
+/* TikTok card highlight */
+.order-card.tiktok-priority {
+  border-left-color: #FF3B5C !important;
+  background: linear-gradient(90deg, rgba(255,59,92,0.04) 0%, var(--bg2) 60%);
+}
+.tiktok-flag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #FF3B5C;
+  background: rgba(255,59,92,0.12);
+  padding: 1px 5px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
 
 /* ── Empty state ─────────────────────────────────────────────────────────── */
 .empty-state {
@@ -497,6 +513,10 @@ function renderOrders(orders) {
   el.innerHTML = html;
 }
 
+function isTikTok(o) {
+  return (o.source || '').toLowerCase() === 'tiktok';
+}
+
 function orderCard(o) {
   const SHOW = 3; // items to show before collapse
   const hasMore = o.items.length > SHOW;
@@ -512,11 +532,13 @@ function orderCard(o) {
 
   const hiddenId = `hidden-${o.id}`;
   const btnId    = `btn-${o.id}`;
+  const ttClass  = isTikTok(o) ? ' tiktok-priority' : '';
 
   return `
-    <div class="order-card ${o.urgency}">
+    <div class="order-card ${o.urgency}${ttClass}">
       <div class="order-header">
         <span class="order-badge ${o.urgency}">${daysLabel(o.days_waiting)}</span>
+        ${isTikTok(o) ? '<span class="tiktok-flag">TIKTOK</span>' : ''}
         <span class="order-num">#${o.order_number}</span>
         <span class="order-date">· ${fmtDate(o.created_at)}</span>
         <a class="order-shopify-link" href="${o.shopify_url}" target="_blank" rel="noopener">
