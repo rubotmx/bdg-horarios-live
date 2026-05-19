@@ -2859,11 +2859,11 @@ function _drawCalendarCanvas(logoImg){
   const SCALE = 2;
   const M     = 28;    // margen exterior
   const TW    = 68;    // columna de horas
-  const CW    = 108;   // ancho de cada día
+  const CW    = 124;   // ancho de cada día (más espacio para nombres)
   const TOPB  = 42;    // topbar marca
   const TITL  = 58;    // título + fecha
   const HDR   = 82;    // cabecera de días
-  const RH    = 50;    // altura por fila horaria
+  const RH    = 78;    // altura por fila horaria (incluye nombres)
   const FOOT  = 60;    // footer stats
   const IW    = TW + CW * 7;            // ancho interior
   const IH    = TOPB + TITL + HDR + RH * DEFAULT_TIMES.length + FOOT; // alto interior
@@ -2999,13 +2999,95 @@ function _drawCalendarCanvas(logoImg){
         c.fillRect(x, y, CW, RH);
         c.fillStyle = GOLD;
         c.fillRect(x, y, 3, RH);
+
+        // Header: ● LIVE + rango horario
         c.fillStyle = GOLD;
         c.font = `700 8px 'Archivo Narrow', Arial`;
         c.textAlign = "center";
-        c.fillText("● LIVE", x + CW/2 + 1, y + RH/2 - 5);
+        c.fillText("● LIVE", x + CW/2 + 1, y + 14);
         c.fillStyle = "rgba(255,255,255,0.75)";
-        c.font = `400 10px 'Archivo Narrow', Arial`;
-        c.fillText(`${time} – ${slot.timeEnd}`, x + CW/2 + 1, y + RH/2 + 10);
+        c.font = `400 9px 'Archivo Narrow', Arial`;
+        c.fillText(`${time} – ${slot.timeEnd}`, x + CW/2 + 1, y + 26);
+
+        // Línea divisora suave
+        c.strokeStyle = "rgba(255,255,255,0.1)";
+        c.lineWidth = 0.5;
+        c.beginPath();
+        c.moveTo(x + 8, y + 32);
+        c.lineTo(x + CW - 6, y + 32);
+        c.stroke();
+
+        // Hosts y backends asignados (todos los tipos de live)
+        const slotPicks = (STATE.picks || []).filter(p =>
+          p.slotId === slot.id && p.status !== "cancelled"
+        );
+        const anfis = slotPicks.filter(p => memberRole(p.memberCode) === "anfitriona");
+        const backs = slotPicks.filter(p => memberRole(p.memberCode) === "backend");
+
+        // Helper: nombre corto (primer nombre + inicial de apellido si cabe)
+        const shortName = code => {
+          const full = memberName(code) || code;
+          const parts = full.trim().split(/\s+/);
+          if(parts.length === 1) return parts[0];
+          return parts[0] + " " + parts[1][0] + ".";
+        };
+        // Helper: icono del tipo (texto, no emoji — más confiable en canvas)
+        const typeMark = pick => {
+          const lt = pick.liveType || "fisico";
+          if(lt === "fisico")   return "F";
+          if(lt === "oficial")  return "O";
+          if(lt === "afiliado"){
+            const acc = pick.affiliateAccount || "childwild";
+            return acc === "miranda" ? "M" : "C";
+          }
+          return "";
+        };
+
+        c.textAlign = "left";
+        let lineY = y + 44;
+        const maxLines = 4; // máx personas a mostrar antes de "+N"
+        let drawn = 0;
+
+        // Anfitrionas (gold suave)
+        anfis.forEach(pick => {
+          if(drawn >= maxLines) return;
+          const mark = typeMark(pick);
+          c.fillStyle = GOLD;
+          c.font = `700 7px 'Archivo Narrow', Arial`;
+          c.fillText(`[${mark}]`, x + 6, lineY);
+          c.fillStyle = "rgba(255,255,255,0.95)";
+          c.font = `600 9px 'Archivo Narrow', Arial`;
+          c.fillText("H " + shortName(pick.memberCode), x + 22, lineY);
+          lineY += 11;
+          drawn++;
+        });
+        // Backends (gris claro)
+        backs.forEach(pick => {
+          if(drawn >= maxLines) return;
+          const mark = typeMark(pick);
+          c.fillStyle = "rgba(193,100,82,0.5)";
+          c.font = `700 7px 'Archivo Narrow', Arial`;
+          c.fillText(`[${mark}]`, x + 6, lineY);
+          c.fillStyle = "rgba(255,255,255,0.65)";
+          c.font = `400 9px 'Archivo Narrow', Arial`;
+          c.fillText("B " + shortName(pick.memberCode), x + 22, lineY);
+          lineY += 11;
+          drawn++;
+        });
+        // Si hay más personas que las que cupieron
+        const totalPeople = anfis.length + backs.length;
+        if(totalPeople > maxLines){
+          c.fillStyle = "rgba(255,255,255,0.4)";
+          c.font = `400 8px 'Archivo Narrow', Arial`;
+          c.fillText(`+${totalPeople - maxLines} más`, x + 6, lineY);
+        }
+        // Si está libre (sin hosts ni backends): indicador discreto
+        if(totalPeople === 0){
+          c.fillStyle = "rgba(255,255,255,0.3)";
+          c.font = `400 9px 'Archivo Narrow', Arial`;
+          c.textAlign = "center";
+          c.fillText("— libre —", x + CW/2 + 1, y + 56);
+        }
       }
       c.strokeStyle = LINE; c.lineWidth = 0.5;
       c.strokeRect(x, y, CW, RH);
@@ -3035,6 +3117,40 @@ function _drawCalendarCanvas(logoImg){
   c.fillStyle = GOLD;
   c.font = `900 22px 'Archivo Narrow', Arial`;
   c.fillText(totalHrsStr, s2x, footY + 46);
+
+  // Leyenda: H/B + tipos de live
+  const lgX = X(TW + 280);
+  c.fillStyle = "rgba(255,255,255,0.4)";
+  c.font = `700 8px 'Archivo Narrow', Arial`;
+  c.textAlign = "left";
+  c.fillText("LEYENDA", lgX, footY + 14);
+  c.fillStyle = "rgba(255,255,255,0.7)";
+  c.font = `400 8.5px 'Archivo Narrow', Arial`;
+  c.fillText("H = Host    B = Backend", lgX, footY + 28);
+  c.fillStyle = GOLD;
+  c.font = `700 8.5px 'Archivo Narrow', Arial`;
+  c.fillText("[F]", lgX, footY + 42);
+  c.fillStyle = "rgba(255,255,255,0.7)";
+  c.font = `400 8.5px 'Archivo Narrow', Arial`;
+  c.fillText("Físico  ", lgX + 16, footY + 42);
+  c.fillStyle = GOLD;
+  c.font = `700 8.5px 'Archivo Narrow', Arial`;
+  c.fillText("[O]", lgX + 50, footY + 42);
+  c.fillStyle = "rgba(255,255,255,0.7)";
+  c.font = `400 8.5px 'Archivo Narrow', Arial`;
+  c.fillText("Oficial  ", lgX + 66, footY + 42);
+  c.fillStyle = GOLD;
+  c.font = `700 8.5px 'Archivo Narrow', Arial`;
+  c.fillText("[M]", lgX + 102, footY + 42);
+  c.fillStyle = "rgba(255,255,255,0.7)";
+  c.font = `400 8.5px 'Archivo Narrow', Arial`;
+  c.fillText("Miranda  ", lgX + 118, footY + 42);
+  c.fillStyle = GOLD;
+  c.font = `700 8.5px 'Archivo Narrow', Arial`;
+  c.fillText("[C]", lgX + 158, footY + 42);
+  c.fillStyle = "rgba(255,255,255,0.7)";
+  c.font = `400 8.5px 'Archivo Narrow', Arial`;
+  c.fillText("ChildWild", lgX + 174, footY + 42);
 
   c.fillStyle = "rgba(255,255,255,0.1)";
   c.font = `700 12px 'Archivo Narrow', Arial`;
