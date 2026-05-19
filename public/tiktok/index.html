@@ -466,6 +466,36 @@ td{padding:10px 14px;vertical-align:middle;}
 .cancel-breakdown{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
 .cancel-pill{font-size:9px;padding:2px 7px;border-radius:2px;background:var(--surface3);color:var(--text2);}
 
+/* ── PICK TYPE MODAL (selector de tipo de live) ── */
+.pick-type-opt{
+  display:flex;align-items:center;gap:14px;padding:14px;border:1px solid var(--line);
+  background:var(--surface);cursor:pointer;font-family:inherit;font-size:13px;
+  transition:all .14s;text-align:left;width:100%;
+}
+.pick-type-opt:hover:not(:disabled){border-color:var(--terra);background:var(--surface2);}
+.pick-type-opt.selected{border-color:var(--terra);background:rgba(184,67,42,.06);}
+.pick-type-opt:disabled{opacity:.4;cursor:not-allowed;}
+.pt-icon{font-size:20px;flex-shrink:0;}
+.pt-body{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0;}
+.pt-title{font-weight:700;color:var(--text);}
+.pt-desc{font-size:11px;color:var(--muted);letter-spacing:.02em;}
+.affiliate-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--line);cursor:pointer;font-size:13px;}
+.affiliate-opt:hover:not(.disabled){background:var(--surface2);}
+.affiliate-opt.disabled{opacity:.4;cursor:not-allowed;}
+.affiliate-opt input{accent-color:var(--terra);width:16px;height:16px;}
+
+/* Account badges (usado en cards de slots y reportes) */
+.account-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;
+  padding:2px 6px;border-radius:3px;letter-spacing:.06em;text-transform:uppercase;}
+.account-badge.fisico   {background:rgba(91,156,246,.15); color:#5b9cf6;}
+.account-badge.oficial  {background:rgba(62,207,142,.15); color:#3ECF8E;}
+.account-badge.miranda  {background:rgba(245,197,24,.15); color:#f5c518;}
+.account-badge.childwild{background:rgba(167,139,250,.15);color:#a78bfa;}
+
+/* Report multi-pick blocks */
+.report-pick-block{border:1px solid var(--line);padding:12px;margin-bottom:10px;border-radius:var(--btn-radius);}
+.report-pick-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+
 /* ── MINI BAR CHART RANKING ── */
 .mini-chart{display:flex;align-items:flex-end;gap:4px;height:32px;margin:10px auto 0;justify-content:center;}
 .mini-bar-col{display:flex;flex-direction:column;align-items:center;gap:2px;}
@@ -622,6 +652,46 @@ td{padding:10px 14px;vertical-align:middle;}
 </div>
 
 <!-- ── CANCEL REASON MODAL ── -->
+<!-- ── PICK TYPE MODAL (elegir tipo de live al reclamar) ── -->
+<div class="modal-overlay" id="pickTypeModal" style="display:none;">
+  <div class="modal" style="max-width:400px;">
+    <h2>Tipo de live</h2>
+    <p class="modal-sub" id="pickTypeSub">Elige cómo vas a transmitir esta sesión</p>
+    <div style="margin:14px 0;display:flex;flex-direction:column;gap:8px;">
+      <button class="pick-type-opt" data-type="fisico"   onclick="pickTypeChoose('fisico')">
+        <span class="pt-icon">🏢</span>
+        <span class="pt-body">
+          <span class="pt-title">Físico (estudio BDG)</span>
+          <span class="pt-desc">@baladigala · L-V 8:30-17:30</span>
+        </span>
+      </button>
+      <button class="pick-type-opt" data-type="oficial"  onclick="pickTypeChoose('oficial')">
+        <span class="pt-icon">📺</span>
+        <span class="pt-body">
+          <span class="pt-title">A distancia oficial</span>
+          <span class="pt-desc">@baladigala · desde casa</span>
+        </span>
+      </button>
+      <button class="pick-type-opt" data-type="afiliado" onclick="pickTypeChoose('afiliado')">
+        <span class="pt-icon">🤝</span>
+        <span class="pt-body">
+          <span class="pt-title">A distancia afiliado</span>
+          <span class="pt-desc">Cuenta externa</span>
+        </span>
+      </button>
+    </div>
+    <div id="affiliateSelector" style="display:none;margin-top:8px;">
+      <label style="font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;">Cuenta afiliada</label>
+      <div id="affiliateOptions" style="display:flex;flex-direction:column;gap:6px;margin-top:6px;"></div>
+    </div>
+    <div class="modal-err" id="pickTypeErr" style="display:none;"></div>
+    <div class="modal-actions" style="margin-top:14px;">
+      <button class="btn ghost" onclick="closeModal('pickTypeModal')">Cancelar</button>
+      <button class="btn accent" id="pickTypeConfirmBtn" onclick="pickTypeConfirm()" disabled>Confirmar</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="cancelReasonModal" style="display:none;">
   <div class="modal" style="max-width:360px;">
     <h2>¿Por qué cancelas?</h2>
@@ -795,6 +865,79 @@ const DEFAULT_TIMES = ["08:30","10:00","11:30","13:00","14:30","16:00","17:30","
 const MAX_BACKEND  = 3;   // sesiones máx por DÍA para backend
 const SESSION_MINS = 90;  // duración fija en minutos
 
+// ── TIPOS DE LIVE ─────────────────────────────────────────────────────────────
+// 3 tipos: físico (estudio BDG, @baladigala, L-V 8:30-17:30),
+//          oficial (host desde casa, @baladigala),
+//          afiliado (cuenta externa: Miranda Romero o child wild bala)
+const LIVE_TYPES = {
+  fisico:   { label: "Físico",               icon: "🏢", account: "baladigala", studioOnly: true,  desc: "Estudio BDG · @baladigala" },
+  oficial:  { label: "A distancia oficial",  icon: "📺", account: "baladigala", studioOnly: false, desc: "Casa del host · @baladigala" },
+  afiliado: { label: "A distancia afiliado", icon: "🤝", account: null,         studioOnly: false, desc: "Cuenta externa · seleccionar" },
+};
+const AFFILIATE_ACCOUNTS = {
+  miranda:   { label: "Miranda Romero"   },
+  childwild: { label: "child wild bala"  },
+};
+const STUDIO_DAYS_OF_WEEK = [1,2,3,4,5];   // Lun..Vie (JS getDay: 0=Dom)
+const STUDIO_OPEN_MIN     = 8*60 + 30;     // 08:30
+const STUDIO_CLOSE_MIN    = 17*60 + 30;    // 17:30
+
+// Devuelve true si un slot acepta tipo "físico" (L-V 8:30-17:30)
+function slotAllowsFisico(slot){
+  if(!slot || !slot.date || !slot.timeStart || !slot.timeEnd) return false;
+  const [y,m,d] = slot.date.split("-").map(Number);
+  const dow = new Date(y, m-1, d).getDay();
+  if(!STUDIO_DAYS_OF_WEEK.includes(dow)) return false;
+  const [sh,sm] = slot.timeStart.split(":").map(Number);
+  const [eh,em] = slot.timeEnd.split(":").map(Number);
+  return (sh*60+sm) >= STUDIO_OPEN_MIN && (eh*60+em) <= STUDIO_CLOSE_MIN;
+}
+
+// Devuelve la cuenta de TikTok asociada a un pick. Picks legacy sin liveType = "baladigala".
+function pickAccount(pick){
+  if(!pick || !pick.liveType) return "baladigala";
+  if(pick.liveType === "fisico" || pick.liveType === "oficial") return "baladigala";
+  if(pick.liveType === "afiliado") return pick.affiliateAccount || "childwild";
+  return "baladigala";
+}
+
+// Agrupa picks activos de un slot por cuenta. Permite hasta 3 cuentas simultáneas.
+// { baladigala: {anfi, back}, miranda: {anfi, back}, childwild: {anfi, back} }
+function picksByAccount(slotId){
+  const out = {
+    baladigala: { anfi:null, back:null },
+    miranda:    { anfi:null, back:null },
+    childwild:  { anfi:null, back:null },
+  };
+  (STATE.picks || []).filter(p => p.slotId === slotId && p.status !== "cancelled").forEach(p => {
+    const acc  = pickAccount(p);
+    const role = memberRole(p.memberCode);
+    if(!out[acc]) return;
+    if(role === "anfitriona" && !out[acc].anfi) out[acc].anfi = p;
+    else if(role === "backend" && !out[acc].back) out[acc].back = p;
+  });
+  return out;
+}
+
+// Cuentas afiliadas que un miembro puede usar. Default: solo "childwild" (la genérica).
+function getMemberAffiliateAccounts(code){
+  const m = (STATE.members || []).find(mb => mb.code === code);
+  if(!m) return ["childwild"];
+  return (Array.isArray(m.affiliateAccounts) && m.affiliateAccounts.length)
+    ? m.affiliateAccounts.slice()
+    : ["childwild"];
+}
+
+// Migración lazy: pone liveType="fisico" a picks viejos. NO escribe a Firebase aquí.
+// El nuevo valor se persiste la próxima vez que el flujo natural haga save()/_savePicksOnly().
+function _migratePicks(){
+  let changed = false;
+  (STATE.picks || []).forEach(p => {
+    if(p && !p.liveType){ p.liveType = "fisico"; changed = true; }
+  });
+  return changed;
+}
+
 // ── ESTADO ────────────────────────────────────────────────────────────────────
 let STATE = {
   members:   [],  // { code, name, role }
@@ -922,6 +1065,7 @@ function _applyRemote(remote){
     if(STATE.members.length === 0) return;
   }
   migrateSlotDays();
+  _migratePicks(); // lazy: marca picks viejos como liveType="fisico" (en memoria)
   localStorage.setItem("bdg_horarios_v2", JSON.stringify(STATE));
   if(document.getElementById("app").style.display !== "none"){
     if(SESSION.role === "admin") renderAdmin(currentAdminTab);
@@ -1091,6 +1235,7 @@ function load(){
     }
   });
   migrateSlotDays();
+  _migratePicks(); // lazy: marca picks viejos sin liveType como "fisico"
   initFirebase();
 }
 
@@ -2036,14 +2181,166 @@ function memberName(code){ const m=STATE.members.find(mb=>mb.code===code); retur
 function selectSlot(slotId){
   if(STATE.picks.find(p=>p.slotId===slotId&&p.memberCode===SESSION.code&&p.status!=="cancelled")) return;
   const slot  = STATE.slots.find(s=>s.id===slotId);
+  if(!slot) return;
   const limit = memberLimit(SESSION.role);
   const count = dayPickCount(SESSION.code, slot.date);
   if(count >= limit){ showAlert(`Ya tienes ${limit} sesion${limit!==1?"es":""} ese día (límite diario).`); return; }
-  // Backend se confirma automático; anfitrionas siguen con flujo de confirmación manual
+  // NUEVO: abrir modal para que el host elija el tipo de live (físico / oficial / afiliado)
+  openPickTypeModal(slotId);
+}
+
+// ── PICK TYPE MODAL — flujo del host al reclamar ──────────────────────────────
+let _pendingPickSlotId = null;
+let _pendingPickType   = null;
+let _pendingAffiliate  = null;
+
+function openPickTypeModal(slotId){
+  _pendingPickSlotId = slotId;
+  _pendingPickType   = null;
+  _pendingAffiliate  = null;
+  const slot = STATE.slots.find(s => s.id === slotId);
+  if(!slot) return;
+
+  // Reset UI
+  document.querySelectorAll(".pick-type-opt").forEach(b => b.classList.remove("selected"));
+  document.getElementById("affiliateSelector").style.display = "none";
+  document.getElementById("pickTypeConfirmBtn").disabled = true;
+  document.getElementById("pickTypeErr").style.display = "none";
+
+  // Calcular qué cuentas ya están tomadas en este slot (mismo rol)
+  const myRole = SESSION.role;
+  const takenAccounts = new Set(
+    (STATE.picks || [])
+      .filter(p => p.slotId === slotId && p.status !== "cancelled" && memberRole(p.memberCode) === myRole)
+      .map(p => pickAccount(p))
+  );
+
+  // Habilitar/deshabilitar cada opción
+  const fisicoBtn   = document.querySelector('.pick-type-opt[data-type="fisico"]');
+  const oficialBtn  = document.querySelector('.pick-type-opt[data-type="oficial"]');
+  const afiliadoBtn = document.querySelector('.pick-type-opt[data-type="afiliado"]');
+
+  const baladigalaTomada = takenAccounts.has("baladigala");
+  const fisicoOK   = slotAllowsFisico(slot) && !baladigalaTomada;
+  const oficialOK  = !baladigalaTomada;
+  const myAffiliates = getMemberAffiliateAccounts(SESSION.code);
+  const afiliadoOK = myAffiliates.some(acc => !takenAccounts.has(acc));
+
+  fisicoBtn.disabled = !fisicoOK;
+  fisicoBtn.title    = !slotAllowsFisico(slot)
+    ? "Físico solo disponible Lun-Vie 8:30-17:30"
+    : baladigalaTomada ? "@baladigala ya tomada en este slot" : "";
+  oficialBtn.disabled = !oficialOK;
+  oficialBtn.title    = !oficialOK ? "@baladigala ya tomada en este slot" : "";
+  afiliadoBtn.disabled = !afiliadoOK;
+  afiliadoBtn.title    = !afiliadoOK ? "No tienes cuentas afiliadas disponibles o todas están ocupadas" : "";
+
+  document.getElementById("pickTypeModal").style.display = "flex";
+}
+
+function pickTypeChoose(type){
+  // Toggle visual
+  document.querySelectorAll(".pick-type-opt").forEach(b =>
+    b.classList.toggle("selected", b.dataset.type === type)
+  );
+  _pendingPickType  = type;
+  _pendingAffiliate = null;
+
+  if(type === "afiliado"){
+    // Mostrar opciones de cuenta afiliada filtradas por permiso y disponibilidad
+    const slotId = _pendingPickSlotId;
+    const myRole = SESSION.role;
+    const takenAccounts = new Set(
+      (STATE.picks || [])
+        .filter(p => p.slotId === slotId && p.status !== "cancelled" && memberRole(p.memberCode) === myRole)
+        .map(p => pickAccount(p))
+    );
+    const myAffiliates = getMemberAffiliateAccounts(SESSION.code);
+    const opts = document.getElementById("affiliateOptions");
+    opts.innerHTML = myAffiliates.map(acc => {
+      const taken = takenAccounts.has(acc);
+      const label = AFFILIATE_ACCOUNTS[acc] ? AFFILIATE_ACCOUNTS[acc].label : acc;
+      return `<label class="affiliate-opt ${taken?'disabled':''}">
+        <input type="radio" name="affAcc" value="${acc}" ${taken?'disabled':''}
+          onchange="_pendingAffiliate='${acc}'; document.getElementById('pickTypeConfirmBtn').disabled=false;"/>
+        <span>${label}${taken?' (ocupada)':''}</span>
+      </label>`;
+    }).join("");
+    document.getElementById("affiliateSelector").style.display = "block";
+    document.getElementById("pickTypeConfirmBtn").disabled = true; // espera elegir cuenta
+  } else {
+    document.getElementById("affiliateSelector").style.display = "none";
+    document.getElementById("pickTypeConfirmBtn").disabled = false;
+  }
+}
+
+function pickTypeConfirm(){
+  const slotId = _pendingPickSlotId;
+  const type   = _pendingPickType;
+  const acc    = _pendingAffiliate;
+  if(!type) return;
+  if(type === "afiliado" && !acc) return;
+
+  // Validar contra el estado actual (defensa en profundidad además de las pre-checks UI)
+  const err = validatePickAccount(slotId, type, acc, SESSION.code);
+  if(err){
+    const errEl = document.getElementById("pickTypeErr");
+    errEl.style.display = "block";
+    errEl.textContent = err;
+    return;
+  }
+
+  closeModal("pickTypeModal");
+  _completePick(slotId, type, acc);
+}
+
+// Crea el pick localmente y lo guarda solo en /picks (no toca slots/members)
+function _completePick(slotId, liveType, affiliateAccount){
+  const slot = STATE.slots.find(s => s.id === slotId);
+  if(!slot) return;
   const autoStatus = SESSION.role === "backend" ? "confirmed" : "pending";
-  STATE.picks.push({ slotId, memberCode:SESSION.code, status:autoStatus, notes:"" });
-  // Guardar SOLO picks: no toca slots/members/etc → admins pueden editar en paralelo sin clobber
-  _savePicksOnly(); renderMember(); renderPublicCal();
+  const newPick = {
+    slotId,
+    memberCode: SESSION.code,
+    status: autoStatus,
+    notes: "",
+    liveType,
+  };
+  if(liveType === "afiliado" && affiliateAccount) newPick.affiliateAccount = affiliateAccount;
+  STATE.picks.push(newPick);
+  _savePicksOnly();
+  renderMember();
+  renderPublicCal();
+}
+
+// Validador de pick (cuenta libre + permisos + horario físico)
+function validatePickAccount(slotId, liveType, affiliateAccount, memberCode){
+  const slot = STATE.slots.find(s => s.id === slotId);
+  if(!slot) return "Slot no existe.";
+  if(liveType === "fisico" && !slotAllowsFisico(slot)){
+    return "Físico solo Lun-Vie 8:30-17:30. Este slot está fuera de ese rango.";
+  }
+  const acc = liveType === "afiliado" ? (affiliateAccount || "childwild") : "baladigala";
+  const myRole = memberRole(memberCode);
+  const taken = (STATE.picks || []).find(p =>
+    p.slotId === slotId &&
+    p.status !== "cancelled" &&
+    pickAccount(p) === acc &&
+    memberRole(p.memberCode) === myRole &&
+    p.memberCode !== memberCode
+  );
+  if(taken){
+    const accLabel = acc === "baladigala" ? "@baladigala" : (AFFILIATE_ACCOUNTS[acc] ? AFFILIATE_ACCOUNTS[acc].label : acc);
+    return `${accLabel} ya está tomada en este slot por otra ${myRole === "backend" ? "persona de backend" : "anfitriona"}.`;
+  }
+  if(liveType === "afiliado"){
+    const allowed = getMemberAffiliateAccounts(memberCode);
+    if(!allowed.includes(affiliateAccount)){
+      const label = AFFILIATE_ACCOUNTS[affiliateAccount] ? AFFILIATE_ACCOUNTS[affiliateAccount].label : affiliateAccount;
+      return `No tienes permiso para usar ${label}.`;
+    }
+  }
+  return null;
 }
 
 let _pendingCancelSlotId = null;
