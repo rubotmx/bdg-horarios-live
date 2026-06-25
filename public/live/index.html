@@ -231,6 +231,34 @@ body{display:flex;flex-direction:column;}
 .ads-uncfg-txt{font-size:9px;color:var(--muted);line-height:1.7;}
 .ads-uncfg-txt code{font-size:8px;background:rgba(255,255,255,.07);padding:1px 5px;color:var(--sub);}
 
+/* ── ALERTAS ─────────────────────────────────────────────── */
+.ads-alerts{padding:6px 8px;display:flex;flex-direction:column;gap:3px;border-bottom:1px solid var(--line);}
+.alert-pill{display:flex;align-items:flex-start;gap:6px;padding:5px 8px;border-radius:3px;font-size:9px;line-height:1.4;}
+.alert-pill.red{background:rgba(242,107,107,.1);border:1px solid rgba(242,107,107,.25);color:var(--red);}
+.alert-pill.yellow{background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.2);color:var(--yellow);}
+.alert-ico{flex-shrink:0;font-size:10px;margin-top:1px;}
+
+/* ── CAMPAÑAS ────────────────────────────────────────────── */
+.camp-section{border-bottom:1px solid var(--line);}
+.camp-hdr{padding:8px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.camp-hdr-lbl{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;}
+.camp-toggle{font-size:8px;color:var(--muted);}
+.camp-list{padding:0 8px 6px;}
+.camp-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:3px;transition:background .1s;}
+.camp-row:hover{background:rgba(255,255,255,.03);}
+.camp-name{flex:1;min-width:0;font-size:9px;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.camp-kpis{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.camp-kpi{font-size:9px;font-weight:700;text-align:right;}
+.camp-kpi span{font-size:7px;font-weight:400;color:var(--muted);display:block;}
+.camp-pace-wrap{width:48px;height:4px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;flex-shrink:0;}
+.camp-pace-fill{height:100%;border-radius:2px;transition:width .6s ease;}
+
+/* ── FREQUENCY BADGE ─────────────────────────────────────── */
+.freq-badge{font-size:7px;font-weight:700;padding:1px 5px;border-radius:2px;flex-shrink:0;}
+.freq-badge.ok{color:var(--green);background:var(--green-dim);}
+.freq-badge.warn{color:var(--yellow);background:var(--yellow-dim);}
+.freq-badge.hot{color:var(--red);background:var(--red-dim);}
+
 /* ── TICKER ──────────────────────────────────────────────── */
 .ticker-strip{display:none;height:30px;border-top:1px solid var(--line);align-items:center;overflow:hidden;flex-shrink:0;background:rgba(255,255,255,.012);}
 .ticker-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:0 14px;flex-shrink:0;border-right:1px solid var(--line);height:100%;display:flex;align-items:center;font-weight:600;}
@@ -909,6 +937,8 @@ function renderTicker(orders) {
 }
 
 // ── Ads ────────────────────────────────────────────────────
+const CPM_BENCH = 67;
+
 function renderAds(meta, isToday) {
   const inner = document.getElementById('adsInner');
   const metaEl = document.getElementById('adsMeta');
@@ -922,14 +952,17 @@ function renderAds(meta, isToday) {
     return;
   }
 
-  const ads = meta.active_ads || [];
-  metaEl.textContent = ads.length ? `${ads.length} activos` : '';
+  const ads       = meta.active_ads  || [];
+  const campaigns = meta.campaigns   || [];
+  const anomalies = meta.anomalies   || [];
+  metaEl.textContent = ads.length ? `${ads.length} ads · ${campaigns.length} camps` : '';
 
   const totalSpend = meta.spend || 0;
   const totalPurch = meta.purchases || 0;
   const roasShop   = totalSpend > 0 && _lastGmv ? _lastGmv / totalSpend : null;
   const roasC = roasShop === null ? 'var(--sub)' : roasShop>=5?'var(--green)':roasShop>=2.5?'var(--yellow)':'var(--red)';
 
+  // ── Summary strip
   const strip = `<div class="ads-strip">
     <div class="ads-strip-cell">
       <div class="ads-strip-val" style="color:var(--yellow)">${totalSpend>0?MXN(totalSpend):'—'}</div>
@@ -937,16 +970,56 @@ function renderAds(meta, isToday) {
     </div>
     <div class="ads-strip-cell">
       <div class="ads-strip-val" style="color:${roasC}">${roasShop!==null?roasShop.toFixed(1)+'×':'—'}</div>
-      <div class="ads-strip-lbl">ROAS real</div>
+      <div class="ads-strip-lbl">ROAS caja</div>
     </div>
     <div class="ads-strip-cell">
-      <div class="ads-strip-val">${totalPurch>0?totalPurch:'—'}</div>
-      <div class="ads-strip-lbl">Compras</div>
+      <div class="ads-strip-val">${meta.ctr>0?meta.ctr.toFixed(2)+'%':'—'}</div>
+      <div class="ads-strip-lbl">CTR cta.</div>
     </div>
   </div>`;
 
+  // ── Alertas
+  const alertsHtml = anomalies.length ? `<div class="ads-alerts">
+    ${anomalies.map(a => `<div class="alert-pill ${a.level}">
+      <div class="alert-ico">${a.level==='red'?'🔴':'🟡'}</div>
+      <div>${a.msg}</div>
+    </div>`).join('')}
+  </div>` : '';
+
+  // ── Campañas (colapsable)
+  let campHtml = '';
+  if (campaigns.length) {
+    const rows = campaigns.map(c => {
+      const pct     = c.pacing !== null ? Math.min(c.pacing, 1) : 0;
+      const expPct  = c.pacing_expected || 0;
+      const behind  = c.pacing !== null && c.pacing < expPct * 0.5;
+      const over    = c.pacing !== null && c.pacing > 1.02;
+      const pClr    = over ? 'var(--red)' : behind ? 'var(--yellow)' : 'var(--green)';
+      const cpmClr  = c.cpm > CPM_BENCH * 1.8 ? 'var(--red)' : c.cpm > CPM_BENCH * 1.3 ? 'var(--yellow)' : 'var(--sub)';
+      const budgetTxt = c.budget > 0 ? `${Math.round(pct*100)}% de ${MXN(c.budget)}` : 'sin budget';
+      return `<div class="camp-row" title="${budgetTxt}">
+        <div class="camp-name">${c.name}</div>
+        <div class="camp-kpis">
+          <div class="camp-kpi" style="color:${cpmClr}">$${Math.round(c.cpm)}<span>CPM</span></div>
+          <div class="camp-kpi" style="color:var(--muted)">${c.ctr>0?c.ctr.toFixed(2)+'%':'—'}<span>CTR</span></div>
+          <div class="camp-kpi" style="color:var(--yellow)">${MXN(c.spend)}<span>gasto</span></div>
+          <div class="camp-pace-wrap" title="${budgetTxt}">
+            <div class="camp-pace-fill" style="width:${(pct*100).toFixed(1)}%;background:${pClr};"></div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    campHtml = `<div class="camp-section">
+      <div class="camp-hdr" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none';this.querySelector('.camp-toggle').textContent=this.nextElementSibling.style.display===''?'▲':'▼'">
+        <div class="camp-hdr-lbl">Campañas · ${campaigns.length}</div>
+        <div class="camp-toggle">▼</div>
+      </div>
+      <div class="camp-list">${rows}</div>
+    </div>`;
+  }
+
   if (!ads.length) {
-    inner.innerHTML = strip + `<div class="ads-empty">Sin anuncios activos</div>`;
+    inner.innerHTML = strip + alertsHtml + campHtml + `<div class="ads-empty">Sin anuncios activos</div>`;
     return;
   }
 
@@ -955,20 +1028,27 @@ function renderAds(meta, isToday) {
   const maxSpend    = Math.max(1, ...withData.map(a => a.insights.spend));
 
   const rows = withData.slice(0, 5).map((ad, i) => {
-    const ins    = ad.insights;
-    const roas   = ins.revenue > 0 ? ins.revenue / ins.spend : null;
-    const rClr   = roas===null?'var(--muted)':roas>=5?'var(--green)':roas>=2.5?'var(--yellow)':'var(--red)';
-    const spPct  = Math.round(ins.spend / maxSpend * 100);
-    const rank   = i < 3 ? ['🥇','🥈','🥉'][i] : `#${i+1}`;
-    const bg     = ad.thumbnail ? `background-image:url('${ad.thumbnail}')` : '';
+    const ins   = ad.insights;
+    const roas  = ins.revenue > 0 ? ins.revenue / ins.spend : null;
+    const rClr  = roas===null?'var(--muted)':roas>=5?'var(--green)':roas>=2.5?'var(--yellow)':'var(--red)';
+    const spPct = Math.round(ins.spend / maxSpend * 100);
+    const rank  = i < 3 ? ['🥇','🥈','🥉'][i] : `#${i+1}`;
+    const bg    = ad.thumbnail ? `background-image:url('${ad.thumbnail}')` : '';
+    const freq  = ins.frequency || 0;
+    const freqCls = freq >= 2.5 ? 'hot' : freq >= 1.8 ? 'warn' : 'ok';
+    const freqTxt = freq > 0 ? `freq ${freq.toFixed(1)}` : '';
     return `<div class="ad-row">
       <div class="ad-thumb" style="${bg}"></div>
       <div class="ad-body">
-        <div class="ad-name">${rank} ${ad.name}</div>
+        <div class="ad-name" style="display:flex;align-items:center;gap:5px;">
+          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;">${rank} ${ad.name}</span>
+          ${freqTxt ? `<span class="freq-badge ${freqCls}">${freqTxt}</span>` : ''}
+        </div>
         <div class="ad-stats">
           <div class="ad-stat" style="color:var(--yellow)">${MXN(ins.spend)}<span>gasto</span></div>
           <div class="ad-sep"></div>
           <div class="ad-stat" style="color:${rClr}">${roas!==null?roas.toFixed(1)+'×':'—'}<span>ROAS</span></div>
+          ${ins.cpc>0?`<div class="ad-sep"></div><div class="ad-stat" style="color:var(--sub)">${MXN(ins.cpc)}<span>CPC</span></div>`:''}
           ${ins.purchases>0?`<div class="ad-sep"></div><div class="ad-stat" style="color:var(--green)">${ins.purchases}<span>comp.</span></div>`:''}
         </div>
         <div class="ad-bar"><div class="ad-bar-fill" style="width:${spPct}%;background:${rClr};"></div></div>
@@ -987,7 +1067,7 @@ function renderAds(meta, isToday) {
       }).join('')
     : '';
 
-  inner.innerHTML = strip + `<div class="ads-list">${rows}${noData}</div>`;
+  inner.innerHTML = strip + alertsHtml + campHtml + `<div class="ads-list">${rows}${noData}</div>`;
 }
 
 // ── Boot ───────────────────────────────────────────────────

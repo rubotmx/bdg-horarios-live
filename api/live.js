@@ -224,8 +224,13 @@ async function fetchMetaToday() {
   const META_TOKEN = process.env.META_TOKEN;
   if (!META_TOKEN || !META_ACCOUNT) return { configured: false };
   try {
-    const [insights, ads] = await Promise.all([fetchMetaInsights(META_TOKEN), fetchActiveAds(META_TOKEN)]);
-    return { configured: true, ...insights, active_ads: ads };
+    const [insights, ads, campaigns] = await Promise.all([
+      fetchMetaInsights(META_TOKEN),
+      fetchActiveAds(META_TOKEN),
+      fetchCampaignData(META_TOKEN),
+    ]);
+    const anomalies = detectAnomalies(campaigns, ads);
+    return { configured: true, ...insights, active_ads: ads, campaigns, anomalies };
   } catch (e) {
     return { configured: true, error: e.message };
   }
@@ -263,7 +268,7 @@ async function fetchActiveAds(token) {
     const adsUrl      = `https://graph.facebook.com/v19.0/${META_ACCOUNT}/ads`
       + `?fields=${encodeURIComponent(fields)}&effective_status=["ACTIVE"]&limit=50`;
     const insUrl      = `https://graph.facebook.com/v19.0/${META_ACCOUNT}/insights`
-      + `?fields=ad_id,spend,impressions,clicks,actions,action_values`
+      + `?fields=ad_id,spend,impressions,clicks,cpm,ctr,cpc,frequency,actions,action_values`
       + `&date_preset=today&level=ad&limit=100`;
 
     const [adsRes, insRes] = await Promise.all([
@@ -285,6 +290,10 @@ async function fetchActiveAds(token) {
           spend:       parseFloat(ins.spend       || 0),
           impressions: parseInt(ins.impressions   || 0),
           clicks:      parseInt(ins.clicks        || 0),
+          cpm:         parseFloat(ins.cpm         || 0),
+          ctr:         parseFloat(ins.ctr         || 0),
+          cpc:         parseFloat(ins.cpc         || 0),
+          frequency:   parseFloat(ins.frequency   || 0),
           purchases:   purchases ? parseInt(purchases.value)  : 0,
           revenue:     revenue   ? parseFloat(revenue.value)  : 0,
         };
@@ -315,4 +324,98 @@ async function fetchActiveAds(token) {
   } catch (e) {
     return [];
   }
+}
+
+// ── Campañas con pacing ───────────────────────────────────────────────────────
+const CPM_BENCHMARK = 67; // MXN referencia BDG 2026
+
+async function fetchCampaignData(token) {
+  try {
+    const campUrl = `https://graph.facebook.com/v19.0/${META_ACCOUNT}/campaigns`
+      + `?fields=${encodeURIComponent("id,name,status,daily_budget,budget_remaining")}`
+      + `&effective_status=["ACTIVE"]&limit=50`;
+    const insUrl  = `https://graph.facebook.com/v19.0/${META_ACCOUNT}/insights`
+      + `?fields=campaign_id,campaign_name,spend,impressions,clicks,cpm,ctr,cpc,frequency,actions,action_values`
+      + `&date_preset=today&level=campaign&limit=100`;
+
+    const [campRes, insRes] = await Promise.all([
+      fetch(campUrl, { headers: { Authorization: `Bearer ${token}` } }),
+      fetch(insUrl,  { headers: { Authorization: `Bearer ${token}` } }),
+    ]);
+
+    const campData = await campRes.json();
+    if (campData.error || !campData.data) return [];
+
+    const insMap = {};
+    if (insRes.ok) {
+      const insData = await insRes.json();
+      for (const ins of (insData.data || [])) {
+        const purchases = (ins.actions       || []).find(a => a.action_type === "purchase");
+        const revenue   = (ins.action_values || []).find(a => a.action_type === "purchase");
+        insMap[ins.campaign_id] = {
+          spend:     parseFloat(ins.spend     || 0),
+          cpm:       parseFloat(ins.cpm       || 0),
+          ctr:       parseFloat(ins.ctr       || 0),
+          cpc:       parseFloat(ins.cpc       || 0),
+          frequency: parseFloat(ins.frequency || 0),
+          clicks:    parseInt(ins.clicks      || 0),
+          purchases: purchases ? parseInt(purchases.value)  : 0,
+          revenue:   revenue   ? parseFloat(revenue.value)  : 0,
+        };
+      }
+    }
+
+    // MX current hour for pacing expected
+    const nowH    = new Date().toLocaleString("en-US", { timeZone: "America/Mexico_City", hour: "2-digit", hour12: false });
+    const hourPct = Math.min(parseInt(nowH) / 24, 1);
+
+    return campData.data.map(c => {
+      const ins    = insMap[c.id] || {};
+      const budget = parseFloat(c.daily_budget || 0) / 100; // centavos → pesos
+      const spend  = ins.spend || 0;
+      const pacing = budget > 0 ? spend / budget : null;
+      const pacingExpected = budget > 0 ? hourPct : null;
+      return {
+        id:              c.id,
+        name:            c.name,
+        budget,
+        spend,
+        pacing,
+        pacing_expected: pacingExpected,
+        cpm:             ins.cpm       || 0,
+        ctr:             ins.ctr       || 0,
+        cpc:             ins.cpc       || 0,
+        frequency:       ins.frequency || 0,
+        clicks:          ins.clicks    || 0,
+        purchases:       ins.purchases || 0,
+        revenue:         ins.revenue   || 0,
+        cpm_vs_bench:    ins.cpm > 0 ? ins.cpm / CPM_BENCHMARK : null,
+      };
+    }).sort((a, b) => b.spend - a.spend);
+  } catch {
+    return [];
+  }
+}
+
+// ── Detección de anomalías ────────────────────────────────────────────────────
+function detectAnomalies(campaigns, ads) {
+  const alerts = [];
+  for (const c of campaigns) {
+    if (c.budget > 0 && c.spend > c.budget * 1.02) {
+      alerts.push({ level: "red", msg: `${c.name} — overspend ($${Math.round(c.spend - c.budget)} sobre budget)` });
+    }
+    if (c.pacing !== null && c.pacing_expected !== null && c.pacing_expected > 0.3 && c.spend < c.budget * 0.05) {
+      alerts.push({ level: "red", msg: `${c.name} — sin entregar ($${Math.round(c.spend)} de $${Math.round(c.budget)})` });
+    }
+    if (c.cpm > CPM_BENCHMARK * 1.8) {
+      alerts.push({ level: "yellow", msg: `${c.name} — CPM $${Math.round(c.cpm)} (×${(c.cpm / CPM_BENCHMARK).toFixed(1)} benchmark)` });
+    }
+  }
+  for (const ad of ads) {
+    const freq = ad.insights?.frequency || 0;
+    if (freq >= 2.5) {
+      alerts.push({ level: "yellow", msg: `Creative fatigado: ${ad.name.slice(0, 40)} — freq ${freq.toFixed(1)}` });
+    }
+  }
+  return alerts;
 }
